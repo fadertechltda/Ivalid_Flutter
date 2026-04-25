@@ -7,6 +7,9 @@ import '../providers/home_provider.dart';
 import '../../domain/models/product.dart';
 import '../../domain/models/category.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../cart/presentation/providers/cart_provider.dart';
+import '../../../cart/presentation/pages/cart_page.dart';
+import '../../../donation/presentation/pages/donation_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -108,12 +111,11 @@ class _HomePageState extends State<HomePage> {
     final userName = auth.currentUser?.displayName ?? 'Cliente';
     final firstName = userName.split(' ').first;
 
-    return ChangeNotifierProvider(
-      create: (_) => HomeProvider(),
-      child: Consumer<HomeProvider>(
-        builder: (context, provider, child) {
-          return Scaffold(
-            backgroundColor: AppColors.backgroundLight,
+    final homeProvider = context.watch<HomeProvider>();
+    final cartProvider = context.watch<CartProvider>();
+
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
             bottomNavigationBar: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -133,6 +135,14 @@ class _HomePageState extends State<HomePage> {
                 unselectedItemColor: Colors.grey,
                 selectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12),
                 unselectedLabelStyle: GoogleFonts.inter(fontSize: 12),
+                onTap: (index) {
+                  if (index == 1) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DonationPage()),
+                    );
+                  }
+                },
                 items: [
                   BottomNavigationBarItem(
                     icon: Container(
@@ -167,14 +177,14 @@ class _HomePageState extends State<HomePage> {
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: FloatingActionButton(
-                onPressed: () => _showSortMenu(context, provider),
+                onPressed: () => _showSortMenu(context, homeProvider),
                 backgroundColor: AppColors.redPrimary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: const Icon(Icons.sort, color: Colors.white),
               ),
             ),
             body: RefreshIndicator(
-              onRefresh: () => provider.loadFromFirestore(),
+              onRefresh: () => homeProvider.loadFromFirestore(),
               color: AppColors.redPrimary,
               child: CustomScrollView(
                 slivers: [
@@ -213,8 +223,34 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.onBackgroundLight),
-                            onPressed: () {},
+                            icon: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                const Icon(Icons.shopping_cart_outlined, color: AppColors.onBackgroundLight),
+                                if (cartProvider.count > 0)
+                                  Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.redPrimary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        '${cartProvider.count}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const CartPage()),
+                              );
+                            },
                           ),
                           IconButton(
                             icon: const Icon(Icons.notifications_outlined, color: AppColors.onBackgroundLight),
@@ -239,7 +275,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: TextField(
                               controller: _searchController,
-                              onChanged: provider.onQueryChange,
+                              onChanged: homeProvider.onQueryChange,
                               decoration: InputDecoration(
                                 hintText: 'Buscar produto, marca ou loja',
                                 hintStyle: GoogleFonts.inter(color: Colors.grey.shade600),
@@ -256,18 +292,18 @@ class _HomePageState extends State<HomePage> {
                             height: 40,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
-                              itemCount: provider.categories.length,
+                              itemCount: homeProvider.categories.length,
                               separatorBuilder: (_, __) => const SizedBox(width: 8),
                               itemBuilder: (context, index) {
-                                final cat = provider.categories[index];
-                                final isSelected = provider.selectedCategoryId == cat.id || 
-                                    (provider.selectedCategoryId == null && cat.id == 'all');
+                                final cat = homeProvider.categories[index];
+                                final isSelected = homeProvider.selectedCategoryId == cat.id || 
+                                    (homeProvider.selectedCategoryId == null && cat.id == 'all');
                                 
                                 return ChoiceChip(
                                   label: Text(cat.name),
                                   selected: isSelected,
                                   onSelected: (selected) {
-                                    provider.onSelectCategory(cat.id == 'all' ? null : cat.id);
+                                    homeProvider.onSelectCategory(cat.id == 'all' ? null : cat.id);
                                   },
                                   selectedColor: AppColors.redPrimary.withOpacity(0.2),
                                   backgroundColor: const Color(0xFFF2F2F2),
@@ -343,11 +379,11 @@ class _HomePageState extends State<HomePage> {
                   ),
 
                   // Products Grid
-                  if (provider.isLoading)
+                  if (homeProvider.isLoading)
                     const SliverToBoxAdapter(
                       child: Center(child: CircularProgressIndicator(color: AppColors.redPrimary)),
                     )
-                  else if (provider.filteredProducts.isEmpty)
+                  else if (homeProvider.filteredProducts.isEmpty)
                     SliverToBoxAdapter(
                       child: Center(
                         child: Padding(
@@ -372,11 +408,21 @@ class _HomePageState extends State<HomePage> {
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
                             return _ProductCard(
-                              product: provider.filteredProducts[index],
-                              onToggleFavorite: () => provider.toggleFavorite(provider.filteredProducts[index].id),
+                              product: homeProvider.filteredProducts[index],
+                              onToggleFavorite: () => homeProvider.toggleFavorite(homeProvider.filteredProducts[index].id),
+                              onAddToCart: () {
+                                cartProvider.add(homeProvider.filteredProducts[index], 1);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Produto adicionado ao carrinho!', style: GoogleFonts.inter()),
+                                    backgroundColor: AppColors.greenAccent,
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
                             );
                           },
-                          childCount: provider.filteredProducts.length,
+                          childCount: homeProvider.filteredProducts.length,
                         ),
                       ),
                     ),
@@ -386,19 +432,18 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           );
-        },
-      ),
-    );
   }
 }
 
 class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onToggleFavorite;
+  final VoidCallback onAddToCart;
 
   const _ProductCard({
     required this.product,
     required this.onToggleFavorite,
+    required this.onAddToCart,
   });
 
   @override
@@ -417,18 +462,20 @@ class _ProductCard extends StatelessWidget {
       urgencyTextColor = const Color(0xFF388E3C);
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return GestureDetector(
+      onTap: onAddToCart,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Column(
@@ -447,25 +494,26 @@ class _ProductCard extends StatelessWidget {
                     fit: BoxFit.contain,
                     errorWidget: (context, url, error) => const Icon(Icons.image_not_supported, color: Colors.grey),
                   ),
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.redPrimary,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '-${product.discountPercent}%',
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                  if (product.discountPercent > 0)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.redPrimary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '-${product.discountPercent}%',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   Positioned(
                     top: 8,
                     right: 8,
@@ -552,15 +600,17 @@ class _ProductCard extends StatelessWidget {
                             fontSize: 18,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
-                          style: GoogleFonts.inter(
-                            color: Colors.grey.shade500,
-                            decoration: TextDecoration.lineThrough,
-                            fontSize: 12,
+                        if (product.discountPercent > 0) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
+                            style: GoogleFonts.inter(
+                              color: Colors.grey.shade500,
+                              decoration: TextDecoration.lineThrough,
+                              fontSize: 12,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ],
@@ -570,6 +620,6 @@ class _ProductCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
