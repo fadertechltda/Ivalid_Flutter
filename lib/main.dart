@@ -7,11 +7,13 @@ import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/home/presentation/providers/home_provider.dart';
 import 'features/cart/presentation/providers/cart_provider.dart';
 import 'features/auth/presentation/pages/login_page.dart';
-import 'features/home/presentation/pages/home_page.dart';
+import 'main_page.dart';
 import 'firebase_options.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('pt_BR', null);
 
   try {
     await Firebase.initializeApp(
@@ -67,7 +69,7 @@ class AuthWrapper extends StatelessWidget {
 
         // Se houver um usuário autenticado, vai direto para a Home
         if (snapshot.hasData && snapshot.data != null) {
-          return const HomePage();
+          return const MainPage();
         }
 
         // Caso contrário, exige login
