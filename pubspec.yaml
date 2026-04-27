@@ -36,6 +36,10 @@ dependencies:
   # Typography
   google_fonts: ^8.0.2
 
+  # Date formatting (equivalente: SimpleDateFormat)
+  intl: ^0.20.2
+  shared_preferences: ^2.5.5
+
   # Coroutines play-services equivalent (async helpers)
   # Flutter já tem isso built-in via async/await
 
