@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,8 +16,8 @@ class ProfileProvider extends ChangeNotifier {
   String? _error;
 
   // Gamificação (mock como no Kotlin)
-  int _totalDonations = 15;
-  double _availableCashback = 24.50;
+  final int _totalDonations = 15;
+  final double _availableCashback = 24.50;
 
   // Modal de endereço
   bool _isAddressDialogVisible = false;
@@ -105,6 +107,9 @@ class ProfileProvider extends ChangeNotifier {
     switch (field) {
       case 'cep':
         _cep = value;
+        if (value.length == 8) {
+          lookupCep(value);
+        }
         break;
       case 'street':
         _street = value;
@@ -123,5 +128,37 @@ class ProfileProvider extends ChangeNotifier {
         break;
     }
     notifyListeners();
+  }
+
+  Future<void> lookupCep(String cepValue) async {
+    final cleanCep = cepValue.replaceAll(RegExp(r'\D'), '');
+    if (cleanCep.length != 8) return;
+
+    _isAddressLoading = true;
+    notifyListeners();
+
+    try {
+      final client = HttpClient();
+      final uri = Uri.parse('https://viacep.com.br/ws/$cleanCep/json/');
+      final request = await client.getUrl(uri);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        final data = json.decode(responseBody) as Map<String, dynamic>;
+
+        if (data['erro'] != true) {
+          _street = data['logradouro'] ?? '';
+          _neighborhood = data['bairro'] ?? '';
+          _city = data['localidade'] ?? '';
+          _state = data['uf'] ?? '';
+        }
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar CEP: $e');
+    } finally {
+      _isAddressLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -7,6 +7,7 @@ import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/home/presentation/providers/home_provider.dart';
 import 'features/cart/presentation/providers/cart_provider.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/profile/presentation/providers/payment_provider.dart';
 import 'main_page.dart';
 import 'firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -36,6 +37,7 @@ class IvalidApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
       ],
       child: MaterialApp(
         title: 'Ivalid',

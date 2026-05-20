@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import '../providers/home_provider.dart';
 import '../../domain/models/product.dart';
-import '../../domain/models/category.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.redPrimary.withOpacity(0.1),
+                            color: AppColors.redPrimary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(Icons.sort, color: AppColors.redPrimary, size: 20),
@@ -111,7 +110,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.redPrimary.withOpacity(0.08) : Colors.transparent,
+        color: isSelected ? AppColors.redPrimary.withValues(alpha: 0.08) : Colors.transparent,
         borderRadius: BorderRadius.circular(14),
       ),
       child: ListTile(
@@ -191,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
+                              color: Colors.black.withValues(alpha: 0.06),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -225,7 +224,7 @@ class _HomePageState extends State<HomePage> {
                               'Ofertas perto de você',
                               style: GoogleFonts.inter(
                                 fontSize: 13,
-                                color: AppColors.onBackgroundLight.withOpacity(0.5),
+                                color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                               ),
                             ),
                           ],
@@ -247,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
+                                color: Colors.black.withValues(alpha: 0.06),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -293,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
+                              color: Colors.black.withValues(alpha: 0.06),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -321,7 +320,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 12,
                             offset: const Offset(0, 2),
                           ),
@@ -351,7 +350,7 @@ class _HomePageState extends State<HomePage> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: homeProvider.categories.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
                         itemBuilder: (context, index) {
                           final cat = homeProvider.categories[index];
                           final isSelected = homeProvider.selectedCategoryId == cat.id ||
@@ -372,7 +371,7 @@ class _HomePageState extends State<HomePage> {
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: AppColors.redPrimary.withOpacity(0.25),
+                                          color: AppColors.redPrimary.withValues(alpha: 0.25),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -384,7 +383,7 @@ class _HomePageState extends State<HomePage> {
                                 style: GoogleFonts.inter(
                                   fontSize: 13,
                                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                  color: isSelected ? Colors.white : AppColors.onBackgroundLight.withOpacity(0.7),
+                                  color: isSelected ? Colors.white : AppColors.onBackgroundLight.withValues(alpha: 0.7),
                                 ),
                               ),
                             ),
@@ -406,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.redPrimary.withOpacity(0.3),
+                            color: AppColors.redPrimary.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -422,7 +421,7 @@ class _HomePageState extends State<HomePage> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -449,7 +448,7 @@ class _HomePageState extends State<HomePage> {
                                 Text(
                                   'Itens próximos da validade\nEstoque limitado',
                                   style: GoogleFonts.inter(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
                                     height: 1.4,
                                   ),
@@ -462,7 +461,7 @@ class _HomePageState extends State<HomePage> {
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Icon(
@@ -502,7 +501,7 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.onBackgroundLight.withOpacity(0.4),
+                            color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
                           ),
                         ),
                       ],
@@ -531,7 +530,7 @@ class _HomePageState extends State<HomePage> {
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.onBackgroundLight.withOpacity(0.5),
+                          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                         ),
                       ),
                     ],
@@ -616,7 +615,7 @@ class _ProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -677,7 +676,7 @@ class _ProductCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -734,7 +733,7 @@ class _ProductCard extends StatelessWidget {
                     Text(
                       '${product.brand} • ${product.distanceKm.toStringAsFixed(1)} km',
                       style: GoogleFonts.inter(
-                        color: AppColors.onBackgroundLight.withOpacity(0.45),
+                        color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -776,7 +775,7 @@ class _ProductCard extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.redPrimary.withOpacity(0.08),
+                        color: AppColors.redPrimary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.center,

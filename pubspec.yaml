@@ -39,6 +39,7 @@ dependencies:
   # Date formatting (equivalente: SimpleDateFormat)
   intl: ^0.20.2
   shared_preferences: ^2.5.5
+  flutter_svg: ^2.3.0
 
   # Coroutines play-services equivalent (async helpers)
   # Flutter já tem isso built-in via async/await

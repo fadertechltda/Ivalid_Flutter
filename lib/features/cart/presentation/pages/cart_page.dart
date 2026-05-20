@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/cart_provider.dart';
+import 'checkout_page.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -47,7 +48,7 @@ class CartPage extends StatelessWidget {
               child: Text(
                 'Seu carrinho está vazio',
                 style: GoogleFonts.inter(
-                  color: AppColors.onBackgroundLight.withOpacity(0.6),
+                  color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                   fontSize: 16,
                 ),
               ),
@@ -94,7 +95,11 @@ class CartPage extends StatelessWidget {
                       cartProvider.donationSubtotal,
                       cartProvider.userTotalDonationsMock),
                   onCheckout: () {
-                    // TODO: Implement Checkout logic
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const CheckoutPage(),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -127,11 +132,11 @@ class _CartItemRow extends StatelessWidget {
         color: isDonation ? const Color(0xFFFFF0F0) : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: isDonation
-            ? Border.all(color: AppColors.redPrimary.withOpacity(0.5))
+            ? Border.all(color: AppColors.redPrimary.withValues(alpha: 0.5))
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -178,7 +183,7 @@ class _CartItemRow extends StatelessWidget {
                   item.product.storeName,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: AppColors.onBackgroundLight.withOpacity(0.6),
+                    color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -198,7 +203,7 @@ class _CartItemRow extends StatelessWidget {
                       Text(
                         'R\$ ${item.product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                         style: GoogleFonts.inter(
-                          color: AppColors.onBackgroundLight.withOpacity(0.5),
+                          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                           decoration: TextDecoration.lineThrough,
                           fontSize: 11,
                         ),
@@ -315,7 +320,7 @@ class _SummaryBox extends StatelessWidget {
         color: AppColors.surfaceLight,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -355,14 +360,14 @@ class _SummaryBox extends StatelessWidget {
                     'Total em Doações',
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: AppColors.onBackgroundLight.withOpacity(0.6),
+                      color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                     ),
                   ),
                   Text(
                     'R\$ ${donationTotal.toStringAsFixed(2).replaceAll('.', ',')}',
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: AppColors.onBackgroundLight.withOpacity(0.6),
+                      color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -398,7 +403,7 @@ class _SummaryBox extends StatelessWidget {
                 onPressed: total > 0 ? onCheckout : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.redPrimary,
-                  disabledBackgroundColor: AppColors.redPrimary.withOpacity(0.5),
+                  disabledBackgroundColor: AppColors.redPrimary.withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),

@@ -31,8 +31,8 @@ class CartItem {
 }
 
 class CartProvider extends ChangeNotifier {
-  List<CartItem> _items = [];
-  int _userTotalDonationsMock = 15;
+  final List<CartItem> _items = [];
+  final int _userTotalDonationsMock = 15;
 
   final DonationGamificationService gamificationService = DonationGamificationService();
 

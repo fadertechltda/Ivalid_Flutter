@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import '../providers/orders_provider.dart';
@@ -11,7 +12,10 @@ class OrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
     return ChangeNotifierProvider(
+      key: ValueKey(userId),
       create: (_) => OrdersProvider(),
       child: const _OrdersPageContent(),
     );
@@ -37,7 +41,10 @@ class _OrdersPageContent extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      body: CustomScrollView(
+      body: RefreshIndicator(
+        onRefresh: provider.fetchOrders,
+        color: AppColors.redPrimary,
+        child: CustomScrollView(
         slivers: [
           // ─── HEADER com gradiente ─────────────────────────────────────
           SliverToBoxAdapter(
@@ -48,7 +55,7 @@ class _OrdersPageContent extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.redPrimary.withOpacity(0.12),
+                    AppColors.redPrimary.withValues(alpha: 0.12),
                     AppColors.backgroundLight,
                   ],
                 ),
@@ -67,7 +74,7 @@ class _OrdersPageContent extends StatelessWidget {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: AppColors.redPrimary.withOpacity(0.15),
+                              color: AppColors.redPrimary.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: const Icon(
@@ -94,7 +101,7 @@ class _OrdersPageContent extends StatelessWidget {
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   color: AppColors.onBackgroundLight
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                             ],
@@ -110,7 +117,7 @@ class _OrdersPageContent extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
@@ -137,7 +144,7 @@ class _OrdersPageContent extends StatelessWidget {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 10,
                                 offset: const Offset(0, 2),
                               ),
@@ -154,7 +161,7 @@ class _OrdersPageContent extends StatelessWidget {
                               Container(
                                 width: 1,
                                 height: 40,
-                                color: AppColors.outlineLight.withOpacity(0.5),
+                                color: AppColors.outlineLight.withValues(alpha: 0.5),
                               ),
                               _SummaryStat(
                                 icon: Icons.check_circle_rounded,
@@ -165,7 +172,7 @@ class _OrdersPageContent extends StatelessWidget {
                               Container(
                                 width: 1,
                                 height: 40,
-                                color: AppColors.outlineLight.withOpacity(0.5),
+                                color: AppColors.outlineLight.withValues(alpha: 0.5),
                               ),
                               _SummaryStat(
                                 icon: Icons.payments_rounded,
@@ -244,6 +251,7 @@ class _OrdersPageContent extends StatelessWidget {
             ),
         ],
       ),
+     ),
     );
   }
 }
@@ -284,7 +292,7 @@ class _SummaryStat extends StatelessWidget {
             label,
             style: GoogleFonts.inter(
               fontSize: 10,
-              color: AppColors.onBackgroundLight.withOpacity(0.5),
+              color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),
@@ -317,7 +325,7 @@ class _OrderCardState extends State<_OrderCard> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -332,7 +340,7 @@ class _OrderCardState extends State<_OrderCard> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: statusInfo.color.withOpacity(0.08),
+              color: statusInfo.color.withValues(alpha: 0.08),
             ),
             child: Row(
               children: [
@@ -340,7 +348,7 @@ class _OrderCardState extends State<_OrderCard> {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: statusInfo.color.withOpacity(0.15),
+                    color: statusInfo.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -366,7 +374,7 @@ class _OrderCardState extends State<_OrderCard> {
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: statusInfo.color.withOpacity(0.6),
+                    color: statusInfo.color.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -424,7 +432,7 @@ class _OrderCardState extends State<_OrderCard> {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.onBackgroundLight
-                                        .withOpacity(0.45),
+                                        .withValues(alpha: 0.45),
                                   ),
                                 ),
                               ],
@@ -443,7 +451,7 @@ class _OrderCardState extends State<_OrderCard> {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.onBackgroundLight.withOpacity(0.4),
+                        color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
                       ),
                     ),
                   ),
@@ -497,7 +505,7 @@ class _OrderCardState extends State<_OrderCard> {
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.onBackgroundLight
-                                            .withOpacity(0.45),
+                                            .withValues(alpha: 0.45),
                                       ),
                                     ),
                                   ],
@@ -530,7 +538,7 @@ class _OrderCardState extends State<_OrderCard> {
                             Icons.shopping_bag_outlined,
                             size: 16,
                             color:
-                                AppColors.onBackgroundLight.withOpacity(0.4),
+                                AppColors.onBackgroundLight.withValues(alpha: 0.4),
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -539,7 +547,7 @@ class _OrderCardState extends State<_OrderCard> {
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.onBackgroundLight
-                                  .withOpacity(0.5),
+                                  .withValues(alpha: 0.5),
                             ),
                           ),
                         ],
@@ -572,7 +580,7 @@ class _OrderCardState extends State<_OrderCard> {
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                        color: AppColors.outlineLight.withOpacity(0.3),
+                        color: AppColors.outlineLight.withValues(alpha: 0.3),
                       ),
                     ),
                   ),
@@ -672,7 +680,7 @@ class _EmptyOrdersMessage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
@@ -698,7 +706,7 @@ class _EmptyOrdersMessage extends StatelessWidget {
               'Quando você fizer sua primeira compra,\nela aparecerá aqui.',
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: AppColors.onBackgroundLight.withOpacity(0.45),
+                color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
                 height: 1.5,
               ),
               textAlign: TextAlign.center,
@@ -729,7 +737,7 @@ class _ErrorMessage extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.redPrimary.withOpacity(0.08),
+                color: AppColors.redPrimary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(22),
               ),
               child: const Icon(
@@ -752,7 +760,7 @@ class _ErrorMessage extends StatelessWidget {
               message,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: AppColors.onBackgroundLight.withOpacity(0.5),
+                color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                 height: 1.4,
               ),
               textAlign: TextAlign.center,

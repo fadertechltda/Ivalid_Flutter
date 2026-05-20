@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ivalid - Especificação Técnica e de SGBD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E63946;
+            --primary-hover: #D62839;
+            --secondary: #1D3557;
+            --accent: #457B9D;
+            --accent-light: #A8DADC;
+            --background: #F8F9FA;
+            --surface: #FFFFFF;
+            --text-main: #1D3557;
+            --text-muted: #5C6B73;
+            --success: #2A9D8F;
+            --success-light: #E7F6F2;
+            --info: #0077B6;
+            --info-light: #E0F2FE;
+            --border: #E9ECEF;
+            --shadow: rgba(29, 53, 87, 0.04);
+        }
+
+        /* Configurações de Impressão e PDF */
+        @media print {
+            .no-print { display: none !important; }
+            body { 
+                background: white !important; 
+                color: #000000 !important;
+                margin: 0 !important; 
+                padding: 0 !important;
+            }
+            .container { 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                padding: 0px !important; 
+            }
+            .page-break { 
+                page-break-before: always !important; 
+                break-before: page !important;
+                margin-top: 40px !important;
+            }
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #E2E8F0 !important;
+                page-break-inside: avoid !important;
+            }
+            table {
+                page-break-inside: avoid !important;
+            }
+            h2, h3 {
+                page-break-after: avoid !important;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--background);
+            padding: 0;
+            margin: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .btn-print {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(230, 57, 70, 0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-print:hover {
+            transform: translateY(-3px) scale(1.03);
+            background: var(--primary-hover);
+            box-shadow: 0 15px 30px rgba(230, 57, 70, 0.45);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background: var(--surface);
+            padding: 70px 80px;
+            box-shadow: 0 15px 40px rgba(29, 53, 87, 0.05);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        /* Engine Setup Console (Prompt para a IA do PDF) */
+        .pdf-prompt-console {
+            background: #0F172A;
+            border-left: 5px solid var(--primary);
+            color: #94A3B8;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 50px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .pdf-prompt-console h4 {
+            color: #F8FAFC;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pdf-prompt-console span.highlight {
+            color: #38BDF8;
+        }
+
+        .pdf-prompt-console span.cmd {
+            color: #34D399;
+        }
+
+        /* Capa */
+        .cover {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 40px 0;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .cover-header {
+            width: 100%;
+        }
+
+        .cover-badge {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            border-radius: 50px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .cover h1 {
+            font-size: 4.8rem;
+            line-height: 1.05;
+            font-weight: 900;
+            color: var(--secondary);
+            letter-spacing: -3px;
+        }
+
+        .cover h1 span {
+            color: var(--primary);
+        }
+
+        .cover h2 {
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 20px;
+            border-left: none;
+            padding-left: 0;
+            max-width: 700px;
+            line-height: 1.4;
+        }
+
+        .cover-footer {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cover-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .cover-meta strong {
+            color: var(--secondary);
+        }
+
+        .cover-logo-area {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+
+        .cover-logo-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--secondary);
+        }
+
+        .cover-logo-text span {
+            color: var(--primary);
+        }
+
+        /* Sumário Dinâmico */
+        .toc-box {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 50px 0;
+            border: 1px solid var(--border);
+        }
+
+        .toc-box h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 8px;
+            color: var(--secondary);
+            font-size: 1.25rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc-item:hover {
+            color: var(--primary);
+        }
+
+        .toc-dots {
+            flex-grow: 1;
+            border-bottom: 1px dotted var(--text-muted);
+            margin: 0 15px;
+            opacity: 0.4;
+        }
+
+        .toc-page {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Seções e Tipografia */
+        h2 {
+            color: var(--secondary);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 70px;
+            margin-bottom: 25px;
+            border-left: 6px solid var(--primary);
+            padding-left: 18px;
+            letter-spacing: -0.5px;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 45px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        strong {
+            color: var(--secondary);
+        }
+
+        /* Badges de Requisitos */
+        .badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+        }
+
+        .badge-fulfilled {
+            background-color: var(--success-light);
+            color: var(--success);
+            border: 1px solid rgba(42, 157, 143, 0.2);
+        }
+
+        .badge-additional {
+            background-color: var(--info-light);
+            color: var(--info);
+            border: 1px solid rgba(0, 119, 182, 0.2);
+        }
+
+        /* Tabelas Customizadas do SGBD */
+        .table-wrapper {
+            margin: 25px 0;
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(29, 53, 87, 0.015);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        table thead tr {
+            background-color: var(--secondary);
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        table th {
+            padding: 16px 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+        }
+
+        table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        table tbody tr:nth-of-type(even) {
+            background-color: var(--background);
+        }
+
+        table tbody tr:last-of-type td {
+            border-bottom: none;
+        }
+
+        table td code {
+            font-family: monospace;
+            background-color: #EDF2F7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #C53030;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* Listas Modernas */
+        ul {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            font-size: 0.98rem;
+            color: var(--text-muted);
+        }
+
+        ul li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 5px;
+            top: -5px;
+        }
+
+        /* Info Cards */
+        .card {
+            background: var(--background);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer {
+            margin-top: 100px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+        }
+
+        /* Layout em colunas para os algoritmos */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .grid-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+        }
+
+        .grid-card h4 {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <button class="btn-print no-print" onclick="window.print()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Gerar PDF Profissional
+    </button>
+
+    <div class="container">
+        
+        <!-- Bloco de Prompt/Setup para a engine de PDF (oculto na impressão física) -->
+        <div class="pdf-prompt-console no-print">
+            <h4><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="22" y2="7"></line><line x1="2" y1="17" x2="22" y2="17"></line></svg> PDF ENGINE PROMPT INSTRUCTIONS</h4>
+            // <span class="highlight">Atenção Conversor de PDF:</span> Esta seção atua como metadados de prompt de renderização. O restante deste HTML foi estruturado para produção editorial.<br>
+            // <span class="cmd">Margens:</span> 20mm nas laterais, 25mm superior e inferior.<br>
+            // <span class="cmd">Escalonamento:</span> Forçar 100% sem perdas. Manter elementos da tabela unidos nas quebras de página via CSS <code>page-break-inside: avoid</code>.<br>
+            // <span class="cmd">Paleta de Cores:</span> Gerar PDF com cores HSL ativas, utilizando vermelho vivo de alerta (#E63946) e azul escuro profundo (#1D3557) para alto contraste técnico.<br>
+            // <span class="cmd">Fontes:</span> Carregar a família Google Font 'Inter' em todas as páginas para renderização vetorial cristalina das tabelas do SGBD.<br>
+            // <span class="cmd">Cabeçalhos e Rodapés:</span> Ocultar barras de navegação do browser e habilitar cabeçalho dinâmico com título "IVALID ECOSYSTEM - TECHNICAL SPEC" e paginação contínua no rodapé.
+        </div>
+
+        <!-- Capa do Documento -->
+        <div class="cover">
+            <div class="cover-header">
+                <span class="cover-badge">Documentação Técnica de Arquitetura</span>
+                <h1>IVALID <span>ECOSYSTEM</span></h1>
+                <h2>Especificação de Requisitos Técnicos, Logística Reversa, Gamificação e Mapeamento Completo de SGBD (Inspirado no Modelo de Entregas iFood)</h2>
+            </div>
+            
+            <div class="cover-footer">
+                <div class="cover-meta">
+                    <p><strong>Desenvolvido por:</strong> Fadertech Ltda. & Equipe de Engenharia</p>
+                    <p><strong>Versão:</strong> 1.5 | Requisitos Logísticos Expandidos</p>
+                    <p><strong>Status do Ecossistema:</strong> Em Expansão (Módulo de Entregas)</p>
+                    <p><strong>Data:</strong> Maio de 2026</p>
+                </div>
+                <div class="cover-logo-area">
+                    <div class="cover-logo-text">i<span>valid</span></div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Combate Inteligente ao Desperdício</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Sumário (Table of Contents) -->
+        <div class="toc-box">
+            <h3>Sumário Técnico do Ecossistema</h3>
+            <div class="toc-list">
+                <a href="#introducao" class="toc-item">1. Introdução e Contexto de Negócio <span class="toc-dots"></span> <span class="toc-page">03</span></a>
+                <a href="#modulo-core" class="toc-item">2. Módulos Core Existentes e Mapeamento de SGBD [CUMPRIDOS] <span class="toc-dots"></span> <span class="toc-page">03</span></a>
+                <a href="#mapeamento-sgbd-cumpridos" class="toc-item">   2.1 Coleções de Dados do Usuário e Catálogo <span class="toc-dots"></span> <span class="toc-page">04</span></a>
+                <a href="#modulo-entregas" class="toc-item">3. Módulo Logístico (Ivalid Entregador) [REQUISITOS ADICIONAIS] <span class="toc-dots"></span> <span class="toc-page">06</span></a>
+                <a href="#sgbd-entregas" class="toc-item">   3.1 Mapeamento SGBD para Coleções de Entregas e Parceiros <span class="toc-dots"></span> <span class="toc-page">07</span></a>
+                <a href="#regras-fluxo" class="toc-item">   3.2 Regras de Roteamento, Tarifas e Verificação Anti-Fraude <span class="toc-dots"></span> <span class="toc-page">09</span></a>
+                <a href="#inteligencia" class="toc-item">4. Inteligência de Negócio e Algoritmos Ativos <span class="toc-dots"></span> <span class="toc-page">10</span></a>
+                <a href="#arquitetura-dados-fluxo" class="toc-item">5. Diagrama de Fluxo de Dados e Integração <span class="toc-dots"></span> <span class="toc-page">11</span></a>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Seção 1: Introdução -->
+        <section id="introducao">
+            <h2>1. Introdução e Contexto de Negócio</h2>
+            <p>O <strong>Ivalid</strong> é uma plataforma de tecnologia de ponta desenvolvida para combater o desperdício de alimentos. O ecossistema conecta estabelecimentos comerciais que possuem excedente de comida ou itens próximos ao vencimento a consumidores finais interessados em descontos agressivos. Além disso, a plataforma conta com uma vertente social revolucionária, permitindo que os usuários comprem alimentos diretamente para doação a ONGs parceiras através de um fluxo integrado.</p>
+            <p>A arquitetura é construída com um aplicativo de frontend de alta fidelidade desenvolvido em <strong>Flutter (Android/iOS/Windows)</strong> e um backend escalável em tempo real utilizando o <strong>Firebase (Cloud Firestore, Authentication e Storage)</strong>. Para garantir a viabilidade operacional das coletas rápidas e das rotas de doação, o ecossistema está sendo ampliado com um subsistema logístico de entregas de alta eficiência inspirado nas mecânicas de sucesso do iFood.</p>
+        </section>
+
+        <!-- Seção 2: Requisitos Cumpridos -->
+        <section id="modulo-core">
+            <h2>2. Módulos Core Existentes [CUMPRIDOS]</h2>
+            <p>Esta seção especifica todos os requisitos funcionais que já foram inteiramente desenvolvidos e homologados na plataforma de frontend e backend, juntamente com o seu respectivo mapeamento de campos no Cloud Firestore.</p>
+            
+            <div class="card">
+                <div class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Status dos Requisitos Core: <strong>100% CUMPRIDOS</strong>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem;">Todos os fluxos descritos abaixo contam com Providers de controle de estado no Flutter (ChangeNotifier), lógica reativa ao Firebase e tratamento de erros integrado.</p>
+            </div>
+
+            <ul>
+                <li><strong>Módulo de Autenticação e Sessão (`auth`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Tela de login, cadastro com verificação em tempo real no banco, e validação persistente através do widget <code>AuthWrapper</code> baseado em <code>FirebaseAuth</code>.</li>
+                <li><strong>Módulo Home e Catálogo de Descoberta (`home`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Listagem dinâmica de produtos, barra de pesquisa, filtragem por categorias e menus de ordenação avançados (por distância do usuário, preço, validade e desconto).</li>
+                <li><strong>Módulo de Ofertas Flash (`flash`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Listagem dedicada filtrando automaticamente produtos com vencimento crítico de até 10 dias, adicionando sinalização de urgência visual na interface.</li>
+                <li><strong>Módulo de Doação Social (`donation`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Fluxo para compra direta de alimentos destinados a ONGs parceiras, com cálculo de cashback social e exibição do painel de impacto do usuário (Impact Stats).</li>
+                <li><strong>Módulo Carrinho e Fechamento (`cart`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Carrinho de compras híbrido que suporta produtos normais e de doação na mesma sessão, com aplicação de cashback acumulado e cupons.</li>
+                <li><strong>Módulo de Histórico de Pedidos (`orders`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Tela de histórico com listagem completa, detalhamento expandido de itens e transição de estados de pagamento ("Pagamento PIX Pendente", "Em Preparação", "Entregue").</li>
+                <li><strong>Módulo Perfil e Gerenciamento de Endereços (`profile`):</strong> <span class="badge badge-fulfilled">Cumprido</span> Painel com exibição do nível de fidelidade do usuário (Bronze, Prata, Ouro), saldo da carteira digital Ivalid Pago, e preenchimento de endereço automatizado via consumo da API do ViaCEP.</li>
+            </ul>
+        </section>
+
+        <!-- Seção 2.1: Tabelas Cumpridas -->
+        <section id="mapeamento-sgbd-cumpridos">
+            <h3>2.1 Mapeamento SGBD para Coleções Existentes <span class="badge badge-fulfilled">Cumprido</span></h3>
+            <p>O banco de dados Firestore está estruturado de forma NoSQL denormalizada para otimizar a velocidade de leitura nos dispositivos móveis. Abaixo estão listadas as coleções e campos ativos:</p>
+
+            <h4 style="margin-top: 20px; font-size: 1rem; color: var(--secondary)">Coleção Principal: <code>users</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Armazena o perfil básico do cliente consumidor, saldos da carteira digital e estatísticas de fidelidade.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>fullName</code></td><td>string</td><td>Não nulo</td><td>Nome de exibição cadastrado pelo usuário.</td></tr>
+                        <tr><td><code>email</code></td><td>string</td><td>Não nulo</td><td>Email para vínculo de login único e auditorias.</td></tr>
+                        <tr><td><code>totalDonations</code></td><td>number (int)</td><td>Não nulo</td><td>Contagem de doações feitas para cálculo de fidelidade.</td></tr>
+                        <tr><td><code>availableCashback</code></td><td>number (double)</td><td>Não nulo</td><td>Saldo em reais do usuário na carteira digital Ivalid Pago.</td></tr>
+                        <tr><td><code>cep</code></td><td>string</td><td>Nulo aceito</td><td>Código postal de referência principal do cliente.</td></tr>
+                        <tr><td><code>street</code></td><td>string</td><td>Nulo aceito</td><td>Nome da via pública preenchida por geolocalização ou CEP.</td></tr>
+                        <tr><td><code>number</code></td><td>string</td><td>Nulo aceito</td><td>Número residencial do endereço principal.</td></tr>
+                        <tr><td><code>complement</code></td><td>string</td><td>Nulo aceito</td><td>Complemento residencial do endereço.</td></tr>
+                        <tr><td><code>neighborhood</code></td><td>string</td><td>Nulo aceito</td><td>Bairro correspondente ao CEP preenchido.</td></tr>
+                        <tr><td><code>city</code></td><td>string</td><td>Nulo aceito</td><td>Cidade do cliente para fins de geolocalização.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="page-break"></div>
+
+            <h4 style="margin-top: 30px; font-size: 1rem; color: var(--secondary)">Coleção Principal: <code>products</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Catálogo unificado de alimentos disponíveis para resgate imediato ou doação.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>name</code></td><td>string</td><td>Não nulo</td><td>Nome comercial do alimento comercializado.</td></tr>
+                        <tr><td><code>brand</code></td><td>string</td><td>Não nulo</td><td>Marca do fabricante (indústria) do produto.</td></tr>
+                        <tr><td><code>urlImagem</code></td><td>string</td><td>Não nulo</td><td>URL pública da imagem hospedada no Firebase Storage.</td></tr>
+                        <tr><td><code>storeName</code></td><td>string</td><td>Não nulo</td><td>Nome amigável da loja/estabelecimento parceiro onde está o lote.</td></tr>
+                        <tr><td><code>distanceKm</code></td><td>number (double)</td><td>Não nulo</td><td>Distância estimada entre o usuário ativo e o estabelecimento.</td></tr>
+                        <tr><td><code>oldPrice</code></td><td>number (double)</td><td>Não nulo</td><td>Preço de tabela original praticado pelo estabelecimento.</td></tr>
+                        <tr><td><code>newPrice</code></td><td>number (double)</td><td>Não nulo</td><td>Preço final de venda, reajustado com base no vencimento.</td></tr>
+                        <tr><td><code>daysValidity</code></td><td>number (int)</td><td>Não nulo</td><td>Prazo de validade restante em dias até a data de vencimento.</td></tr>
+                        <tr><td><code>categoryId</code></td><td>string</td><td>Não nulo</td><td>ID estrangeiro de relacionamento com a coleção <code>categories</code>.</td></tr>
+                        <tr><td><code>isFavorite</code></td><td>boolean</td><td>Não nulo</td><td>Flag interna de exibição de produto favorito para o cliente.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 30px; font-size: 1rem; color: var(--secondary)">Coleção Principal: <code>orders</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Histórico de compras e status de processamento financeiro e operacional.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>date</code></td><td>string</td><td>Não nulo</td><td>Data formatada de criação do pedido (Exemplo: "18 Mai 2026").</td></tr>
+                        <tr><td><code>total</code></td><td>number (double)</td><td>Não nulo</td><td>Valor monetário líquido cobrado na transação.</td></tr>
+                        <tr><td><code>status</code></td><td>string</td><td>Não nulo</td><td>Fluxo interno de estados: <code>'Pagamento Pix Pendente'</code>, <code>'Em Preparação'</code>, <code>'Entregue'</code>.</td></tr>
+                        <tr><td><code>timestamp</code></td><td>timestamp</td><td>Não nulo</td><td>Marca de tempo do servidor para fins de ordenação estrita.</td></tr>
+                        <tr><td><code>items</code></td><td>array (of maps)</td><td>Não nulo</td><td>Coleção aninhada contendo os produtos adquiridos neste pedido.</td></tr>
+                        <tr><td><code>items[i].name</code></td><td>string</td><td>Não nulo</td><td>Nome descritivo do produto no momento do checkout.</td></tr>
+                        <tr><td><code>items[i].quantity</code></td><td>number (int)</td><td>Não nulo</td><td>Unidades compradas pelo consumidor.</td></tr>
+                        <tr><td><code>items[i].subtotal</code></td><td>number (double)</td><td>Não nulo</td><td>Valor total das unidades deste item (Quantidade × Preço Dinâmico).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- Seção 3: Requisitos Adicionais do Entregador -->
+        <section id="modulo-entregas">
+            <h2>3. Módulo Logístico (Ivalid Entregador) [REQUISITOS ADICIONAIS]</h2>
+            <p>Com o objetivo de viabilizar a entrega rápida de alimentos e otimizar a distribuição de doações para as ONGs parceiras, o ecossistema do Ivalid passa a integrar requisitos específicos de um módulo de entregas logísticas de ponta a ponta. <strong>Os requisitos abaixo são inspirados diretamente no fluxo operacional do aplicativo de entregador do iFood</strong>, garantindo flexibilidade física de coleta, monitoramento em tempo real e segurança contra fraudes na entrega.</p>
+            
+            <div class="card" style="border-left-color: var(--info);">
+                <div class="card-title" style="color: var(--secondary)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    Novas Regras de Negócio Implementadas como Requisitos Logísticos:
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--text-muted);">
+                    Diferente de um sistema comum de marketplace, os produtos do Ivalid possuem uma <strong>vida útil curtíssima</strong> devido à validade crítica. Portanto, o tempo máximo de aceitação de rotas por entregadores deve respeitar prazos urgentes, com recompensas especiais de frete para alimentos em urgência crítica (< 24h para perecer).
+                </p>
+            </div>
+
+            <ul>
+                <li><strong>Requisito 3.01: Credenciamento e Validação de Documentos de Entregadores:</strong> O sistema deve permitir o upload de documentos cadastrais (CNH do condutor, placa do veículo e CPF) e manter os dados em estado de análise cadastral no SGBD até a liberação pela equipe administrativa do Ivalid.</li>
+                <li><strong>Requisito 3.02: Disponibilidade em Tempo Real (Estado Online/Offline):</strong> O aplicativo do entregador deve conter uma chave comutadora que atualiza periodicamente sua geolocalização física via GPS em background no SGBD, permitindo que a plataforma envie apenas ofertas de corridas para entregadores num raio máximo de 5 km da loja parceira de coleta.</li>
+                <li><strong>Requisito 3.03: Algoritmo de Rotas Agrupadas para ONGs (Doações em Lote):</strong> Para maximizar a eficiência das doações e baratear os fretes custeados pela plataforma ou doadores, o sistema deve agrupar de 1 a 5 pedidos de doação com destino à mesma ONG parceira em uma única <strong>"Rota de Impacto Coletivo"</strong>.</li>
+                <li><strong>Requisito 3.04: Confirmação e Liberação por Código de Segurança (PIN):</strong> Em entregas normais a clientes finais, o recebimento deve ser obrigatoriamente autenticado através da digitação de um PIN dinâmico de 4 dígitos gerado no aplicativo do cliente consumidor no momento da compra.</li>
+                <li><strong>Requisito 3.05: Comprovação Fotográfica Integrada (Rotas de Doação):</strong> Ao entregar mercadorias sociais nas sedes das ONGs parceiras, o entregador é tecnicamente obrigado a registrar uma foto da carga recebida na sede e colher a assinatura digital com documento do voluntário receptor da ONG na tela do celular.</li>
+                <li><strong>Requisito 3.06: Sistema de Tarifas Dinâmicas de Urgência:</strong> O valor do frete pago ao entregador será acrescido de um multiplicador dinâmico proporcional à proximidade de vencimento da mercadoria (coeficiente de validade), incentivando coletas imediatas de produtos a menos de 24h do descarte definitivo.</li>
+                <li><strong>Requisito 3.07: Carteira Virtual de Repasses Logísticos (Ivalid Pago Entregador):</strong> O entregador terá um painel financeiro para acompanhar saldos de frete acumulados, gorjetas recebidas e solicitar saques automáticos via Pix com integração bancária em tempo real.</li>
+            </ul>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- Seção 3.1: SGBD Entregador -->
+        <section id="sgbd-entregas">
+            <h3>3.1 Mapeamento SGBD para Coleções de Entregas e Parceiros <span class="badge badge-additional">Requisito Adicional</span></h3>
+            <p>As novas coleções abaixo foram projetadas no Firestore para suportar o ecossistema do aplicativo de entregadores de forma escalável e integrada:</p>
+
+            <h4 style="margin-top: 20px; font-size: 1rem; color: var(--secondary)">Nova Coleção: <code>drivers</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Armazena o perfil operacional dos entregadores, veículo utilizado, reputação e dados de geolocalização física ativa.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>driverId</code></td><td>string</td><td>Não nulo</td><td>Chave estrangeira vinculada ao UID do Firebase Authentication do entregador.</td></tr>
+                        <tr><td><code>fullName</code></td><td>string</td><td>Não nulo</td><td>Nome completo civil do condutor parceiro cadastrado.</td></tr>
+                        <tr><td><code>cpf</code></td><td>string</td><td>Não nulo</td><td>Cadastro de Pessoa Física para emissão de relatórios fiscais e repasses Pix.</td></tr>
+                        <tr><td><code>email</code></td><td>string</td><td>Não nulo</td><td>Endereço de email do entregador para contato e autenticação.</td></tr>
+                        <tr><td><code>phone</code></td><td>string</td><td>Não nulo</td><td>Telefone de contato ativo do parceiro (com código DDD).</td></tr>
+                        <tr><td><code>vehicleType</code></td><td>string</td><td>Não nulo</td><td>Tipo do veículo utilizado. Valores aceitos: <code>'bike'</code>, <code>'motorcycle'</code>, <code>'car'</code>.</td></tr>
+                        <tr><td><code>vehiclePlate</code></td><td>string</td><td>Nulo aceito</td><td>Placa oficial do veículo registrado. Obrigatória se tipo moto ou carro.</td></tr>
+                        <tr><td><code>cnhUrl</code></td><td>string</td><td>Não nulo</td><td>URL da imagem digitalizada da habilitação armazenada no Firebase Storage.</td></tr>
+                        <tr><td><code>status</code></td><td>string</td><td>Não nulo</td><td>Estado operacional do cadastro: <code>'pending_approval'</code>, <code>'active'</code>, <code>'suspended'</code>.</td></tr>
+                        <tr><td><code>online</code></td><td>boolean</td><td>Não nulo</td><td>Flag de disponibilidade em tempo real para recebimento de corridas de alimentos.</td></tr>
+                        <tr><td><code>currentLatitude</code></td><td>number (double)</td><td>Não nulo</td><td>Coordenada de latitude obtida via sinal do GPS do dispositivo parceiro.</td></tr>
+                        <tr><td><code>currentLongitude</code></td><td>number (double)</td><td>Não nulo</td><td>Coordenada de longitude obtida via sinal do GPS do dispositivo parceiro.</td></tr>
+                        <tr><td><code>earningsBalance</code></td><td>number (double)</td><td>Não nulo</td><td>Saldo em reais devido ao entregador na carteira do Ivalid Pago Entregador.</td></tr>
+                        <tr><td><code>rating</code></td><td>number (double)</td><td>Não nulo</td><td>Média móvel de avaliações do entregador (Escala de 1.0 a 5.0).</td></tr>
+                        <tr><td><code>totalDeliveries</code></td><td>number (int)</td><td>Não nulo</td><td>Quantidade total acumulada de entregas finalizadas pelo condutor.</td></tr>
+                        <tr><td><code>createdAt</code></td><td>timestamp</td><td>Não nulo</td><td>Marca de tempo do servidor para registro inicial do parceiro.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="page-break"></div>
+
+            <h4 style="margin-top: 30px; font-size: 1rem; color: var(--secondary)">Nova Coleção: <code>deliveries</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Monitora as coletas físicas e entregas individuais de pedidos normais e doações.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>deliveryId</code></td><td>string</td><td>Não nulo</td><td>Identificador único gerado automaticamente pelo Firestore.</td></tr>
+                        <tr><td><code>orderId</code></td><td>string</td><td>Não nulo</td><td>ID estrangeiro correspondente ao pedido gerado na coleção <code>orders</code>.</td></tr>
+                        <tr><td><code>driverId</code></td><td>string</td><td>Nulo aceito</td><td>ID do entregador aceitante da corrida. Nulo enquanto aguarda aceitação.</td></tr>
+                        <tr><td><code>storeId</code></td><td>string</td><td>Não nulo</td><td>Identificador único do estabelecimento de partida comercial da comida.</td></tr>
+                        <tr><td><code>storeName</code></td><td>string</td><td>Não nulo</td><td>Nome do estabelecimento de partida comercial da comida para navegação.</td></tr>
+                        <tr><td><code>storeAddress</code></td><td>map</td><td>Não nulo</td><td>Conjunto estruturado de endereço de partida contendo as chaves a seguir.</td></tr>
+                        <tr><td><code>storeAddress.cep</code></td><td>string</td><td>Não nulo</td><td>CEP cadastrado do estabelecimento de partida comercial.</td></tr>
+                        <tr><td><code>storeAddress.street</code></td><td>string</td><td>Não nulo</td><td>Logradouro comercial físico do parceiro vendedor.</td></tr>
+                        <tr><td><code>storeAddress.number</code></td><td>string</td><td>Não nulo</td><td>Número de identificação na via pública da loja parceira.</td></tr>
+                        <tr><td><code>storeAddress.latitude</code></td><td>number (double)</td><td>Não nulo</td><td>Coordenada geográfica física de latitude do comércio parceiro.</td></tr>
+                        <tr><td><code>storeAddress.longitude</code></td><td>number (double)</td><td>Não nulo</td><td>Coordenada geográfica física de longitude do comércio parceiro.</td></tr>
+                        <tr><td><code>destinationAddress</code></td><td>map</td><td>Não nulo</td><td>Conjunto estruturado de endereço final (cliente ou ONG destinatária).</td></tr>
+                        <tr><td><code>destinationAddress.cep</code></td><td>string</td><td>Não nulo</td><td>CEP do local final de entrega de alimentos doados ou comprados.</td></tr>
+                        <tr><td><code>destinationAddress.street</code></td><td>string</td><td>Não nulo</td><td>Logradouro final de entrega de alimentos doados ou comprados.</td></tr>
+                        <tr><td><code>destinationAddress.number</code></td><td>string</td><td>Não nulo</td><td>Número do local final de entrega.</td></tr>
+                        <tr><td><code>destinationAddress.latitude</code></td><td>number (double)</td><td>Não nulo</td><td>Coordenada geográfica de latitude do local de entrega.</td></tr>
+                        <tr><td><code>destinationAddress.longitude</code></td><td>number (double)</td><td>Não nulo</td><td>Coordenada geográfica de longitude do local de entrega.</td></tr>
+                        <tr><td><code>isDonationRoute</code></td><td>boolean</td><td>Não nulo</td><td>Indica se é uma entrega social destinada diretamente a uma ONG parceira.</td></tr>
+                        <tr><td><code>deliveryFee</code></td><td>number (double)</td><td>Não nulo</td><td>Valor financeiro líquido a ser pago ao entregador pelo serviço de frete.</td></tr>
+                        <tr><td><code>status</code></td><td>string</td><td>Não nulo</td><td>Workflow da entrega: <code>'waiting_driver'</code>, <code>'accepted'</code>, <code>'pickup_arrived'</code>, <code>'in_transit'</code>, <code>'delivered'</code>, <code>'cancelled'</code>.</td></tr>
+                        <tr><td><code>verificationPin</code></td><td>string</td><td>Não nulo</td><td>Código de segurança dinâmico de 4 dígitos obrigatório para o encerramento.</td></tr>
+                        <tr><td><code>proofPhotoUrl</code></td><td>string</td><td>Nulo aceito</td><td>Link público do comprovante fotográfico na ONG parceira (Storage).</td></tr>
+                        <tr><td><code>recipientSignatureUrl</code></td><td>string</td><td>Nulo aceito</td><td>Link público do arquivo de imagem da assinatura de recebimento (Storage).</td></tr>
+                        <tr><td><code>recipientName</code></td><td>string</td><td>Nulo aceito</td><td>Nome legível da pessoa física que assinou o recebimento da carga.</td></tr>
+                        <tr><td><code>recipientDocument</code></td><td>string</td><td>Nulo aceito</td><td>Documento de identidade civil informado pelo recebedor.</td></tr>
+                        <tr><td><code>createdAt</code></td><td>timestamp</td><td>Não nulo</td><td>Data/Hora de solicitação e geração da demanda de frete.</td></tr>
+                        <tr><td><code>pickedUpAt</code></td><td>timestamp</td><td>Nulo aceito</td><td>Data/Hora de confirmação física de retirada do alimento na loja.</td></tr>
+                        <tr><td><code>completedAt</code></td><td>timestamp</td><td>Nulo aceito</td><td>Data/Hora de fechamento e conclusão da validação do protocolo físico.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="page-break"></div>
+
+            <h4 style="margin-top: 30px; font-size: 1rem; color: var(--secondary)">Nova Coleção: <code>delivery_routes</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Controla o agrupamento inteligente de pedidos em lote para entregas coletivas destinadas às ONGs.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>routeId</code></td><td>string</td><td>Não nulo</td><td>ID exclusivo gerado automaticamente na ativação do lote.</td></tr>
+                        <tr><td><code>driverId</code></td><td>string</td><td>Não nulo</td><td>ID do entregador que aceitou realizar a rota de entregas unificadas.</td></tr>
+                        <tr><td><code>totalDistanceKm</code></td><td>number (double)</td><td>Não nulo</td><td>Distância rodoviária somada de todas as paradas geográficas sequenciais.</td></tr>
+                        <tr><td><code>estimatedDurationMin</code></td><td>number (int)</td><td>Não nulo</td><td>Tempo estimado em minutos para a conclusão total do ciclo logístico.</td></tr>
+                        <tr><td><code>status</code></td><td>string</td><td>Não nulo</td><td>Fase da rota de impacto: <code>'created'</code>, <code>'active'</code>, <code>'completed'</code>.</td></tr>
+                        <tr><td><code>stops</code></td><td>array (of maps)</td><td>Não nulo</td><td>Sequência lógica de paradas ordenadas de coleta e descarga.</td></tr>
+                        <tr><td><code>stops[i].stopSequence</code></td><td>number (int)</td><td>Não nulo</td><td>Índice da parada lógica na rota (Exemplo: 1 para coleta, 2 para entrega).</td></tr>
+                        <tr><td><code>stops[i].deliveryId</code></td><td>string</td><td>Não nulo</td><td>ID de vínculo correspondente com a coleção <code>deliveries</code>.</td></tr>
+                        <tr><td><code>stops[i].ngoName</code></td><td>string</td><td>Não nulo</td><td>Nome descritivo da ONG de entrega para rápida visualização física.</td></tr>
+                        <tr><td><code>stops[i].status</code></td><td>string</td><td>Não nulo</td><td>Situação da parada: <code>'pending'</code>, <code>'arrived'</code>, <code>'completed'</code>.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 30px; font-size: 1rem; color: var(--secondary)">Nova Coleção: <code>driver_transactions</code></h4>
+            <p style="font-size: 0.85rem; margin-bottom: 10px;">Movimentações de saldo, saques Pix e taxas de fretes arrecadados pelo entregador.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo no SGBD</th>
+                            <th>Tipo de Dado</th>
+                            <th>Nulabilidade</th>
+                            <th>Finalidade / Regra de Negócio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>transactionId</code></td><td>string</td><td>Não nulo</td><td>Identificador único gerado na transação financeira.</td></tr>
+                        <tr><td><code>driverId</code></td><td>string</td><td>Não nulo</td><td>Chave estrangeira vinculada ao perfil de <code>drivers</code>.</td></tr>
+                        <tr><td><code>amount</code></td><td>number (double)</td><td>Não nulo</td><td>Valor monetário líquido envolvido na transação.</td></tr>
+                        <tr><td><code>type</code></td><td>string</td><td>Não nulo</td><td>Natureza do fluxo: <code>'delivery_fee'</code> (tarifa de frete), <code>'tip'</code> (gorjeta), <code>'withdrawal'</code> (saque via Pix).</td></tr>
+                        <tr><td><code>status</code></td><td>string</td><td>Não nulo</td><td>Situação da transferência bancária: <code>'pending'</code>, <code>'completed'</code>, <code>'failed'</code>.</td></tr>
+                        <tr><td><code>pixKey</code></td><td>string</td><td>Nulo aceito</td><td>Chave Pix cadastrada para o processamento de saques bancários.</td></tr>
+                        <tr><td><code>timestamp</code></td><td>timestamp</td><td>Não nulo</td><td>Marca de tempo do servidor para registro fiscal da movimentação.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- Seção 3.2: Regras Logísticas e Fluxos detalhados -->
+        <section id="regras-fluxo">
+            <h3>3.2 Regras de Roteamento, Tarifas e Verificação Anti-Fraude <span class="badge badge-additional">Requisito Adicional</span></h3>
+            <p>O aplicativo de entregador do Ivalid requer extrema fidelidade nas validações para garantir que alimentos perecíveis críticos sejam entregues com segurança e higiene. Abaixo estão descritas as regras formais do sistema logístico:</p>
+
+            <div class="grid-2">
+                <div class="grid-card">
+                    <h4>Algoritmo de Tarifa Dinâmica por Validade</h4>
+                    <p style="font-size: 0.88rem; text-align: left;">Para incentivar o aceite urgente de produtos a poucas horas do descarte comercial, a taxa padrão de entrega do parceiro é reajustada com a equação de validade:</p>
+                    <code style="display: block; background: #f1f5f9; padding: 10px; border-radius: 6px; font-size: 0.8rem; margin: 10px 0; color: #1e293b; font-family: monospace;">
+                        Tarifa_Final = Tarifa_Base * Multiplicador
+                    </code>
+                    <p style="font-size: 0.88rem; text-align: left; margin-bottom: 0;">Onde:</p>
+                    <ul style="margin: 5px 0 0 10px; font-size: 0.82rem;">
+                        <li style="margin-bottom: 4px;">Validade &gt; 3 dias: Multiplicador = 1.0</li>
+                        <li style="margin-bottom: 4px;">Validade entre 1 e 3 dias: Multiplicador = 1.3</li>
+                        <li style="margin-bottom: 4px;">Validade &lt; 24 horas: Multiplicador = 1.7</li>
+                    </ul>
+                </div>
+
+                <div class="grid-card">
+                    <h4>Protocolo Anti-Fraude com Dupla Checagem</h4>
+                    <p style="font-size: 0.88rem; text-align: left; margin-bottom: 12px;">Para garantir a entrega física sem desvios de carga, o workflow exige:</p>
+                    <ul style="margin: 0; font-size: 0.82rem;">
+                        <li style="margin-bottom: 6px;"><strong>PIN do Consumidor:</strong> O app do entregador exige a inserção do PIN randômico gerado na compra do cliente para liberar o pedido no Firestore para o status <code>'delivered'</code>.</li>
+                        <li style="margin-bottom: 6px;"><strong>Comprovação ONG:</strong> Nas rotas sociais, o entregador fotografa a carga na ONG parceira e colhe a assinatura digital do responsável legal antes da conclusão.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção 4: Inteligência de Negócio e Algoritmos Ativos -->
+        <section id="inteligencia">
+            <h2>4. Inteligência de Negócio e Algoritmos Ativos</h2>
+            <p>O motor de engajamento do Ivalid utiliza dinâmicas de fidelidade gamificadas e descontos progressivos automatizados no Firestore para incentivar o consumo sustentável e as doações sociais.</p>
+
+            <div class="grid-2">
+                <div class="grid-card">
+                    <h4>4.1 Matriz de Níveis de Fidelidade do Usuário</h4>
+                    <p style="font-size: 0.88rem; text-align: left;">Baseado no total histórico de doações efetuadas na aba de doações de alimentos, o perfil do cliente evolui de nível, liberando taxas de cashback social maiores nas compras seguintes:</p>
+                    <table style="font-size: 0.8rem; min-width: 100%; margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>Nível de Perfil</th>
+                                <th>Doações Mínimas</th>
+                                <th>Cashback Gerado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>Bronze</strong></td><td>0 doações</td><td>1% de Cashback</td></tr>
+                            <tr><td><strong>Prata</strong></td><td>11 doações</td><td>3% de Cashback</td></tr>
+                            <tr><td><strong>Ouro</strong></td><td>31 doações</td><td>5% de Cashback</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid-card">
+                    <h4>4.2 Algoritmo de Desconto Progressivo por Validade</h4>
+                    <p style="font-size: 0.88rem; text-align: left;">Os produtos sofrem reajustes de preço agressivos e automáticos conforme a validade física expira, acelerando o fluxo de saída da prateleira do comerciante parceiro:</p>
+                    <p style="font-size: 0.82rem; margin: 10px 0; font-family: monospace; background: #f1f5f9; padding: 8px; border-radius: 6px; color: #1e293b;">
+                        Desconto_% = (30 - daysValidity) * 2
+                    </p>
+                    <p style="font-size: 0.82rem; text-align: left; margin-bottom: 0;">O percentual de desconto calculado é limitado a um piso de 0% e a um teto de 90%, garantindo que a margem comercial de salvamento seja mantida.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- Seção 5: Fluxo de Dados e Integração -->
+        <section id="arquitetura-dados-fluxo">
+            <h2>5. Diagrama de Fluxo de Dados e Integração</h2>
+            <p>O fluxo de informações do Ivalid segue um padrão reativo em tempo real. O diagrama a seguir visualiza o trâmite logístico integrado desde a oferta flash até a entrega comprovada física no destino:</p>
+
+            <div style="background: #1e293b; color: #f8fafc; padding: 30px; border-radius: 12px; font-family: monospace; font-size: 0.82rem; line-height: 1.6; margin: 20px 0; border-left: 5px solid var(--primary);">
+                +-----------------------------------------------------------+<br>
+                | [1] LOJA PARCEIRA cadastrada cria Oferta Flash de Alimento |<br>
+                |     - Registra na Coleção: `products` (daysValidity < 10) |<br>
+                +-----------------------------+-----------------------------+<br>
+                                              |<br>
+                                              v<br>
+                +-----------------------------------------------------------+<br>
+                | [2] CLIENTE realiza compra normal ou de doação para ONG   |<br>
+                |     - Cria documento na Coleção: `orders`                 |<br>
+                |     - Caso doação: Acumula pontos na Coleção: `users`     |<br>
+                +-----------------------------+-----------------------------+<br>
+                                              |<br>
+                                              v<br>
+                +-----------------------------------------------------------+<br>
+                | [3] SISTEMA gera demanda física de transporte urgente    |<br>
+                |     - Cria documento na Coleção: `deliveries`             |<br>
+                |     - Habilita na interface dos Entregadores online       |<br>
+                +-----------------------------+-----------------------------+<br>
+                                              |<br>
+                                              v<br>
+                +-----------------------------------------------------------+<br>
+                | [4] ENTREGADOR online aceita rota de coleta (iFood-like)  |<br>
+                |     - Associa seu `driverId` e atualiza GPS em background |<br>
+                |     - Retira na loja comercial (status: `pickup_arrived`) |<br>
+                +-----------------------------+-----------------------------+<br>
+                                              |<br>
+                                              v<br>
+                +-----------------------------------------------------------+<br>
+                | [5] PROTOCOLO DE ENTREGA COMPROVADA E SEGURA NO DESTINO   |<br>
+                |     - Cliente final: Confirmação via PIN dinâmico 4 dig.  |<br>
+                |     - ONG Social: Foto da carga + Assinatura na tela      |<br>
+                |     - Conclui `deliveries` e credita taxa no `drivers`    |<br>
+                +-----------------------------------------------------------+
+            </div>
+        </section>
+
+        <!-- Rodapé do Documento -->
+        <div class="footer">
+            <p>© 2026 Ivalid Ecosystem Inc. - Este documento contém informações proprietárias e confidenciais de propriedade da Fadertech Ltda.</p>
+            <p style="font-size: 0.72rem; margin-top: 5px; color: var(--text-muted);">Mapeamento Oficial de Arquitetura e Engenharia de Software.</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

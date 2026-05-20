@@ -100,7 +100,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.7)),
+          borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.7)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -115,7 +115,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 2),
         ),
         labelStyle: textTheme.bodyLarge?.copyWith(
-          color: AppColors.onBackgroundLight.withOpacity(0.6),
+          color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -163,7 +163,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.outlineDark.withOpacity(0.5)),
+          borderSide: BorderSide(color: AppColors.outlineDark.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -178,7 +178,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 2),
         ),
         labelStyle: textTheme.bodyLarge?.copyWith(
-          color: AppColors.onBackgroundDark.withOpacity(0.6),
+          color: AppColors.onBackgroundDark.withValues(alpha: 0.6),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

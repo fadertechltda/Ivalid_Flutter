@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import '../../../donation/domain/services/donation_gamification_service.dart';
 import '../providers/profile_provider.dart';
+import 'ivalid_pago_page.dart';
 
 /// Tela de Perfil — migrada fielmente de ProfileScreen.kt
 class ProfilePage extends StatelessWidget {
@@ -62,7 +63,7 @@ class _ProfilePageContent extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.redPrimary.withOpacity(0.10),
+                    AppColors.redPrimary.withValues(alpha: 0.10),
                     AppColors.backgroundLight,
                   ],
                 ),
@@ -84,8 +85,8 @@ class _ProfilePageContent extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              AppColors.redPrimary.withOpacity(0.2),
-                              AppColors.redPrimary.withOpacity(0.08),
+                              AppColors.redPrimary.withValues(alpha: 0.2),
+                              AppColors.redPrimary.withValues(alpha: 0.08),
                             ],
                           ),
                           border: Border.all(
@@ -94,7 +95,7 @@ class _ProfilePageContent extends StatelessWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.redPrimary.withOpacity(0.15),
+                              color: AppColors.redPrimary.withValues(alpha: 0.15),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -129,7 +130,7 @@ class _ProfilePageContent extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.redPrimary.withOpacity(0.1),
+                                  color: AppColors.redPrimary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -165,7 +166,7 @@ class _ProfilePageContent extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -195,11 +196,11 @@ class _ProfilePageContent extends StatelessWidget {
                       color: levelBgColor,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: levelColor.withOpacity(0.2),
+                        color: levelColor.withValues(alpha: 0.2),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: levelColor.withOpacity(0.08),
+                          color: levelColor.withValues(alpha: 0.08),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -216,7 +217,7 @@ class _ProfilePageContent extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: levelColor.withOpacity(0.15),
+                                  color: levelColor.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Icon(
@@ -243,7 +244,7 @@ class _ProfilePageContent extends StatelessWidget {
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
                                         color: AppColors.onBackgroundLight
-                                            .withOpacity(0.5),
+                                            .withValues(alpha: 0.5),
                                       ),
                                     ),
                                   ],
@@ -258,7 +259,7 @@ class _ProfilePageContent extends StatelessWidget {
                                       fontSize: 10,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.onBackgroundLight
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -284,7 +285,7 @@ class _ProfilePageContent extends StatelessWidget {
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.onBackgroundLight.withOpacity(0.6),
+                                      color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ),
@@ -299,7 +300,7 @@ class _ProfilePageContent extends StatelessWidget {
                                 minHeight: 6,
                                 color: levelColor,
                                 backgroundColor:
-                                    levelColor.withOpacity(0.15),
+                                    levelColor.withValues(alpha: 0.15),
                               ),
                             ),
                           ] else
@@ -335,7 +336,7 @@ class _ProfilePageContent extends StatelessWidget {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -345,7 +346,14 @@ class _ProfilePageContent extends StatelessWidget {
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(18),
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const IvalidPagoPage(),
+                            ),
+                          );
+                        },
                         borderRadius: BorderRadius.circular(18),
                         child: Padding(
                           padding: const EdgeInsets.all(18),
@@ -355,7 +363,7 @@ class _ProfilePageContent extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: AppColors.redPrimary.withOpacity(0.1),
+                                  color: AppColors.redPrimary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: const Icon(
@@ -394,7 +402,7 @@ class _ProfilePageContent extends StatelessWidget {
                                       'Gerencie pagamentos e saldos',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
-                                        color: AppColors.onBackgroundLight.withOpacity(0.5),
+                                        color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                                       ),
                                     ),
                                   ],
@@ -402,7 +410,7 @@ class _ProfilePageContent extends StatelessWidget {
                               ),
                               Icon(
                                 Icons.chevron_right_rounded,
-                                color: AppColors.onBackgroundLight.withOpacity(0.3),
+                                color: AppColors.onBackgroundLight.withValues(alpha: 0.3),
                               ),
                             ],
                           ),
@@ -472,7 +480,7 @@ class _ProfilePageContent extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.redPrimary.withOpacity(0.06),
+                      color: AppColors.redPrimary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Material(
@@ -514,7 +522,7 @@ class _ProfilePageContent extends StatelessWidget {
                     'Ivalid v1.0.0',
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: AppColors.onBackgroundLight.withOpacity(0.3),
+                      color: AppColors.onBackgroundLight.withValues(alpha: 0.3),
                     ),
                   ),
 
@@ -538,7 +546,7 @@ class _ProfilePageContent extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            color: AppColors.onBackgroundLight.withOpacity(0.35),
+            color: AppColors.onBackgroundLight.withValues(alpha: 0.35),
             letterSpacing: 1.2,
           ),
         ),
@@ -607,7 +615,7 @@ class _ProfileMenuItem extends StatelessWidget {
                   child: Icon(
                     icon,
                     size: 20,
-                    color: AppColors.onBackgroundLight.withOpacity(0.6),
+                    color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -642,7 +650,7 @@ class _ProfileMenuItem extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 20,
-                  color: AppColors.onBackgroundLight.withOpacity(0.3),
+                  color: AppColors.onBackgroundLight.withValues(alpha: 0.3),
                 ),
               ],
             ),
@@ -678,7 +686,7 @@ class _AddressDialog extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.redPrimary.withOpacity(0.1),
+                    color: AppColors.redPrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.location_on_rounded, color: AppColors.redPrimary, size: 20),
@@ -795,7 +803,7 @@ class _AddressDialog extends StatelessWidget {
         labelText: label,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
-          color: AppColors.onBackgroundLight.withOpacity(0.5),
+          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
         ),
         filled: true,
         fillColor: AppColors.backgroundLight,
@@ -805,7 +813,7 @@ class _AddressDialog extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5)),
+          borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

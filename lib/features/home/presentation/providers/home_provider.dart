@@ -137,7 +137,6 @@ class HomeProvider extends ChangeNotifier {
         filtered.sort((a, b) => b.distanceKm.compareTo(a.distanceKm));
         break;
       case ProductSortOption.defaultSort:
-      default:
         filtered.sort((a, b) {
           int cmp = a.expiresInDays.compareTo(b.expiresInDays);
           if (cmp == 0) {

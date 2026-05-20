@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
+import 'package:ivalid/main_page.dart';
 import '../providers/auth_provider.dart';
-import 'package:ivalid/features/home/presentation/pages/home_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -125,7 +125,7 @@ class _SignupPageState extends State<SignupPage>
 
     if (success && mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const MainPage()),
         (route) => false,
       );
     }
@@ -189,7 +189,7 @@ class _SignupPageState extends State<SignupPage>
                             height: 4,
                             width: 64,
                             decoration: BoxDecoration(
-                              color: AppColors.greenAccent.withOpacity(0.9),
+                              color: AppColors.greenAccent.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -202,7 +202,7 @@ class _SignupPageState extends State<SignupPage>
                                 .bodyMedium
                                 ?.copyWith(
                                   color: AppColors.onBackgroundLight
-                                      .withOpacity(0.75),
+                                      .withValues(alpha: 0.75),
                                 ),
                           ),
                           const SizedBox(height: 28),
@@ -214,7 +214,7 @@ class _SignupPageState extends State<SignupPage>
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
+                                  color: Colors.black.withValues(alpha: 0.03),
                                   blurRadius: 32,
                                   offset: const Offset(0, 12),
                                 ),
@@ -245,7 +245,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5), width: 1),
+                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -260,7 +260,7 @@ class _SignupPageState extends State<SignupPage>
                                       color: _nameController.text.isNotEmpty
                                           ? AppColors.greenAccent
                                           : AppColors.onBackgroundLight
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                     ),
                                     errorText: _nameError,
                                   ),
@@ -290,7 +290,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5), width: 1),
+                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -305,7 +305,7 @@ class _SignupPageState extends State<SignupPage>
                                       color: _emailController.text.isNotEmpty
                                           ? AppColors.greenAccent
                                           : AppColors.onBackgroundLight
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                     ),
                                     errorText: _emailError,
                                   ),
@@ -335,7 +335,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5), width: 1),
+                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -351,7 +351,7 @@ class _SignupPageState extends State<SignupPage>
                                           _passwordController.text.isNotEmpty
                                               ? AppColors.greenAccent
                                               : AppColors.onBackgroundLight
-                                                  .withOpacity(0.4),
+                                                  .withValues(alpha: 0.4),
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -360,7 +360,7 @@ class _SignupPageState extends State<SignupPage>
                                             : Icons.visibility_off_outlined,
                                         color: _obscurePassword
                                             ? AppColors.onBackgroundLight
-                                                .withOpacity(0.4)
+                                                .withValues(alpha: 0.4)
                                             : AppColors.greenAccent,
                                       ),
                                       onPressed: () => setState(() =>
@@ -401,7 +401,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5), width: 1),
+                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -417,7 +417,7 @@ class _SignupPageState extends State<SignupPage>
                                               .text.isNotEmpty
                                           ? AppColors.greenAccent
                                           : AppColors.onBackgroundLight
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -426,7 +426,7 @@ class _SignupPageState extends State<SignupPage>
                                             : Icons.visibility_off_outlined,
                                         color: _obscureConfirmPassword
                                             ? AppColors.onBackgroundLight
-                                                .withOpacity(0.4)
+                                                .withValues(alpha: 0.4)
                                             : AppColors.greenAccent,
                                       ),
                                       onPressed: () => setState(() =>
@@ -548,7 +548,7 @@ class _SignupPageState extends State<SignupPage>
                                         vertical: 10, horizontal: 12),
                                     decoration: BoxDecoration(
                                       color: AppColors.redPrimary
-                                          .withOpacity(0.08),
+                                          .withValues(alpha: 0.08),
                                       borderRadius:
                                           BorderRadius.circular(12),
                                     ),
@@ -592,7 +592,7 @@ class _SignupPageState extends State<SignupPage>
                                     .bodyLarge
                                     ?.copyWith(
                                       color: AppColors.onBackgroundLight
-                                          .withOpacity(0.75),
+                                          .withValues(alpha: 0.75),
                                     ),
                               ),
                               const SizedBox(width: 8),
@@ -658,14 +658,14 @@ class _GradientRedButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               gradient: LinearGradient(
                 colors: [
-                  AppColors.redPrimary.withOpacity(enabled ? 1.0 : 0.5),
-                  AppColors.redPrimaryDark.withOpacity(enabled ? 1.0 : 0.5),
+                  AppColors.redPrimary.withValues(alpha: enabled ? 1.0 : 0.5),
+                  AppColors.redPrimaryDark.withValues(alpha: enabled ? 1.0 : 0.5),
                 ],
               ),
               boxShadow: enabled
                   ? [
                       BoxShadow(
-                        color: AppColors.redPrimary.withOpacity(0.25),
+                        color: AppColors.redPrimary.withValues(alpha: 0.25),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),

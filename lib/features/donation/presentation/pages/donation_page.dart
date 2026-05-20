@@ -67,7 +67,7 @@ class _DonationPageState extends State<DonationPage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.redPrimary.withOpacity(0.12),
+                    AppColors.redPrimary.withValues(alpha: 0.12),
                     AppColors.backgroundLight,
                   ],
                 ),
@@ -86,7 +86,7 @@ class _DonationPageState extends State<DonationPage> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: AppColors.redPrimary.withOpacity(0.15),
+                              color: AppColors.redPrimary.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: const Icon(
@@ -112,7 +112,7 @@ class _DonationPageState extends State<DonationPage> {
                                 'Alimento para quem precisa',
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
-                                  color: AppColors.onBackgroundLight.withOpacity(0.5),
+                                  color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                                 ),
                               ),
                             ],
@@ -128,7 +128,7 @@ class _DonationPageState extends State<DonationPage> {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
@@ -154,7 +154,7 @@ class _DonationPageState extends State<DonationPage> {
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -171,7 +171,7 @@ class _DonationPageState extends State<DonationPage> {
                             Container(
                               width: 1,
                               height: 40,
-                              color: AppColors.outlineLight.withOpacity(0.5),
+                              color: AppColors.outlineLight.withValues(alpha: 0.5),
                             ),
                             _ImpactStat(
                               icon: Icons.groups_rounded,
@@ -182,7 +182,7 @@ class _DonationPageState extends State<DonationPage> {
                             Container(
                               width: 1,
                               height: 40,
-                              color: AppColors.outlineLight.withOpacity(0.5),
+                              color: AppColors.outlineLight.withValues(alpha: 0.5),
                             ),
                             _ImpactStat(
                               icon: Icons.emoji_events_rounded,
@@ -309,7 +309,7 @@ class _ImpactStat extends StatelessWidget {
             label,
             style: GoogleFonts.inter(
               fontSize: 10,
-              color: AppColors.onBackgroundLight.withOpacity(0.5),
+              color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),
@@ -334,7 +334,7 @@ class _DonationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -414,14 +414,14 @@ class _DonationCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.volunteer_activism_rounded, size: 12, color: AppColors.onBackgroundLight.withOpacity(0.4)),
+                      Icon(Icons.volunteer_activism_rounded, size: 12, color: AppColors.onBackgroundLight.withValues(alpha: 0.4)),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           'Para ONGs parceiras',
                           style: GoogleFonts.inter(
                             fontSize: 10,
-                            color: AppColors.onBackgroundLight.withOpacity(0.4),
+                            color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
                           ),
                           maxLines: 1,
                         ),
@@ -490,7 +490,7 @@ class _ExplanationDialog extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.redPrimary.withOpacity(0.1),
+                color: AppColors.redPrimary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.volunteer_activism_rounded, size: 36, color: AppColors.redPrimary),
@@ -511,7 +511,7 @@ class _ExplanationDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: AppColors.onBackgroundLight.withOpacity(0.6),
+                color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                 height: 1.4,
               ),
             ),
@@ -519,9 +519,9 @@ class _ExplanationDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.greenAccent.withOpacity(0.08),
+                color: AppColors.greenAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.greenAccent.withOpacity(0.2)),
+                border: Border.all(color: AppColors.greenAccent.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -529,7 +529,7 @@ class _ExplanationDialog extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.greenAccent.withOpacity(0.15),
+                      color: AppColors.greenAccent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.emoji_events_rounded, color: AppColors.greenAccent, size: 20),

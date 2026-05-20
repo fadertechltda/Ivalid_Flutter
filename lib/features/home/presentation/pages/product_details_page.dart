@@ -37,7 +37,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final String urgencyLabel;
 
     if (product.expiresInDays <= 10) {
-      urgencyBg = AppColors.redPrimary.withOpacity(0.12);
+      urgencyBg = AppColors.redPrimary.withValues(alpha: 0.12);
       urgencyFg = AppColors.redPrimary;
       urgencyLabel = '⚡ Vence em ${product.expiresInDays}d';
     } else if (product.expiresInDays <= 30) {
@@ -45,7 +45,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       urgencyFg = const Color(0xFFF57C00);
       urgencyLabel = 'Vence em ${product.expiresInDays}d';
     } else {
-      urgencyBg = AppColors.greenAccent.withOpacity(0.12);
+      urgencyBg = AppColors.greenAccent.withValues(alpha: 0.12);
       urgencyFg = AppColors.greenAccent;
       urgencyLabel = 'Vence em ${product.expiresInDays}d';
     }
@@ -105,7 +105,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
+                                  color: Colors.black.withValues(alpha: 0.08),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -174,7 +174,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.redPrimary.withOpacity(0.08),
+                            color: AppColors.redPrimary.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -209,7 +209,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -243,13 +243,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                       '${product.distanceKm.toStringAsFixed(1)} km de distância',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
-                                        color: AppColors.onBackgroundLight.withOpacity(0.5),
+                                        color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(Icons.near_me_rounded, size: 18, color: AppColors.onBackgroundLight.withOpacity(0.3)),
+                              Icon(Icons.near_me_rounded, size: 18, color: AppColors.onBackgroundLight.withValues(alpha: 0.3)),
                             ],
                           ),
                         ),
@@ -262,7 +262,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.onBackgroundLight.withOpacity(0.45),
+                            color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -286,7 +286,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
-                                    color: AppColors.onBackgroundLight.withOpacity(0.4),
+                                    color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -304,7 +304,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withValues(alpha: 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -338,10 +338,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.greenAccent.withOpacity(0.08),
+                            color: AppColors.greenAccent.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: AppColors.greenAccent.withOpacity(0.15),
+                              color: AppColors.greenAccent.withValues(alpha: 0.15),
                             ),
                           ),
                           child: Row(
@@ -350,7 +350,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 width: 36,
                                 height: 36,
                                 decoration: BoxDecoration(
-                                  color: AppColors.greenAccent.withOpacity(0.12),
+                                  color: AppColors.greenAccent.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(Icons.schedule_rounded, color: AppColors.greenAccent, size: 18),
@@ -386,7 +386,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 16,
                   offset: const Offset(0, -4),
                 ),
@@ -404,7 +404,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         'Total',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: AppColors.onBackgroundLight.withOpacity(0.5),
+                          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                         ),
                       ),
                       Text(
@@ -454,7 +454,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.redPrimary.withOpacity(0.3),
+                          color: AppColors.redPrimary.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -546,7 +546,7 @@ class _StepperButton extends StatelessWidget {
     final bool enabled = onTap != null;
     return Material(
       color: enabled
-          ? AppColors.redPrimary.withOpacity(0.1)
+          ? AppColors.redPrimary.withValues(alpha: 0.1)
           : Colors.grey.shade100,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(

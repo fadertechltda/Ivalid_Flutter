@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 import 'signup_page.dart';
-import 'package:ivalid/features/home/presentation/pages/home_page.dart';
+import 'package:ivalid/main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,7 +17,6 @@ class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
 
   late AnimationController _fadeController;
@@ -94,7 +93,7 @@ class _LoginPageState extends State<LoginPage>
 
     if (success && mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const MainPage()),
         (route) => false,
       );
     }
@@ -154,7 +153,7 @@ class _LoginPageState extends State<LoginPage>
                         'Entre com sua conta Ivalid',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: AppColors.onBackgroundLight
-                                  .withOpacity(0.6),
+                                  .withValues(alpha: 0.6),
                             ),
                       ),
                       const SizedBox(height: 36),
@@ -166,7 +165,7 @@ class _LoginPageState extends State<LoginPage>
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
+                              color: Colors.black.withValues(alpha: 0.03),
                               blurRadius: 32,
                               offset: const Offset(0, 12),
                             ),
@@ -197,7 +196,7 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5), width: 1),
+                                  borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -212,7 +211,7 @@ class _LoginPageState extends State<LoginPage>
                                   color: _emailController.text.isNotEmpty
                                       ? AppColors.redPrimary
                                       : AppColors.onBackgroundLight
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                 ),
                                 errorText: _emailError,
                               ),
@@ -246,7 +245,7 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: AppColors.outlineLight.withOpacity(0.5), width: 1),
+                                  borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -261,7 +260,7 @@ class _LoginPageState extends State<LoginPage>
                                   color: _passwordController.text.isNotEmpty
                                       ? AppColors.redPrimary
                                       : AppColors.onBackgroundLight
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -270,7 +269,7 @@ class _LoginPageState extends State<LoginPage>
                                         : Icons.visibility_off_outlined,
                                     color: _obscureText
                                         ? AppColors.onBackgroundLight
-                                            .withOpacity(0.4)
+                                            .withValues(alpha: 0.4)
                                         : AppColors.redPrimary,
                                   ),
                                   onPressed: () => setState(
@@ -288,7 +287,7 @@ class _LoginPageState extends State<LoginPage>
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 10, horizontal: 12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.redPrimary.withOpacity(0.08),
+                                  color: AppColors.redPrimary.withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -313,7 +312,7 @@ class _LoginPageState extends State<LoginPage>
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.onBackgroundLight
-                                        .withOpacity(0.6),
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                               ),
@@ -345,7 +344,7 @@ class _LoginPageState extends State<LoginPage>
                                 .bodyLarge
                                 ?.copyWith(
                                   color: AppColors.onBackgroundLight
-                                      .withOpacity(0.75),
+                                      .withValues(alpha: 0.75),
                                 ),
                           ),
                           const SizedBox(width: 8),
@@ -355,9 +354,9 @@ class _LoginPageState extends State<LoginPage>
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  pageBuilder: (_, __, ___) =>
+                                  pageBuilder: (_, _, _) =>
                                       const SignupPage(),
-                                  transitionsBuilder: (_, a, __, c) =>
+                                  transitionsBuilder: (_, a, _, c) =>
                                       FadeTransition(
                                           opacity: a, child: c),
                                   transitionDuration:
@@ -420,14 +419,14 @@ class _GradientRedButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
                 colors: [
-                  AppColors.redPrimary.withOpacity(enabled ? 1.0 : 0.5),
-                  AppColors.redPrimaryDark.withOpacity(enabled ? 1.0 : 0.5),
+                  AppColors.redPrimary.withValues(alpha: enabled ? 1.0 : 0.5),
+                  AppColors.redPrimaryDark.withValues(alpha: enabled ? 1.0 : 0.5),
                 ],
               ),
               boxShadow: enabled
                   ? [
                       BoxShadow(
-                        color: AppColors.redPrimary.withOpacity(0.25),
+                        color: AppColors.redPrimary.withValues(alpha: 0.25),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),

@@ -7,7 +7,7 @@ import 'package:ivalid/features/home/presentation/providers/home_provider.dart';
 import 'package:ivalid/features/home/domain/models/product.dart';
 import 'package:ivalid/features/home/presentation/pages/product_details_page.dart';
 
-/// Tela FLASH — exibe apenas produtos com menos de 10 dias para vencer.
+/// Tela FLASH — exibe apenas produtos com até 10 dias para vencer.
 /// Foco em urgência: design agressivo com contagem regressiva e badges de alerta.
 class FlashPage extends StatelessWidget {
   const FlashPage({super.key});
@@ -16,9 +16,9 @@ class FlashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeProvider = context.watch<HomeProvider>();
 
-    // Filtra apenas produtos com < 10 dias de validade
+    // Filtra apenas produtos com <= 10 dias de validade
     final flashProducts = homeProvider.filteredProducts
-        .where((p) => p.expiresInDays < 10)
+        .where((p) => p.expiresInDays <= 10)
         .toList()
       ..sort((a, b) => a.expiresInDays.compareTo(b.expiresInDays));
 
@@ -56,7 +56,7 @@ class FlashPage extends StatelessWidget {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -91,7 +91,7 @@ class FlashPage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -112,10 +112,10 @@ class FlashPage extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.yellowAccent.withOpacity(0.4),
+                            color: AppColors.yellowAccent.withValues(alpha: 0.4),
                           ),
                         ),
                         child: Row(
@@ -124,7 +124,7 @@ class FlashPage extends StatelessWidget {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: AppColors.yellowAccent.withOpacity(0.25),
+                                color: AppColors.yellowAccent.withValues(alpha: 0.25),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
@@ -151,7 +151,7 @@ class FlashPage extends StatelessWidget {
                                     'Produtos com menos de 10 dias para o vencimento. Aproveite os maiores descontos!',
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
-                                      color: Colors.white.withOpacity(0.8),
+                                      color: Colors.white.withValues(alpha: 0.8),
                                       height: 1.4,
                                     ),
                                   ),
@@ -188,12 +188,12 @@ class FlashPage extends StatelessWidget {
                         height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.outlineLight.withOpacity(0.3),
+                          color: AppColors.outlineLight.withValues(alpha: 0.3),
                         ),
                         child: Icon(
                           Icons.flash_off,
                           size: 50,
-                          color: AppColors.onBackgroundLight.withOpacity(0.4),
+                          color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -211,7 +211,7 @@ class FlashPage extends StatelessWidget {
                         'Produtos com menos de 10 dias de validade aparecerão aqui com descontos especiais.',
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: AppColors.onBackgroundLight.withOpacity(0.6),
+                          color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -280,7 +280,7 @@ class _FlashProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -295,7 +295,7 @@ class _FlashProductCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [urgencyColor, urgencyColor.withOpacity(0.8)],
+                  colors: [urgencyColor, urgencyColor.withValues(alpha: 0.8)],
                 ),
               ),
               child: Row(
@@ -338,7 +338,7 @@ class _FlashProductCard extends StatelessWidget {
                             fit: BoxFit.contain,
                             width: 90,
                             height: 90,
-                            errorWidget: (_, __, ___) => const Icon(
+                            errorWidget: (_, _, _) => const Icon(
                               Icons.image_not_supported,
                               color: Colors.grey,
                             ),
@@ -391,7 +391,7 @@ class _FlashProductCard extends StatelessWidget {
                           '${product.brand} • ${product.storeName}',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: AppColors.onBackgroundLight.withOpacity(0.5),
+                            color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -401,7 +401,7 @@ class _FlashProductCard extends StatelessWidget {
                           '${product.distanceKm.toStringAsFixed(1)} km',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: AppColors.onBackgroundLight.withOpacity(0.5),
+                            color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -441,7 +441,7 @@ class _FlashProductCard extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.redPrimary.withOpacity(0.1),
+                      color: AppColors.redPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
