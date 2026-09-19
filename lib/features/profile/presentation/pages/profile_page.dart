@@ -5,6 +5,7 @@ import 'package:ivalid/core/theme/app_colors.dart';
 import '../../../donation/domain/services/donation_gamification_service.dart';
 import '../providers/profile_provider.dart';
 import 'ivalid_pago_page.dart';
+import 'config_page.dart';
 
 /// Tela de Perfil — migrada fielmente de ProfileScreen.kt
 class ProfilePage extends StatelessWidget {
@@ -158,24 +159,34 @@ class _ProfilePageContent extends StatelessWidget {
                         ),
                       ),
                       // Settings
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ConfigPage(),
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.settings_outlined,
-                          color: AppColors.onBackgroundLight,
-                          size: 20,
+                          );
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.settings_outlined,
+                            color: AppColors.onBackgroundLight,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ],
