@@ -21,12 +21,12 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
     final paymentProvider = context.watch<PaymentProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.onBackgroundLight, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.onBg, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -35,7 +35,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
             fontSize: 16,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
-            color: AppColors.onBackgroundLight,
+            color: context.onBg,
           ),
         ),
         centerTitle: true,
@@ -79,7 +79,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.onBackgroundLight,
+                      color: context.onBg,
                     ),
                   ),
                   TextButton(
@@ -106,7 +106,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.onBackgroundLight,
+                  color: context.onBg,
                 ),
               ),
               const SizedBox(height: 16),
@@ -123,7 +123,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.onBackgroundLight,
+                      color: context.onBg,
                     ),
                   ),
                   TextButton(
@@ -302,6 +302,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _quickActionItem(
+          context: context,
           icon: Icons.add_rounded,
           label: 'Adicionar',
           onTap: () {
@@ -310,6 +311,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
           },
         ),
         _quickActionItem(
+          context: context,
           icon: Icons.swap_horiz_rounded,
           label: 'Transferir',
           onTap: () {
@@ -322,6 +324,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
           },
         ),
         _quickActionItem(
+          context: context,
           icon: Icons.local_activity_outlined,
           label: 'Cupons',
           onTap: () {
@@ -334,6 +337,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
           },
         ),
         _quickActionItem(
+          context: context,
           icon: Icons.credit_card_rounded,
           label: 'Cartões',
           onTap: () => _showPaymentOptionsSheet(context),
@@ -343,6 +347,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
   }
 
   Widget _quickActionItem({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -356,11 +361,11 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.surface,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: context.cardShadow,
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -379,7 +384,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppColors.onBackgroundLight.withValues(alpha: 0.7),
+            color: context.onBgAlpha(0.7),
           ),
         ),
       ],
@@ -400,7 +405,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
               width: 140,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.surface,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   color: AppColors.redPrimary.withValues(alpha: 0.3),
@@ -507,7 +512,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
         gradient: cardGrad,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: context.cardShadow,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -688,11 +693,11 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 width: 58,
                 height: 58,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
+                      color: context.cardShadow,
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -700,7 +705,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 ),
                 child: Icon(
                   service['icon'],
-                  color: AppColors.onBackgroundLight.withValues(alpha: 0.7),
+                  color: context.onBgAlpha(0.7),
                   size: 22,
                 ),
               ),
@@ -714,7 +719,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
+                color: context.onBgAlpha(0.6),
                 height: 1.1,
               ),
             ),
@@ -738,11 +743,11 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.surface,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
+                color: context.cardShadow,
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -754,7 +759,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: isPositive ? AppColors.greenAccent.withValues(alpha: 0.1) : AppColors.redPrimary.withValues(alpha: 0.08),
+                  color: context.softBg(isPositive ? AppColors.greenAccent : AppColors.redPrimary),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -773,7 +778,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.onBackgroundLight,
+                        color: context.onBg,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -781,7 +786,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                       tx['subtitle'] as String,
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
+                        color: context.onBgAlpha(0.45),
                       ),
                     ),
                   ],
@@ -795,7 +800,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: isPositive ? AppColors.greenAccent : AppColors.onBackgroundLight,
+                      color: isPositive ? AppColors.greenAccent : context.onBg,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -803,7 +808,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                     tx['date'] as String,
                     style: GoogleFonts.inter(
                       fontSize: 10,
-                      color: AppColors.onBackgroundLight.withValues(alpha: 0.3),
+                      color: context.onBgAlpha(0.3),
                     ),
                   ),
                 ],
@@ -821,7 +826,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: context.surface,
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -832,7 +837,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 width: 42,
                 height: 4.5,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: ctx.outline,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -842,11 +847,12 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.onBackgroundLight,
+                  color: ctx.onBg,
                 ),
               ),
               const SizedBox(height: 20),
               _paymentOptionSheetTile(
+                context: ctx,
                 icon: Icons.credit_card_rounded,
                 title: 'Crédito',
                 subtitle: 'Visa, Mastercard, Elo, Amex e Hipercard',
@@ -861,6 +867,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 },
               ),
               _paymentOptionSheetTile(
+                context: ctx,
                 icon: Icons.payment_rounded,
                 title: 'Débito',
                 subtitle: 'Use para transações imediatas na sua conta',
@@ -875,6 +882,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 },
               ),
               _paymentOptionSheetTile(
+                context: ctx,
                 icon: Icons.card_giftcard_rounded,
                 title: 'Voucher',
                 subtitle: 'Caju, Flash, Swile e Outras bandeiras',
@@ -889,6 +897,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 },
               ),
               _paymentOptionSheetTile(
+                context: ctx,
                 icon: Icons.restaurant_rounded,
                 title: 'Vale Refeição',
                 subtitle: 'Sodexo, Alelo, Ticket e Outras',
@@ -908,6 +917,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
   }
 
   Widget _paymentOptionSheetTile({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -941,7 +951,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.onBackgroundLight,
+                      color: context.onBg,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -949,7 +959,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                     subtitle,
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
+                      color: context.onBgAlpha(0.45),
                     ),
                   ),
                 ],
@@ -957,7 +967,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: AppColors.onBackgroundLight.withValues(alpha: 0.3),
+              color: context.onBgAlpha(0.3),
             ),
           ],
         ),
@@ -971,7 +981,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: context.surface,
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -982,7 +992,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 width: 42,
                 height: 4.5,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: ctx.outline,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -992,7 +1002,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.onBackgroundLight,
+                  color: ctx.onBg,
                 ),
               ),
               const SizedBox(height: 10),
@@ -1001,7 +1011,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                   padding: const EdgeInsets.all(40),
                   child: Text(
                     'Nenhum cartão cadastrado.',
-                    style: GoogleFonts.inter(color: Colors.grey),
+                    style: GoogleFonts.inter(color: ctx.onBgAlpha(0.45)),
                   ),
                 )
               else
@@ -1015,9 +1025,12 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                         leading: _buildBrandIconMini(card.brand),
                         title: Text(
                           '${card.brand} (•••• ${card.number.substring(card.number.length - 4)})',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.w700),
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: ctx.onBg),
                         ),
-                        subtitle: Text('${card.type} • Expira em ${card.expiryDate}'),
+                        subtitle: Text(
+                          '${card.type} • Expira em ${card.expiryDate}',
+                          style: TextStyle(color: ctx.onBgAlpha(0.45)),
+                        ),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete_outline_rounded, color: AppColors.redPrimary),
                           onPressed: () {
@@ -1042,21 +1055,22 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
+          backgroundColor: ctx.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             'Excluir Cartão',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w800),
+            style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: ctx.onBg),
           ),
           content: Text(
             'Tem certeza que deseja remover o cartão ${card.brand} final ${card.number.substring(card.number.length - 4)}?',
-            style: GoogleFonts.inter(),
+            style: GoogleFonts.inter(color: ctx.onBgAlpha(0.7)),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(
                 'Cancelar',
-                style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.w600),
+                style: GoogleFonts.inter(color: ctx.onBgAlpha(0.45), fontWeight: FontWeight.w600),
               ),
             ),
             TextButton(
@@ -1087,17 +1101,18 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
+          backgroundColor: ctx.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           title: Text(
             'Adicionar Saldo',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18),
+            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18, color: ctx.onBg),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'Selecione ou insira um valor para recarregar sua carteira digital Ivalid Pago:',
-                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
+                style: GoogleFonts.inter(fontSize: 13, color: ctx.onBgAlpha(0.45)),
               ),
               const SizedBox(height: 20),
               Row(
@@ -1127,7 +1142,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
               onPressed: () => Navigator.pop(ctx),
               child: Text(
                 'Voltar',
-                style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.w600),
+                style: GoogleFonts.inter(color: ctx.onBgAlpha(0.45), fontWeight: FontWeight.w600),
               ),
             ),
             TextButton(
@@ -1159,6 +1174,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
       context: context,
       builder: (ctx) {
         return Dialog(
+          backgroundColor: ctx.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -1183,7 +1199,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                   style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.onBackgroundLight,
+                    color: ctx.onBg,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -1192,7 +1208,7 @@ class _IvalidPagoPageState extends State<IvalidPagoPage> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: AppColors.onBackgroundLight.withValues(alpha: 0.55),
+                    color: ctx.onBgAlpha(0.55),
                     height: 1.4,
                   ),
                 ),

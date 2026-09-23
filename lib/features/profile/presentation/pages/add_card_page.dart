@@ -70,12 +70,12 @@ class _AddCardPageState extends State<AddCardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.onBackgroundLight, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.onBg, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -84,7 +84,7 @@ class _AddCardPageState extends State<AddCardPage> {
             fontSize: 16,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
-            color: AppColors.onBackgroundLight,
+            color: context.onBg,
           ),
         ),
         centerTitle: true,
@@ -503,7 +503,7 @@ class _AddCardPageState extends State<AddCardPage> {
       style: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: AppColors.onBackgroundLight.withValues(alpha: 0.55),
+        color: context.onBgAlpha(0.55),
       ),
     );
   }
@@ -513,7 +513,7 @@ class _AddCardPageState extends State<AddCardPage> {
       controller: _numberController,
       focusNode: _numberFocusNode,
       keyboardType: TextInputType.number,
-      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: context.onBg),
       maxLength: 19, // 16 dígitos + 3 espaços
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
@@ -522,16 +522,16 @@ class _AddCardPageState extends State<AddCardPage> {
       decoration: InputDecoration(
         counterText: '',
         hintText: '0000 0000 0000 0000',
-        hintStyle: TextStyle(color: Colors.grey[400]),
+        hintStyle: TextStyle(color: context.onBgAlpha(0.45)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+          borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -566,22 +566,22 @@ class _AddCardPageState extends State<AddCardPage> {
       focusNode: _nameFocusNode,
       keyboardType: TextInputType.text,
       textCapitalization: TextCapitalization.characters,
-      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: context.onBg),
       onChanged: (val) {
         setState(() {}); // Força update da visualização do cartão
       },
       decoration: InputDecoration(
         hintText: 'Como impresso no cartão',
-        hintStyle: TextStyle(color: Colors.grey[400]),
+        hintStyle: TextStyle(color: context.onBgAlpha(0.45)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+          borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -606,7 +606,7 @@ class _AddCardPageState extends State<AddCardPage> {
       controller: _expiryController,
       focusNode: _expiryFocusNode,
       keyboardType: TextInputType.number,
-      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: context.onBg),
       maxLength: 5, // MM/AA
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
@@ -618,16 +618,16 @@ class _AddCardPageState extends State<AddCardPage> {
       decoration: InputDecoration(
         counterText: '',
         hintText: 'MM/AA',
-        hintStyle: TextStyle(color: Colors.grey[400]),
+        hintStyle: TextStyle(color: context.onBgAlpha(0.45)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+          borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -655,7 +655,7 @@ class _AddCardPageState extends State<AddCardPage> {
       controller: _cvvController,
       focusNode: _cvvFocusNode,
       keyboardType: TextInputType.number,
-      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+      style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: context.onBg),
       maxLength: _cardBrand == 'AMERICANEXPRESS' ? 4 : 3,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
@@ -667,16 +667,16 @@ class _AddCardPageState extends State<AddCardPage> {
       decoration: InputDecoration(
         counterText: '',
         hintText: '123',
-        hintStyle: TextStyle(color: Colors.grey[400]),
+        hintStyle: TextStyle(color: context.onBgAlpha(0.45)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+          borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

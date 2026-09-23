@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -99,12 +100,125 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
+  void _showSnack(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  void _onForgotPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty || !_emailRegex.hasMatch(email)) {
+      setState(() => _emailError = 'E-mail inválido');
+      _showSnack(
+        'Preencha um e-mail válido para redefinir a senha.',
+        AppColors.redPrimary,
+      );
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: dialogContext.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(
+          'Redefinir senha',
+          style: GoogleFonts.inter(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: dialogContext.onBg,
+          ),
+        ),
+        content: Text(
+          'Enviaremos um link de redefinição para $email.',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: dialogContext.onBgAlpha(0.75),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                color: dialogContext.onBgAlpha(0.6),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              'Enviar link',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700,
+                color: AppColors.redPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (!mounted) return;
+      _showSnack(
+        'Link de redefinição enviado para $email.',
+        AppColors.greenAccent,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      _showSnack(
+        _resetErrorMessage(e),
+        AppColors.redPrimary,
+      );
+    }
+  }
+
+  String _resetErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'E-mail inválido.';
+      case 'user-not-found':
+        return 'Não encontramos uma conta com esse e-mail.';
+      case 'too-many-requests':
+        return 'Muitas tentativas. Tente novamente mais tarde.';
+      case 'network-request-failed':
+        return 'Sem conexão. Verifique sua internet.';
+      default:
+        return 'Não foi possível enviar o link. Tente novamente.';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
@@ -152,8 +266,7 @@ class _LoginPageState extends State<LoginPage>
                       Text(
                         'Entre com sua conta Ivalid',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.onBackgroundLight
-                                  .withValues(alpha: 0.6),
+                              color: context.onBgAlpha(0.6),
                             ),
                       ),
                       const SizedBox(height: 36),
@@ -161,11 +274,11 @@ class _LoginPageState extends State<LoginPage>
                       // ─── Card de formulário ───────────────────────
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: context.surface,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
+                              color: context.cardShadow,
                               blurRadius: 32,
                               offset: const Offset(0, 12),
                             ),
@@ -188,7 +301,7 @@ class _LoginPageState extends State<LoginPage>
                               decoration: InputDecoration(
                                 labelText: 'E-mail',
                                 filled: true,
-                                fillColor: AppColors.backgroundLight,
+                                fillColor: context.chipBg,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -196,7 +309,7 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
+                                  borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -210,8 +323,7 @@ class _LoginPageState extends State<LoginPage>
                                   Icons.email_outlined,
                                   color: _emailController.text.isNotEmpty
                                       ? AppColors.redPrimary
-                                      : AppColors.onBackgroundLight
-                                          .withValues(alpha: 0.4),
+                                      : context.onBgAlpha(0.4),
                                 ),
                                 errorText: _emailError,
                               ),
@@ -237,7 +349,7 @@ class _LoginPageState extends State<LoginPage>
                               decoration: InputDecoration(
                                 labelText: 'Senha',
                                 filled: true,
-                                fillColor: AppColors.backgroundLight,
+                                fillColor: context.chipBg,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -245,7 +357,7 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
+                                  borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -259,8 +371,7 @@ class _LoginPageState extends State<LoginPage>
                                   Icons.lock_outline,
                                   color: _passwordController.text.isNotEmpty
                                       ? AppColors.redPrimary
-                                      : AppColors.onBackgroundLight
-                                          .withValues(alpha: 0.4),
+                                      : context.onBgAlpha(0.4),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -268,8 +379,7 @@ class _LoginPageState extends State<LoginPage>
                                         ? Icons.visibility_outlined
                                         : Icons.visibility_off_outlined,
                                     color: _obscureText
-                                        ? AppColors.onBackgroundLight
-                                            .withValues(alpha: 0.4)
+                                        ? context.onBgAlpha(0.4)
                                         : AppColors.redPrimary,
                                   ),
                                   onPressed: () => setState(
@@ -306,13 +416,12 @@ class _LoginPageState extends State<LoginPage>
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: _onForgotPassword,
                                 child: Text(
                                   'Esqueci minha senha',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.onBackgroundLight
-                                        .withValues(alpha: 0.6),
+                                    color: context.onBgAlpha(0.6),
                                   ),
                                 ),
                               ),
@@ -343,8 +452,7 @@ class _LoginPageState extends State<LoginPage>
                                 .textTheme
                                 .bodyLarge
                                 ?.copyWith(
-                                  color: AppColors.onBackgroundLight
-                                      .withValues(alpha: 0.75),
+                                  color: context.onBgAlpha(0.75),
                                 ),
                           ),
                           const SizedBox(width: 8),

@@ -49,18 +49,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final cartProvider = context.watch<CartProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: context.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.onBackgroundLight),
+          icon: Icon(Icons.arrow_back, color: context.onBg),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Finalizar Pedido',
           style: GoogleFonts.inter(
-            color: AppColors.onBackgroundLight,
+            color: context.onBg,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -76,42 +76,42 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSectionTitle('Resumo dos Itens'),
+                        _buildSectionTitle(context, 'Resumo dos Itens'),
                         const SizedBox(height: 12),
-                        _buildItemsList(cartProvider),
+                        _buildItemsList(context, cartProvider),
                         const SizedBox(height: 30),
-                        _buildSectionTitle('Método de Pagamento'),
+                        _buildSectionTitle(context, 'Método de Pagamento'),
                         const SizedBox(height: 12),
-                        _buildPaymentMethods(),
+                        _buildPaymentMethods(context),
                       ],
                     ),
                   ),
                 ),
-                _buildBottomSummary(cartProvider),
+                _buildBottomSummary(context, cartProvider),
               ],
             ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
       style: GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.onBackgroundLight,
+        color: context.onBg,
       ),
     );
   }
 
-  Widget _buildItemsList(CartProvider cartProvider) {
+  Widget _buildItemsList(BuildContext context, CartProvider cartProvider) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: context.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: context.cardShadow,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -122,7 +122,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: cartProvider.items.length,
         separatorBuilder: (context, index) =>
-            Divider(color: Colors.grey.shade100, height: 1),
+            Divider(color: context.outline.withValues(alpha: 0.5), height: 1),
         itemBuilder: (context, index) {
           final item = cartProvider.items[index];
           return Padding(
@@ -143,7 +143,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     item.product.name,
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: AppColors.onBackgroundLight,
+                      color: context.onBg,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -154,7 +154,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
-                    color: AppColors.onBackgroundLight,
+                    color: context.onBg,
                   ),
                 ),
               ],
@@ -165,7 +165,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildPaymentMethods() {
+  Widget _buildPaymentMethods(BuildContext context) {
     return Column(
       children: _paymentMethods.map((method) {
         final isSelected = _selectedPaymentMethod == method['id'];
@@ -184,13 +184,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.redPrimary.withValues(alpha: 0.05)
-                    : AppColors.surfaceLight,
+                    ? context.softBg(AppColors.redPrimary)
+                    : context.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected
                       ? AppColors.redPrimary
-                      : AppColors.outlineLight,
+                      : context.outline,
                   width: isSelected ? 2 : 1,
                 ),
               ),
@@ -199,8 +199,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   Icon(
                     method['icon'],
                     color: isEnabled
-                        ? (isSelected ? AppColors.redPrimary : Colors.grey)
-                        : Colors.grey.shade300,
+                        ? (isSelected
+                            ? AppColors.redPrimary
+                            : context.onBgAlpha(0.45))
+                        : context.onBgAlpha(0.25),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -213,8 +215,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             fontWeight:
                                 isSelected ? FontWeight.bold : FontWeight.w500,
                             color: isEnabled
-                                ? AppColors.onBackgroundLight
-                                : Colors.grey.shade400,
+                                ? context.onBg
+                                : context.onBgAlpha(0.35),
                             fontSize: 14,
                           ),
                         ),
@@ -239,7 +241,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         border: Border.all(
                           color: isSelected
                               ? AppColors.redPrimary
-                              : Colors.grey.shade400,
+                              : context.onBgAlpha(0.35),
                           width: 2,
                         ),
                       ),
@@ -265,14 +267,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildBottomSummary(CartProvider cartProvider) {
+  Widget _buildBottomSummary(BuildContext context, CartProvider cartProvider) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: context.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: context.cardShadow,
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -291,7 +293,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.onBackgroundLight,
+                    color: context.onBg,
                   ),
                 ),
                 Text(
@@ -377,6 +379,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         context: context,
         barrierDismissible: false,
         builder: (dialogContext) => AlertDialog(
+          backgroundColor: dialogContext.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -389,7 +392,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.onBackgroundLight,
+                  color: dialogContext.onBg,
                 ),
               ),
               const SizedBox(height: 8),
@@ -397,7 +400,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 'Seu pedido foi confirmado e já está sendo preparado.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
-                  color: Colors.grey.shade600,
+                  color: dialogContext.onBgAlpha(0.6),
                   fontSize: 14,
                 ),
               ),

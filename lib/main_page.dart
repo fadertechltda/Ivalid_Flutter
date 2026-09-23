@@ -29,11 +29,14 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    // StatusBar clara para combinar com o tema light
+    // StatusBar acompanha o tema ativo
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness:
+            context.isDarkMode ? Brightness.light : Brightness.dark,
+        statusBarBrightness:
+            context.isDarkMode ? Brightness.dark : Brightness.light,
       ),
     );
 
@@ -42,17 +45,17 @@ class _MainPageState extends State<MainPage> {
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildBottomNav(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: context.isDarkMode ? 0.4 : 0.06),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -100,7 +103,7 @@ class _MainPageState extends State<MainPage> {
             Icon(
               isActive ? activeIcon : icon,
               size: 22,
-              color: isActive ? AppColors.redPrimary : Colors.grey.shade500,
+              color: isActive ? AppColors.redPrimary : context.onBgAlpha(0.45),
             ),
             if (isActive) ...[
               const SizedBox(width: 6),

@@ -22,6 +22,7 @@ class ProfileProvider extends ChangeNotifier {
   // Modal de endereço
   bool _isAddressDialogVisible = false;
   bool _isAddressLoading = false;
+  bool _isSavingAddress = false;
   String _cep = '';
   String _street = '';
   String _number = '';
@@ -39,6 +40,7 @@ class ProfileProvider extends ChangeNotifier {
   double get availableCashback => _availableCashback;
   bool get isAddressDialogVisible => _isAddressDialogVisible;
   bool get isAddressLoading => _isAddressLoading;
+  bool get isSavingAddress => _isSavingAddress;
   String get cep => _cep;
   String get street => _street;
   String get number => _number;
@@ -82,6 +84,7 @@ class ProfileProvider extends ChangeNotifier {
           user.displayName ??
           'Cliente Ivalid';
       _userEmail = user.email ?? 'Email indisponível';
+      _applyStoredAddress(data?['address'] as Map<String, dynamic>?);
       _isLoading = false;
     } catch (e) {
       _userName = user.displayName ?? 'Cliente Ivalid';
@@ -128,6 +131,49 @@ class ProfileProvider extends ChangeNotifier {
         break;
     }
     notifyListeners();
+  }
+
+  void _applyStoredAddress(Map<String, dynamic>? address) {
+    if (address == null) return;
+    _cep = (address['cep'] as String?) ?? _cep;
+    _street = (address['street'] as String?) ?? _street;
+    _number = (address['number'] as String?) ?? _number;
+    _complement = (address['complement'] as String?) ?? _complement;
+    _neighborhood = (address['neighborhood'] as String?) ?? _neighborhood;
+    _city = (address['city'] as String?) ?? _city;
+    _state = (address['state'] as String?) ?? _state;
+  }
+
+  /// Salva o endereço no documento do usuário. Retorna `true` em caso de sucesso.
+  Future<bool> saveAddress() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    _isSavingAddress = true;
+    notifyListeners();
+
+    try {
+      await _db.collection('users').doc(user.uid).set({
+        'address': {
+          'cep': _cep,
+          'street': _street,
+          'number': _number,
+          'complement': _complement,
+          'neighborhood': _neighborhood,
+          'city': _city,
+          'state': _state,
+        },
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao salvar endereço: $e');
+      _error = 'Erro ao salvar endereço: $e';
+      return false;
+    } finally {
+      _isSavingAddress = false;
+      notifyListeners();
+    }
   }
 
   Future<void> lookupCep(String cepValue) async {

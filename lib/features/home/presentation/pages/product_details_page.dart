@@ -41,8 +41,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       urgencyFg = AppColors.redPrimary;
       urgencyLabel = '⚡ Vence em ${product.expiresInDays}d';
     } else if (product.expiresInDays <= 30) {
-      urgencyBg = const Color(0xFFFFF3E0);
-      urgencyFg = const Color(0xFFF57C00);
+      urgencyFg = context.accent(const Color(0xFFF57C00));
+      urgencyBg = context.softBg(urgencyFg);
       urgencyLabel = 'Vence em ${product.expiresInDays}d';
     } else {
       urgencyBg = AppColors.greenAccent.withValues(alpha: 0.12);
@@ -51,7 +51,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       body: Column(
         children: [
           // Scrollable content
@@ -66,7 +66,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       Container(
                         width: double.infinity,
                         height: 320,
-                        color: Colors.white,
+                        color: context.surface,
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.all(32.0),
@@ -84,7 +84,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 errorWidget: (context, url, error) => Icon(
                                   Icons.image_not_supported_outlined,
                                   size: 64,
-                                  color: Colors.grey.shade300,
+                                  color: context.onBgAlpha(0.25),
                                 ),
                               ),
                             ),
@@ -101,19 +101,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.surface,
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
+                                  color: context.cardShadow,
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.arrow_back_rounded,
-                              color: AppColors.onBackgroundLight,
+                              color: context.onBg,
                               size: 20,
                             ),
                           ),
@@ -195,7 +195,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           style: GoogleFonts.inter(
                             fontSize: 24,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.onBackgroundLight,
+                            color: context.onBg,
                             height: 1.2,
                           ),
                         ),
@@ -205,11 +205,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.surface,
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
+                                color: context.cardShadow,
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -221,10 +221,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 width: 36,
                                 height: 36,
                                 decoration: BoxDecoration(
-                                  color: AppColors.backgroundLight,
+                                  color: context.chipBg,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.storefront_rounded, size: 18, color: AppColors.onBackgroundLight),
+                                child: Icon(Icons.storefront_rounded, size: 18, color: context.onBg),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -236,20 +236,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                       style: GoogleFonts.inter(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.onBackgroundLight,
+                                        color: context.onBg,
                                       ),
                                     ),
                                     Text(
                                       '${product.distanceKm.toStringAsFixed(1)} km de distância',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
-                                        color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                                        color: context.onBgAlpha(0.5),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(Icons.near_me_rounded, size: 18, color: AppColors.onBackgroundLight.withValues(alpha: 0.3)),
+                              Icon(Icons.near_me_rounded, size: 18, color: context.onBgAlpha(0.3)),
                             ],
                           ),
                         ),
@@ -262,7 +262,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
+                            color: context.onBgAlpha(0.45),
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -286,7 +286,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
-                                    color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
+                                    color: context.onBgAlpha(0.4),
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -300,11 +300,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.surface,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
+                                color: context.cardShadow,
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -317,7 +317,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.onBackgroundLight,
+                                  color: context.onBg,
                                 ),
                               ),
                               const Spacer(),
@@ -383,10 +383,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(context).padding.bottom + 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: context.cardShadow,
                   blurRadius: 16,
                   offset: const Offset(0, -4),
                 ),
@@ -404,7 +404,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         'Total',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                          color: context.onBgAlpha(0.5),
                         ),
                       ),
                       Text(
@@ -412,7 +412,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.onBackgroundLight,
+                          color: context.onBg,
                         ),
                       ),
                     ],
@@ -503,7 +503,7 @@ class _QuantityStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
+        color: context.chipBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -521,7 +521,7 @@ class _QuantityStepper extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppColors.onBackgroundLight,
+                color: context.onBg,
               ),
             ),
           ),
@@ -547,7 +547,7 @@ class _StepperButton extends StatelessWidget {
     return Material(
       color: enabled
           ? AppColors.redPrimary.withValues(alpha: 0.1)
-          : Colors.grey.shade100,
+          : context.chipBg,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
@@ -559,7 +559,7 @@ class _StepperButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 18,
-            color: enabled ? AppColors.redPrimary : Colors.grey.shade400,
+            color: enabled ? AppColors.redPrimary : context.onBgAlpha(0.4),
           ),
         ),
       ),

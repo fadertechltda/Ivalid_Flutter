@@ -33,9 +33,9 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          decoration: BoxDecoration(
+            color: ctx.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: DraggableScrollableSheet(
             initialChildSize: 0.55,
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: context.outline,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.inter(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.onBackgroundLight,
+                            color: context.onBg,
                           ),
                         ),
                       ],
@@ -86,13 +86,13 @@ class _HomePageState extends State<HomePage> {
                       controller: scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       children: [
-                        _buildSortOption(provider, 'Padrão (Vencimento)', ProductSortOption.defaultSort, Icons.timer_outlined),
-                        _buildSortOption(provider, 'Menor Preço', ProductSortOption.priceAsc, Icons.arrow_downward),
-                        _buildSortOption(provider, 'Maior Preço', ProductSortOption.priceDesc, Icons.arrow_upward),
-                        _buildSortOption(provider, 'Maior Desconto', ProductSortOption.discountDesc, Icons.local_offer_outlined),
-                        _buildSortOption(provider, 'Menor Desconto', ProductSortOption.discountAsc, Icons.local_offer_outlined),
-                        _buildSortOption(provider, 'Mais Próximo', ProductSortOption.distanceAsc, Icons.near_me_outlined),
-                        _buildSortOption(provider, 'Mais Distante', ProductSortOption.distanceDesc, Icons.explore_outlined),
+                        _buildSortOption(context, provider, 'Padrão (Vencimento)', ProductSortOption.defaultSort, Icons.timer_outlined),
+                        _buildSortOption(context, provider, 'Menor Preço', ProductSortOption.priceAsc, Icons.arrow_downward),
+                        _buildSortOption(context, provider, 'Maior Preço', ProductSortOption.priceDesc, Icons.arrow_upward),
+                        _buildSortOption(context, provider, 'Maior Desconto', ProductSortOption.discountDesc, Icons.local_offer_outlined),
+                        _buildSortOption(context, provider, 'Menor Desconto', ProductSortOption.discountAsc, Icons.local_offer_outlined),
+                        _buildSortOption(context, provider, 'Mais Próximo', ProductSortOption.distanceAsc, Icons.near_me_outlined),
+                        _buildSortOption(context, provider, 'Mais Distante', ProductSortOption.distanceDesc, Icons.explore_outlined),
                       ],
                     ),
                   ),
@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSortOption(HomeProvider provider, String label, ProductSortOption option, IconData icon) {
+  Widget _buildSortOption(BuildContext context, HomeProvider provider, String label, ProductSortOption option, IconData icon) {
     final isSelected = provider.currentSort == option;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
@@ -117,14 +117,14 @@ class _HomePageState extends State<HomePage> {
         leading: Icon(
           icon,
           size: 20,
-          color: isSelected ? AppColors.redPrimary : Colors.grey.shade500,
+          color: isSelected ? AppColors.redPrimary : context.onBgAlpha(0.45),
         ),
         title: Text(
           label,
           style: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? AppColors.redPrimary : AppColors.onBackgroundLight,
+            color: isSelected ? AppColors.redPrimary : context.onBg,
           ),
         ),
         trailing: isSelected
@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> {
     final cartProvider = context.watch<CartProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: FloatingActionButton(
@@ -186,11 +186,11 @@ class _HomePageState extends State<HomePage> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.surface,
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
+                              color: context.cardShadow,
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -216,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                               style: GoogleFonts.inter(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.onBackgroundLight,
+                                color: context.onBg,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -224,7 +224,7 @@ class _HomePageState extends State<HomePage> {
                               'Ofertas perto de você',
                               style: GoogleFonts.inter(
                                 fontSize: 13,
-                                color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                                color: context.onBgAlpha(0.5),
                               ),
                             ),
                           ],
@@ -242,11 +242,11 @@ class _HomePageState extends State<HomePage> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.surface,
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.06),
+                                color: context.cardShadow,
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              const Icon(Icons.shopping_bag_outlined, color: AppColors.onBackgroundLight, size: 22),
+                              Icon(Icons.shopping_bag_outlined, color: context.onBg, size: 22),
                               if (cartProvider.count > 0)
                                 Positioned(
                                   right: 6,
@@ -288,17 +288,17 @@ class _HomePageState extends State<HomePage> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.surface,
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
+                              color: context.cardShadow,
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.notifications_none_rounded, color: AppColors.onBackgroundLight, size: 22),
+                        child: Icon(Icons.notifications_none_rounded, color: context.onBg, size: 22),
                       ),
                     ],
                   ),
@@ -316,11 +316,11 @@ class _HomePageState extends State<HomePage> {
                     // Search Bar
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.surface,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
+                            color: context.cardShadow,
                             blurRadius: 12,
                             offset: const Offset(0, 2),
                           ),
@@ -329,14 +329,14 @@ class _HomePageState extends State<HomePage> {
                       child: TextField(
                         controller: _searchController,
                         onChanged: homeProvider.onQueryChange,
-                        style: GoogleFonts.inter(fontSize: 15),
+                        style: GoogleFonts.inter(fontSize: 15, color: context.onBg),
                         decoration: InputDecoration(
                           hintText: 'Buscar produto, marca ou loja...',
                           hintStyle: GoogleFonts.inter(
-                            color: Colors.grey.shade400,
+                            color: context.onBgAlpha(0.4),
                             fontSize: 14,
                           ),
-                          prefixIcon: Icon(Icons.search_rounded, color: Colors.grey.shade400, size: 22),
+                          prefixIcon: Icon(Icons.search_rounded, color: context.onBgAlpha(0.4), size: 22),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(vertical: 16),
                         ),
@@ -362,10 +362,10 @@ class _HomePageState extends State<HomePage> {
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isSelected ? AppColors.redPrimary : Colors.white,
+                                color: isSelected ? AppColors.redPrimary : context.surface,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: isSelected ? AppColors.redPrimary : AppColors.outlineLight,
+                                  color: isSelected ? AppColors.redPrimary : context.outline,
                                   width: 1,
                                 ),
                                 boxShadow: isSelected
@@ -383,7 +383,7 @@ class _HomePageState extends State<HomePage> {
                                 style: GoogleFonts.inter(
                                   fontSize: 13,
                                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                  color: isSelected ? Colors.white : AppColors.onBackgroundLight.withValues(alpha: 0.7),
+                                  color: isSelected ? Colors.white : context.onBgAlpha(0.7),
                                 ),
                               ),
                             ),
@@ -492,7 +492,7 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.inter(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.onBackgroundLight,
+                            color: context.onBg,
                           ),
                         ),
                         const Spacer(),
@@ -501,7 +501,7 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
+                            color: context.onBgAlpha(0.4),
                           ),
                         ),
                       ],
@@ -523,14 +523,14 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search_off_rounded, size: 56, color: Colors.grey.shade300),
+                      Icon(Icons.search_off_rounded, size: 56, color: context.onBgAlpha(0.25)),
                       const SizedBox(height: 16),
                       Text(
                         'Nenhum produto encontrado',
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                          color: context.onBgAlpha(0.5),
                         ),
                       ),
                     ],
@@ -594,16 +594,16 @@ class _ProductCard extends StatelessWidget {
     String urgencyLabel;
 
     if (product.expiresInDays <= 10) {
-      urgencyBgColor = const Color(0xFFFFEBEE);
-      urgencyTextColor = const Color(0xFFD32F2F);
+      urgencyTextColor = context.accent(const Color(0xFFD32F2F));
+      urgencyBgColor = context.softBg(urgencyTextColor);
       urgencyLabel = '⚡ ${product.expiresInDays}d';
     } else if (product.expiresInDays <= 30) {
-      urgencyBgColor = const Color(0xFFFFF3E0);
-      urgencyTextColor = const Color(0xFFF57C00);
+      urgencyTextColor = context.accent(const Color(0xFFF57C00));
+      urgencyBgColor = context.softBg(urgencyTextColor);
       urgencyLabel = '${product.expiresInDays}d';
     } else {
-      urgencyBgColor = const Color(0xFFE8F5E9);
-      urgencyTextColor = const Color(0xFF388E3C);
+      urgencyTextColor = context.accent(const Color(0xFF388E3C));
+      urgencyBgColor = context.softBg(urgencyTextColor);
       urgencyLabel = '${product.expiresInDays}d';
     }
 
@@ -611,11 +611,11 @@ class _ProductCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: context.cardShadow,
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -632,14 +632,14 @@ class _ProductCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(color: const Color(0xFFFAFAFA)),
+                  Container(color: context.chipBg),
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: CachedNetworkImage(
                       imageUrl: product.urlImagem,
                       fit: BoxFit.contain,
                       errorWidget: (context, url, error) =>
-                          Icon(Icons.image_not_supported_outlined, color: Colors.grey.shade300, size: 40),
+                          Icon(Icons.image_not_supported_outlined, color: context.onBgAlpha(0.25), size: 40),
                     ),
                   ),
                   // Discount badge
@@ -672,11 +672,11 @@ class _ProductCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.surface,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.08),
+                              color: context.cardShadow,
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -684,7 +684,7 @@ class _ProductCard extends StatelessWidget {
                         ),
                         child: Icon(
                           product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: product.isFavorite ? AppColors.redPrimary : Colors.grey.shade400,
+                          color: product.isFavorite ? AppColors.redPrimary : context.onBgAlpha(0.4),
                           size: 18,
                         ),
                       ),
@@ -723,7 +723,7 @@ class _ProductCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
-                        color: AppColors.onBackgroundLight,
+                        color: context.onBg,
                         height: 1.2,
                       ),
                       maxLines: 2,
@@ -733,7 +733,7 @@ class _ProductCard extends StatelessWidget {
                     Text(
                       '${product.brand} • ${product.distanceKm.toStringAsFixed(1)} km',
                       style: GoogleFonts.inter(
-                        color: AppColors.onBackgroundLight.withValues(alpha: 0.45),
+                        color: context.onBgAlpha(0.45),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -760,7 +760,7 @@ class _ProductCard extends StatelessWidget {
                             child: Text(
                               'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                               style: GoogleFonts.inter(
-                                color: Colors.grey.shade400,
+                                color: context.onBgAlpha(0.4),
                                 decoration: TextDecoration.lineThrough,
                                 fontSize: 10,
                               ),

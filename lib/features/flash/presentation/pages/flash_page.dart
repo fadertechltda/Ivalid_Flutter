@@ -12,6 +12,46 @@ import 'package:ivalid/features/home/presentation/pages/product_details_page.dar
 class FlashPage extends StatelessWidget {
   const FlashPage({super.key});
 
+  void _showFlashInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.flash_on, color: AppColors.redPrimary, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              'O que é o Flash?',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: ctx.onBg,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'O Flash reúne os produtos com até 10 dias para vencer. São as '
+          'maiores oportunidades de desconto do app e as que mais ajudam a '
+          'evitar desperdício — mas costumam durar pouco.',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            height: 1.5,
+            color: ctx.onBgAlpha(0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Entendi'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final homeProvider = context.watch<HomeProvider>();
@@ -23,7 +63,7 @@ class FlashPage extends StatelessWidget {
       ..sort((a, b) => a.expiresInDays.compareTo(b.expiresInDays));
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       body: CustomScrollView(
         slivers: [
           // ─── Header ─────────────────────────────────────────────────────
@@ -51,7 +91,7 @@ class FlashPage extends StatelessWidget {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () => _showFlashInfo(context),
                             child: Container(
                               width: 40,
                               height: 40,
@@ -188,12 +228,12 @@ class FlashPage extends StatelessWidget {
                         height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.outlineLight.withValues(alpha: 0.3),
+                          color: context.outline.withValues(alpha: 0.3),
                         ),
                         child: Icon(
                           Icons.flash_off,
                           size: 50,
-                          color: AppColors.onBackgroundLight.withValues(alpha: 0.4),
+                          color: context.onBgAlpha(0.4),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -202,7 +242,7 @@ class FlashPage extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.onBackgroundLight,
+                          color: context.onBg,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -211,7 +251,7 @@ class FlashPage extends StatelessWidget {
                         'Produtos com menos de 10 dias de validade aparecerão aqui com descontos especiais.',
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
+                          color: context.onBgAlpha(0.6),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -276,11 +316,11 @@ class _FlashProductCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: context.cardShadow,
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -326,7 +366,7 @@ class _FlashProductCard extends StatelessWidget {
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9F9F9),
+                      color: context.chipBg,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Stack(
@@ -338,9 +378,9 @@ class _FlashProductCard extends StatelessWidget {
                             fit: BoxFit.contain,
                             width: 90,
                             height: 90,
-                            errorWidget: (_, _, _) => const Icon(
+                            errorWidget: (_, _, _) => Icon(
                               Icons.image_not_supported,
-                              color: Colors.grey,
+                              color: context.onBgAlpha(0.45),
                             ),
                           ),
                         ),
@@ -381,7 +421,7 @@ class _FlashProductCard extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.onBackgroundLight,
+                            color: context.onBg,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -391,7 +431,7 @@ class _FlashProductCard extends StatelessWidget {
                           '${product.brand} • ${product.storeName}',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                            color: context.onBgAlpha(0.5),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -401,7 +441,7 @@ class _FlashProductCard extends StatelessWidget {
                           '${product.distanceKm.toStringAsFixed(1)} km',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                            color: context.onBgAlpha(0.5),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -424,7 +464,7 @@ class _FlashProductCard extends StatelessWidget {
                                   'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
-                                    color: Colors.grey.shade500,
+                                    color: context.onBgAlpha(0.45),
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -441,7 +481,7 @@ class _FlashProductCard extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.redPrimary.withValues(alpha: 0.1),
+                      color: context.softBg(AppColors.redPrimary),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(

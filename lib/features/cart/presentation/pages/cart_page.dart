@@ -14,18 +14,18 @@ class CartPage extends StatelessWidget {
     final cartProvider = context.watch<CartProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: context.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.onBackgroundLight),
+          icon: Icon(Icons.arrow_back, color: context.onBg),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Carrinho (${cartProvider.count})',
           style: GoogleFonts.inter(
-            color: AppColors.onBackgroundLight,
+            color: context.onBg,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -48,7 +48,7 @@ class CartPage extends StatelessWidget {
               child: Text(
                 'Seu carrinho está vazio',
                 style: GoogleFonts.inter(
-                  color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
+                  color: context.onBgAlpha(0.6),
                   fontSize: 16,
                 ),
               ),
@@ -129,14 +129,16 @@ class _CartItemRow extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDonation ? const Color(0xFFFFF0F0) : AppColors.surfaceLight,
+        color: isDonation
+            ? context.softBg(AppColors.redPrimary)
+            : context.surface,
         borderRadius: BorderRadius.circular(12),
         border: isDonation
             ? Border.all(color: AppColors.redPrimary.withValues(alpha: 0.5))
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: context.cardShadow,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -152,12 +154,12 @@ class _CartItemRow extends StatelessWidget {
             child: Container(
               width: 68,
               height: 68,
-              color: const Color(0xFFF2F2F2),
+              color: context.chipBg,
               child: CachedNetworkImage(
                 imageUrl: item.product.urlImagem,
                 fit: BoxFit.cover,
-                errorWidget: (context, url, error) =>
-                    const Icon(Icons.image_not_supported, color: Colors.grey),
+                errorWidget: (context, url, error) => Icon(
+                    Icons.image_not_supported, color: context.onBgAlpha(0.45)),
               ),
             ),
           ),
@@ -173,7 +175,7 @@ class _CartItemRow extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
-                    color: AppColors.onBackgroundLight,
+                    color: context.onBg,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -183,7 +185,7 @@ class _CartItemRow extends StatelessWidget {
                   item.product.storeName,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
+                    color: context.onBgAlpha(0.6),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -203,7 +205,7 @@ class _CartItemRow extends StatelessWidget {
                       Text(
                         'R\$ ${item.product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                         style: GoogleFonts.inter(
-                          color: AppColors.onBackgroundLight.withValues(alpha: 0.5),
+                          color: context.onBgAlpha(0.5),
                           decoration: TextDecoration.lineThrough,
                           fontSize: 11,
                         ),
@@ -247,16 +249,16 @@ class _CartItemRow extends StatelessWidget {
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: item.quantity > 1
-                            ? AppColors.surfaceLight
-                            : Colors.grey.shade200,
+                            ? context.surface
+                            : context.chipBg,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: context.outline),
                       ),
                       child: Icon(Icons.remove,
                           size: 16,
                           color: item.quantity > 1
-                              ? AppColors.onBackgroundLight
-                              : Colors.grey),
+                              ? context.onBg
+                              : context.onBgAlpha(0.45)),
                     ),
                   ),
                   Container(
@@ -275,12 +277,11 @@ class _CartItemRow extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLight,
+                        color: context.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: context.outline),
                       ),
-                      child: const Icon(Icons.add,
-                          size: 16, color: AppColors.onBackgroundLight),
+                      child: Icon(Icons.add, size: 16, color: context.onBg),
                     ),
                   ),
                 ],
@@ -317,10 +318,10 @@ class _SummaryBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: context.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: context.cardShadow,
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -338,7 +339,7 @@ class _SummaryBox extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.onBackgroundLight,
+                    color: context.onBg,
                   ),
                 ),
                 Text(
@@ -360,14 +361,14 @@ class _SummaryBox extends StatelessWidget {
                     'Total em Doações',
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
+                      color: context.onBgAlpha(0.6),
                     ),
                   ),
                   Text(
                     'R\$ ${donationTotal.toStringAsFixed(2).replaceAll('.', ',')}',
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: AppColors.onBackgroundLight.withValues(alpha: 0.6),
+                      color: context.onBgAlpha(0.6),
                     ),
                   ),
                 ],

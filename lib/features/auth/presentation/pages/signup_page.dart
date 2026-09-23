@@ -136,7 +136,7 @@ class _SignupPageState extends State<SignupPage>
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.bg,
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
@@ -147,9 +147,9 @@ class _SignupPageState extends State<SignupPage>
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.onBackgroundLight,
+                    color: context.onBg,
                   ),
                   padding: const EdgeInsets.all(20),
                 ),
@@ -201,8 +201,7 @@ class _SignupPageState extends State<SignupPage>
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                  color: AppColors.onBackgroundLight
-                                      .withValues(alpha: 0.75),
+                                  color: context.onBgAlpha(0.75),
                                 ),
                           ),
                           const SizedBox(height: 28),
@@ -210,11 +209,11 @@ class _SignupPageState extends State<SignupPage>
                           // ─── Card de formulário ───────────────────
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceLight,
+                              color: context.surface,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
+                                  color: context.cardShadow,
                                   blurRadius: 32,
                                   offset: const Offset(0, 12),
                                 ),
@@ -237,7 +236,7 @@ class _SignupPageState extends State<SignupPage>
                                   decoration: InputDecoration(
                                     labelText: 'Nome completo',
                                     filled: true,
-                                    fillColor: AppColors.backgroundLight,
+                                    fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -245,7 +244,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
+                                      borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -259,8 +258,7 @@ class _SignupPageState extends State<SignupPage>
                                       Icons.person_outline,
                                       color: _nameController.text.isNotEmpty
                                           ? AppColors.greenAccent
-                                          : AppColors.onBackgroundLight
-                                              .withValues(alpha: 0.4),
+                                          : context.onBgAlpha(0.4),
                                     ),
                                     errorText: _nameError,
                                   ),
@@ -282,7 +280,7 @@ class _SignupPageState extends State<SignupPage>
                                   decoration: InputDecoration(
                                     labelText: 'E-mail',
                                     filled: true,
-                                    fillColor: AppColors.backgroundLight,
+                                    fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -290,7 +288,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
+                                      borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -304,8 +302,7 @@ class _SignupPageState extends State<SignupPage>
                                       Icons.email_outlined,
                                       color: _emailController.text.isNotEmpty
                                           ? AppColors.greenAccent
-                                          : AppColors.onBackgroundLight
-                                              .withValues(alpha: 0.4),
+                                          : context.onBgAlpha(0.4),
                                     ),
                                     errorText: _emailError,
                                   ),
@@ -327,7 +324,7 @@ class _SignupPageState extends State<SignupPage>
                                   decoration: InputDecoration(
                                     labelText: 'Senha',
                                     filled: true,
-                                    fillColor: AppColors.backgroundLight,
+                                    fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -335,7 +332,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
+                                      borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -350,8 +347,7 @@ class _SignupPageState extends State<SignupPage>
                                       color:
                                           _passwordController.text.isNotEmpty
                                               ? AppColors.greenAccent
-                                              : AppColors.onBackgroundLight
-                                                  .withValues(alpha: 0.4),
+                                              : context.onBgAlpha(0.4),
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -359,8 +355,7 @@ class _SignupPageState extends State<SignupPage>
                                             ? Icons.visibility_outlined
                                             : Icons.visibility_off_outlined,
                                         color: _obscurePassword
-                                            ? AppColors.onBackgroundLight
-                                                .withValues(alpha: 0.4)
+                                            ? context.onBgAlpha(0.4)
                                             : AppColors.greenAccent,
                                       ),
                                       onPressed: () => setState(() =>
@@ -393,7 +388,7 @@ class _SignupPageState extends State<SignupPage>
                                   decoration: InputDecoration(
                                     labelText: 'Confirmar senha',
                                     filled: true,
-                                    fillColor: AppColors.backgroundLight,
+                                    fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -401,7 +396,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: AppColors.outlineLight.withValues(alpha: 0.5), width: 1),
+                                      borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -416,8 +411,7 @@ class _SignupPageState extends State<SignupPage>
                                       color: _confirmPasswordController
                                               .text.isNotEmpty
                                           ? AppColors.greenAccent
-                                          : AppColors.onBackgroundLight
-                                              .withValues(alpha: 0.4),
+                                          : context.onBgAlpha(0.4),
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
@@ -425,8 +419,7 @@ class _SignupPageState extends State<SignupPage>
                                             ? Icons.visibility_outlined
                                             : Icons.visibility_off_outlined,
                                         color: _obscureConfirmPassword
-                                            ? AppColors.onBackgroundLight
-                                                .withValues(alpha: 0.4)
+                                            ? context.onBgAlpha(0.4)
                                             : AppColors.greenAccent,
                                       ),
                                       onPressed: () => setState(() =>
@@ -457,7 +450,7 @@ class _SignupPageState extends State<SignupPage>
                                         activeColor: AppColors.redPrimary,
                                         checkColor: Colors.white,
                                         side: BorderSide(
-                                          color: AppColors.outlineLight,
+                                          color: context.outline,
                                           width: 1.5,
                                         ),
                                         shape: RoundedRectangleBorder(
@@ -475,8 +468,7 @@ class _SignupPageState extends State<SignupPage>
                                           text: TextSpan(
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
-                                              color: AppColors
-                                                  .onBackgroundLight,
+                                              color: context.onBg,
                                             ),
                                             children: [
                                               const TextSpan(
@@ -591,8 +583,7 @@ class _SignupPageState extends State<SignupPage>
                                     .textTheme
                                     .bodyLarge
                                     ?.copyWith(
-                                      color: AppColors.onBackgroundLight
-                                          .withValues(alpha: 0.75),
+                                      color: context.onBgAlpha(0.75),
                                     ),
                               ),
                               const SizedBox(width: 8),
