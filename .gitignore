@@ -163,3 +163,11 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/firebase,kotlin,androidstudio
+
+### Flutter ###
+# Cache local gerado pelo Flutter em cada máquina (caminhos absolutos,
+# builds intermediários, dados do Chrome). Não é código do app.
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
