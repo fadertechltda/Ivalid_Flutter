@@ -4,14 +4,40 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/cart_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import 'checkout_page.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  bool _useCashback = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().loadUserProfile();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final cartProvider = context.watch<CartProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
+
+    final double availableCashback = profileProvider.availableCashback;
+    final int userTotalDonations = profileProvider.totalDonations;
+
+    final gamification = cartProvider.gamificationService;
+    final double appliedCashback = _useCashback
+        ? gamification.calculateMaxDiscountAllowed(cartProvider.total, availableCashback)
+        : 0.0;
+    final double finalTotal = (cartProvider.total - appliedCashback).clamp(0.0, double.infinity);
 
     return Scaffold(
       backgroundColor: context.bg,
@@ -66,9 +92,8 @@ class CartPage extends StatelessWidget {
                       String? estimatedCashbackText;
 
                       if (isDonation) {
-                        final cashbackCalc = cartProvider.gamificationService
-                            .calculateCashback(
-                                item.subtotal, cartProvider.userTotalDonationsMock);
+                        final cashbackCalc = gamification
+                            .calculateCashback(item.subtotal, userTotalDonations);
                         estimatedCashbackText =
                             "Ganha R\$ ${cashbackCalc.toStringAsFixed(2).replaceAll('.', ',')} de desconto futuro";
                       }
@@ -90,14 +115,23 @@ class CartPage extends StatelessWidget {
                 ),
                 _SummaryBox(
                   total: cartProvider.total,
+                  finalTotal: finalTotal,
                   donationTotal: cartProvider.donationSubtotal,
-                  estimatedCashback: cartProvider.gamificationService.calculateCashback(
+                  estimatedCashback: gamification.calculateCashback(
                       cartProvider.donationSubtotal,
-                      cartProvider.userTotalDonationsMock),
+                      userTotalDonations),
+                  availableCashback: availableCashback,
+                  useCashback: _useCashback,
+                  appliedCashback: appliedCashback,
+                  onToggleCashback: (value) {
+                    setState(() => _useCashback = value);
+                  },
                   onCheckout: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const CheckoutPage(),
+                        builder: (_) => CheckoutPage(
+                          appliedCashback: appliedCashback,
+                        ),
                       ),
                     );
                   },
@@ -148,7 +182,7 @@ class _CartItemRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Image
+          // Imagem do Produto
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(
@@ -165,7 +199,7 @@ class _CartItemRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // Details
+          // Detalhes do Produto
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +271,7 @@ class _CartItemRow extends StatelessWidget {
             ),
           ),
 
-          // Controls
+          // Controles de quantidade
           const SizedBox(width: 8),
           Column(
             children: [
@@ -302,124 +336,246 @@ class _CartItemRow extends StatelessWidget {
 
 class _SummaryBox extends StatelessWidget {
   final double total;
+  final double finalTotal;
   final double donationTotal;
   final double estimatedCashback;
+  final double availableCashback;
+  final bool useCashback;
+  final double appliedCashback;
+  final ValueChanged<bool> onToggleCashback;
   final VoidCallback onCheckout;
 
   const _SummaryBox({
     required this.total,
+    required this.finalTotal,
     required this.donationTotal,
     required this.estimatedCashback,
+    required this.availableCashback,
+    required this.useCashback,
+    required this.appliedCashback,
+    required this.onToggleCashback,
     required this.onCheckout,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: BoxDecoration(
         color: context.surface,
         boxShadow: [
           BoxShadow(
             color: context.cardShadow,
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total da Compra',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: context.onBg,
+        bottom: true,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            16,
+            20,
+            bottomInset > 0 ? 12 : 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ─── Opção USAR CASHBACK ───────────────────────────────
+              if (availableCashback > 0) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: useCashback
+                        ? AppColors.greenAccent.withValues(alpha: 0.1)
+                        : context.chipBg,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: useCashback
+                          ? AppColors.greenAccent.withValues(alpha: 0.4)
+                          : context.outline.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.greenAccent.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.monetization_on_rounded,
+                          color: AppColors.greenAccent,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'USAR CASHBACK',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: context.onBg,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            Text(
+                              'Saldo disponível: R\$ ${availableCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.greenAccent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch.adaptive(
+                        value: useCashback,
+                        activeThumbColor: AppColors.greenAccent,
+                        onChanged: onToggleCashback,
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.redPrimary,
+                const SizedBox(height: 14),
+              ],
+
+              // ─── Resumo de Valores ──────────────────────────────────
+              if (useCashback && appliedCashback > 0) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Subtotal',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: context.onBgAlpha(0.6),
+                      ),
+                    ),
+                    Text(
+                      'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: context.onBgAlpha(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Desconto Cashback',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.greenAccent,
+                      ),
+                    ),
+                    Text(
+                      '- R\$ ${appliedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.greenAccent,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total da Compra',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: context.onBg,
+                    ),
                   ),
+                  Text(
+                    'R\$ ${finalTotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.redPrimary,
+                    ),
+                  ),
+                ],
+              ),
+
+              if (donationTotal > 0) ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Cashback estimado (Doação)',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.greenAccent,
+                      ),
+                    ),
+                    Text(
+                      '+ R\$ ${estimatedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.greenAccent,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-            if (donationTotal > 0) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Total em Doações',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: context.onBgAlpha(0.6),
+
+              const SizedBox(height: 16),
+
+              // ─── Botão FINALIZAR COMPRA ─────────────────────────────
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: total > 0 ? onCheckout : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.redPrimary,
+                    disabledBackgroundColor: AppColors.redPrimary.withValues(alpha: 0.5),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  Text(
-                    'R\$ ${donationTotal.toStringAsFixed(2).replaceAll('.', ',')}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: context.onBgAlpha(0.6),
+                  child: Center(
+                    child: Text(
+                      'Finalizar compra',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Cashback estimado',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.greenAccent,
-                    ),
-                  ),
-                  Text(
-                    '+ R\$ ${estimatedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.greenAccent,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: total > 0 ? onCheckout : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.redPrimary,
-                  disabledBackgroundColor: AppColors.redPrimary.withValues(alpha: 0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: Text(
-                  'Finalizar compra',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

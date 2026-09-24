@@ -386,79 +386,53 @@ class _OrderCardState extends State<_OrderCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Itens resumo (primeiros 2 itens ou menos)
-                ...order.items.take(2).map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Row(
+                // ─── Total bar ──────────────────────────────────────
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: context.chipBg,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
                         children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: context.chipBg,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${item.quantity}x',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.redPrimary,
-                                ),
-                              ),
-                            ),
+                          Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 16,
+                            color: context.onBgAlpha(0.4),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.name,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.onBg,
-                                    height: 1.2,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  'R\$ ${item.subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: context.onBgAlpha(0.45),
-                                  ),
-                                ),
-                              ],
+                          const SizedBox(width: 6),
+                          Text(
+                            '${order.items.length} ${order.items.length == 1 ? 'item' : 'itens'}',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: context.onBgAlpha(0.5),
                             ),
                           ),
                         ],
                       ),
-                    )),
-
-                // "e mais X itens" se houver mais
-                if (order.items.length > 2 && !_isExpanded)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      '+ ${order.items.length - 2} ${order.items.length - 2 == 1 ? 'item' : 'itens'}',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: context.onBgAlpha(0.4),
+                      Text(
+                        'R\$ ${order.total.toStringAsFixed(2).replaceAll('.', ',')}',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.redPrimary,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                ),
+                const SizedBox(height: 12),
 
-                // Itens expandidos (restantes)
+                // Todos os itens ficam ocultos inicialmente e expandem
                 AnimatedCrossFade(
                   firstChild: const SizedBox.shrink(),
                   secondChild: Column(
-                    children: order.items.skip(2).map((item) => Padding(
+                    children: order.items.map((item) => Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Row(
                             children: [
@@ -517,54 +491,12 @@ class _OrderCardState extends State<_OrderCard> {
                       : CrossFadeState.showFirst,
                   duration: const Duration(milliseconds: 250),
                 ),
-
-                // ─── Total bar ──────────────────────────────────────
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: context.chipBg,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 16,
-                            color: context.onBgAlpha(0.4),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${order.items.length} ${order.items.length == 1 ? 'item' : 'itens'}',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: context.onBgAlpha(0.5),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'R\$ ${order.total.toStringAsFixed(2).replaceAll('.', ',')}',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.redPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
               ],
             ),
           ),
 
           // ─── Botão de expandir ─────────────────────────────────────
-          if (order.items.length > 2)
+          if (order.items.isNotEmpty)
             Material(
               color: Colors.transparent,
               child: InkWell(
@@ -585,7 +517,7 @@ class _OrderCardState extends State<_OrderCard> {
                       Text(
                         _isExpanded
                             ? 'Ocultar detalhes'
-                            : 'Ver todos os itens',
+                            : 'Ver produtos do pedido',
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,

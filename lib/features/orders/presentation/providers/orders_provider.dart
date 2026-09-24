@@ -75,6 +75,8 @@ class OrdersProvider extends ChangeNotifier {
             date: _dateFormat.format(dateTime),
             total: (data['total'] as num?)?.toDouble() ?? 0.0,
             status: data['status'] as String? ?? 'Status desconhecido',
+            hasDonations: data['hasDonations'] as bool? ?? false,
+            donationItemsCount: (data['donationItemsCount'] as num?)?.toInt() ?? 0,
             items: rawItems
                 .map((item) =>
                     OrderItemModel.fromMap(item as Map<String, dynamic>))

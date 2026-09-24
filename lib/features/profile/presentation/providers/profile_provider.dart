@@ -15,9 +15,9 @@ class ProfileProvider extends ChangeNotifier {
   bool _isLoading = true;
   String? _error;
 
-  // Gamificação (mock como no Kotlin)
-  final int _totalDonations = 15;
-  final double _availableCashback = 24.50;
+  // Gamificação - Inicia zerada por padrão no perfil do cliente
+  int _totalDonations = 0;
+  double _availableCashback = 0.0;
 
   // Modal de endereço
   bool _isAddressDialogVisible = false;
@@ -67,6 +67,8 @@ class ProfileProvider extends ChangeNotifier {
     if (user == null) {
       _userName = 'Nenhum usuário logado';
       _userEmail = '';
+      _totalDonations = 0;
+      _availableCashback = 0.0;
       _isLoading = false;
       notifyListeners();
       return;
@@ -84,16 +86,81 @@ class ProfileProvider extends ChangeNotifier {
           user.displayName ??
           'Cliente Ivalid';
       _userEmail = user.email ?? 'Email indisponível';
+      
+      // Carrega o total de doações do cliente (zerado por padrão)
+      _totalDonations = (data?['totalDonations'] as num?)?.toInt() ?? 0;
+      _availableCashback = (data?['availableCashback'] as num?)?.toDouble() ?? 0.0;
+
       _applyStoredAddress(data?['address'] as Map<String, dynamic>?);
       _isLoading = false;
     } catch (e) {
       _userName = user.displayName ?? 'Cliente Ivalid';
       _userEmail = user.email ?? 'Email indisponível';
+      _totalDonations = 0;
+      _availableCashback = 0.0;
       _isLoading = false;
       _error = 'Erro ao carregar perfil: $e';
     }
 
     notifyListeners();
+  }
+
+  /// Processa doações provenientes de um pedido realizado.
+  /// Incrementa a quantidade de doações no cadastro do cliente e atualiza o nível (Bronze, Prata, Ouro).
+  Future<void> processDonationFromOrder({
+    required int donationCount,
+    required double donationSubtotal,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null || donationCount <= 0) return;
+
+    try {
+      final userRef = _db.collection('users').doc(user.uid);
+      final userDoc = await userRef.get();
+      final currentCount = (userDoc.data()?['totalDonations'] as num?)?.toInt() ?? 0;
+      final currentCashback = (userDoc.data()?['availableCashback'] as num?)?.toDouble() ?? 0.0;
+
+      // Calcula cashback adicional gerado com base no nível atual do cliente
+      final earnedCashback = gamificationService.calculateCashback(donationSubtotal, currentCount);
+
+      final newTotalDonations = currentCount + donationCount;
+      final newAvailableCashback = currentCashback + earnedCashback;
+
+      await userRef.set({
+        'totalDonations': newTotalDonations,
+        'availableCashback': newAvailableCashback,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      _totalDonations = newTotalDonations;
+      _availableCashback = newAvailableCashback;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erro ao atualizar doações no perfil: $e');
+    }
+  }
+
+  /// Deduz o cashback utilizado em uma compra do saldo do cliente no Firestore e no estado local.
+  Future<void> deductCashback(double amount) async {
+    final user = _auth.currentUser;
+    if (user == null || amount <= 0) return;
+
+    try {
+      final userRef = _db.collection('users').doc(user.uid);
+      final userDoc = await userRef.get();
+      final currentCashback = (userDoc.data()?['availableCashback'] as num?)?.toDouble() ?? 0.0;
+      final newCashback = (currentCashback - amount).clamp(0.0, double.infinity);
+
+      await userRef.set({
+        'availableCashback': newCashback,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      _availableCashback = newCashback;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erro ao deduzir cashback do perfil do usuário: $e');
+    }
   }
 
   Future<void> logout(VoidCallback onSuccess) async {

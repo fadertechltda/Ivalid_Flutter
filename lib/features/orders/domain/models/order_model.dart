@@ -3,11 +3,13 @@ class OrderItemModel {
   final String name;
   final int quantity;
   final double subtotal;
+  final bool isDonation;
 
   OrderItemModel({
     required this.name,
     required this.quantity,
     required this.subtotal,
+    this.isDonation = false,
   });
 
   factory OrderItemModel.fromMap(Map<String, dynamic> map) {
@@ -15,6 +17,7 @@ class OrderItemModel {
       name: map['name'] as String? ?? 'Item Desconhecido',
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
       subtotal: (map['subtotal'] as num?)?.toDouble() ?? 0.0,
+      isDonation: (map['isDonation'] as bool?) ?? (map['origin'] == 'doacao'),
     );
   }
 }
@@ -27,6 +30,8 @@ class OrderModel {
   final String status;
   final List<OrderItemModel> items;
   final DateTime timestamp;
+  final bool hasDonations;
+  final int donationItemsCount;
 
   OrderModel({
     required this.id,
@@ -35,5 +40,7 @@ class OrderModel {
     required this.status,
     required this.items,
     required this.timestamp,
+    this.hasDonations = false,
+    this.donationItemsCount = 0,
   });
 }

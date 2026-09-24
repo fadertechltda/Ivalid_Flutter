@@ -74,6 +74,8 @@ class AuthProvider extends ChangeNotifier {
       await _db.collection('users').doc(uid).set({
         'fullName': name.trim(),
         'email': email.trim(),
+        'totalDonations': 0,
+        'availableCashback': 0.0,
         'createdAt': FieldValue.serverTimestamp(),
       });
 

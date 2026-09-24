@@ -5,9 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/cart_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  final double appliedCashback;
+
+  const CheckoutPage({super.key, this.appliedCashback = 0.0});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -268,8 +271,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildBottomSummary(BuildContext context, CartProvider cartProvider) {
+    final double finalTotal = (cartProvider.total - widget.appliedCashback).clamp(0.0, double.infinity);
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        16,
+        20,
+        MediaQuery.of(context).padding.bottom > 0 ? 12 : 20,
+      ),
       decoration: BoxDecoration(
         color: context.surface,
         boxShadow: [
@@ -282,9 +292,54 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       child: SafeArea(
         top: false,
+        bottom: true,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (widget.appliedCashback > 0) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Subtotal',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: context.onBgAlpha(0.6),
+                    ),
+                  ),
+                  Text(
+                    'R\$ ${cartProvider.total.toStringAsFixed(2).replaceAll('.', ',')}',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: context.onBgAlpha(0.6),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Desconto Cashback',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.greenAccent,
+                    ),
+                  ),
+                  Text(
+                    '- R\$ ${widget.appliedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.greenAccent,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -297,7 +352,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 Text(
-                  'R\$ ${cartProvider.total.toStringAsFixed(2).replaceAll('.', ',')}',
+                  'R\$ ${finalTotal.toStringAsFixed(2).replaceAll('.', ',')}',
                   style: GoogleFonts.inter(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -306,10 +361,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              height: 55,
+              height: 52,
               child: ElevatedButton(
                 onPressed: () => _processOrder(context),
                 style: ElevatedButton.styleFrom(
@@ -318,13 +373,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: Text(
-                  'Confirmar e Pagar',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                child: Center(
+                  child: Text(
+                    'Confirmar e Pagar',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -342,6 +400,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -349,18 +408,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
         throw Exception("Usuário não autenticado!");
       }
 
+      // Verificação de itens de doação no pedido
+      final donationItems = cartProvider.items
+          .where((item) => item.origin == OriginType.doacao)
+          .toList();
+      final int donationItemsCount =
+          donationItems.fold(0, (acc, item) => acc + item.quantity);
+      final double donationSubtotal =
+          donationItems.fold(0.0, (acc, item) => acc + item.subtotal);
+      final bool hasDonations = donationItemsCount > 0;
+      final double finalTotal = (cartProvider.total - widget.appliedCashback).clamp(0.0, double.infinity);
+
       final itemsData = cartProvider.items.map((item) {
         return {
           'name': item.product.name,
           'quantity': item.quantity,
           'subtotal': item.subtotal,
+          'origin': item.origin.name,
+          'isDonation': item.origin == OriginType.doacao,
         };
       }).toList();
 
       final orderData = {
         'userId': user.uid,
         'timestamp': FieldValue.serverTimestamp(),
-        'total': cartProvider.total,
+        'subtotal': cartProvider.total,
+        'cashbackUsed': widget.appliedCashback,
+        'total': finalTotal,
+        'hasDonations': hasDonations,
+        'donationItemsCount': donationItemsCount,
+        'donationSubtotal': donationSubtotal,
         'status': _selectedPaymentMethod == 'Pix'
             ? 'Pagamento Pix Pendente'
             : 'Em preparação',
@@ -368,6 +445,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
       };
 
       await FirebaseFirestore.instance.collection('pedidos').add(orderData);
+
+      // Se utilizou cashback no pedido, deduz do saldo do cliente
+      if (widget.appliedCashback > 0) {
+        await profileProvider.deductCashback(widget.appliedCashback);
+      }
+
+      // Se houver doação, atualiza o cadastro do cliente (total de doações e cashback do nível)
+      if (hasDonations) {
+        await profileProvider.processDonationFromOrder(
+          donationCount: donationItemsCount,
+          donationSubtotal: donationSubtotal,
+        );
+      }
 
       // Limpar carrinho
       cartProvider.clear();

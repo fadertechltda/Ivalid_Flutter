@@ -7,6 +7,7 @@ import '../../../home/presentation/providers/home_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../home/domain/models/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'donation_product_details_page.dart';
 
 class DonationPage extends StatefulWidget {
   const DonationPage({super.key});
@@ -239,6 +240,14 @@ class _DonationPageState extends State<DonationPage> {
                   final item = products[index];
                   return _DonationCard(
                     item: item,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DonationProductDetailsPage(product: item),
+                        ),
+                      );
+                    },
                     onAdd: () {
                       cartProvider.add(item, 1, isDonationContext: true);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -322,45 +331,55 @@ class _ImpactStat extends StatelessWidget {
 // ─── Donation Card ────────────────────────────────────────────────────────────
 class _DonationCard extends StatelessWidget {
   final Product item;
+  final VoidCallback onTap;
   final VoidCallback onAdd;
 
-  const _DonationCard({required this.item, required this.onAdd});
+  const _DonationCard({
+    required this.item,
+    required this.onTap,
+    required this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.surface,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: context.cardShadow,
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          SizedBox(
-            height: 100,
-            width: double.infinity,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Container(color: context.chipBg),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: CachedNetworkImage(
-                    imageUrl: item.urlImagem,
-                    fit: BoxFit.contain,
-                    errorWidget: (context, url, error) =>
-                        Icon(Icons.image_not_supported_outlined, color: context.onBgAlpha(0.45), size: 32),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.surface,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: context.cardShadow,
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(color: context.chipBg),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Hero(
+                      tag: 'donation_product_${item.id}',
+                      child: CachedNetworkImage(
+                        imageUrl: item.urlImagem,
+                        fit: BoxFit.contain,
+                        errorWidget: (context, url, error) =>
+                            Icon(Icons.image_not_supported_outlined, color: context.onBgAlpha(0.45), size: 32),
+                      ),
+                    ),
                   ),
-                ),
                 // Donation tag
                 Positioned(
                   top: 8,
@@ -467,8 +486,9 @@ class _DonationCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // ─── Explainer Dialog ─────────────────────────────────────────────────────────

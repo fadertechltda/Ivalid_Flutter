@@ -19,11 +19,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
+  List<Widget> get _pages => [
     const HomePage(),
     const DonationPage(),
     const FlashPage(),
-    const OrdersPage(),
+    // Reconstrói a tela de pedidos toda vez que a aba for acessada
+    _currentIndex == 3 ? const OrdersPage() : const SizedBox.shrink(),
     const ProfilePage(),
   ];
 

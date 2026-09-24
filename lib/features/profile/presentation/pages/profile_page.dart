@@ -12,15 +12,25 @@ import '../providers/profile_provider.dart';
 import 'ivalid_pago_page.dart';
 
 /// Tela de Perfil — migrada fielmente de ProfileScreen.kt
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().loadUserProfile();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfileProvider(),
-      child: const _ProfilePageContent(),
-    );
+    return const _ProfilePageContent();
   }
 }
 
@@ -251,7 +261,7 @@ class _ProfilePageContent extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Nível ${fidelityLevel.label.split(' ').first}',
+                                      'Nível ${fidelityLevel.label.split(' ').first} (${provider.totalDonations} ${provider.totalDonations == 1 ? 'doação' : 'doações'})',
                                       style: GoogleFonts.inter(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w900,

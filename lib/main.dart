@@ -9,6 +9,7 @@ import 'features/home/presentation/providers/home_provider.dart';
 import 'features/cart/presentation/providers/cart_provider.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/profile/presentation/providers/payment_provider.dart';
+import 'features/profile/presentation/providers/profile_provider.dart';
 import 'main_page.dart';
 import 'firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -40,6 +41,7 @@ class IvalidApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) {
