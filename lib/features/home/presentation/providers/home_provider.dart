@@ -28,6 +28,9 @@ class HomeProvider extends ChangeNotifier {
   String? get selectedCategoryId => _selectedCategoryId;
   List<Category> get categories => _categories;
   List<Product> get filteredProducts => _filteredProducts;
+
+  /// Catálogo completo, sem busca/categoria aplicadas (ex.: médias de preço).
+  List<Product> get allProducts => _allProducts;
   List<Product> get favoriteProducts =>
       _allProducts.where((p) => p.isFavorite).toList();
   bool get isLoading => _isLoading;

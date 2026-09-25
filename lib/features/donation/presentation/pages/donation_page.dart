@@ -7,6 +7,13 @@ import '../../../home/presentation/providers/home_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../home/domain/models/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/ivalid_card.dart';
+import '../../../../core/widgets/section_title.dart';
+import '../../../../core/widgets/stat_tile.dart';
+import '../../../impact/presentation/pages/impact_calculator_page.dart';
+import '../../../impact/presentation/providers/impact_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import 'donation_product_details_page.dart';
 
 class DonationPage extends StatefulWidget {
@@ -54,6 +61,13 @@ class _DonationPageState extends State<DonationPage> {
     final homeProvider = context.watch<HomeProvider>();
     final cartProvider = context.read<CartProvider>();
     final products = homeProvider.filteredProducts;
+    final itemsDonated = context.watch<ImpactProvider>().totals.itemsDonated;
+    final cashbackPercent = (context
+                .watch<ProfileProvider>()
+                .fidelityLevel
+                .cashbackMultiplier *
+            100)
+        .round();
 
     return Scaffold(
       backgroundColor: context.bg,
@@ -147,77 +161,78 @@ class _DonationPageState extends State<DonationPage> {
                       const SizedBox(height: 20),
 
                       // Impact Card
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: context.surface,
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: context.cardShadow,
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      IvalidCard(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ImpactCalculatorPage(),
+                          ),
                         ),
-                        child: Row(
+                        child: Column(
                           children: [
-                            _ImpactStat(
-                              icon: Icons.card_giftcard_rounded,
-                              value: '${products.length}',
-                              label: 'Itens disponíveis',
-                              color: AppColors.redPrimary,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: StatTile(
+                                    icon: Icons.card_giftcard_rounded,
+                                    value: formatCount(products.length),
+                                    label: 'Itens disponíveis',
+                                    color: AppColors.redPrimary,
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 40,
+                                  color: context.outline.withValues(alpha: 0.5),
+                                ),
+                                Expanded(
+                                  child: StatTile(
+                                    icon: Icons.volunteer_activism_rounded,
+                                    value: formatCount(itemsDonated),
+                                    label: 'Doados por você',
+                                    color: AppColors.greenAccent,
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 40,
+                                  color: context.outline.withValues(alpha: 0.5),
+                                ),
+                                Expanded(
+                                  child: StatTile(
+                                    icon: Icons.emoji_events_rounded,
+                                    value: '$cashbackPercent%',
+                                    label: 'Seu cashback',
+                                    color: AppColors.yellowAccent,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              width: 1,
-                              height: 40,
-                              color: context.outline.withValues(alpha: 0.5),
-                            ),
-                            _ImpactStat(
-                              icon: Icons.groups_rounded,
-                              value: '12',
-                              label: 'ONGs parceiras',
-                              color: AppColors.greenAccent,
-                            ),
-                            Container(
-                              width: 1,
-                              height: 40,
-                              color: context.outline.withValues(alpha: 0.5),
-                            ),
-                            _ImpactStat(
-                              icon: Icons.emoji_events_rounded,
-                              value: '5%',
-                              label: 'Cashback',
-                              color: AppColors.yellowAccent,
+                            const SizedBox(height: 14),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Simular meu impacto',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: context.accent(AppColors.greenAccent),
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 18,
+                                  color: context.accent(AppColors.greenAccent),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 20),
 
-                      // Section title
-                      Row(
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              color: AppColors.redPrimary,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Escolha itens para doar',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: context.onBg,
-                            ),
-                          ),
-                        ],
-                      ),
+                      const SectionTitle('Escolha itens para doar'),
                     ],
                   ),
                 ),
@@ -277,50 +292,6 @@ class _DonationPageState extends State<DonationPage> {
                 childCount: products.length,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Impact Stats Widget ──────────────────────────────────────────────────────
-class _ImpactStat extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color color;
-
-  const _ImpactStat({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: context.onBg,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: context.onBgAlpha(0.5),
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

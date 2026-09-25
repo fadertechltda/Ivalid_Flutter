@@ -41,6 +41,10 @@ dependencies:
   shared_preferences: ^2.5.5
   flutter_svg: ^2.3.0
 
+  # Pagamento online (InfinitePay): chamadas à API e checkout em WebView
+  http: ^1.2.2
+  webview_flutter: ^4.10.0
+
   # Coroutines play-services equivalent (async helpers)
   # Flutter já tem isso built-in via async/await
 

@@ -8,6 +8,7 @@ import '../../../settings/presentation/pages/account_data_page.dart';
 import '../../../settings/presentation/pages/help_page.dart';
 import '../../../settings/presentation/pages/security_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
+import '../../../impact/presentation/widgets/impact_summary_card.dart';
 import '../providers/profile_provider.dart';
 import 'ivalid_pago_page.dart';
 
@@ -352,6 +353,11 @@ class _ProfilePageContent extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // ─── Card "Seu impacto" ─────────────────────────────
+                  const ImpactSummaryCard(),
 
                   const SizedBox(height: 16),
 

@@ -6,6 +6,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/cart_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../../impact/domain/models/impact_metrics.dart';
+import '../../../impact/domain/services/impact_calculator.dart';
+import '../../../impact/presentation/providers/impact_provider.dart';
+import '../../../impact/presentation/widgets/order_impact_card.dart';
+import '../../../payment/data/infinitepay_service.dart';
+import '../../../payment/domain/models/payment_models.dart';
+import '../../../payment/domain/payment_config.dart';
+import '../../../payment/presentation/pages/infinitepay_checkout_page.dart';
+import '../../../../core/utils/formatters.dart';
 
 class CheckoutPage extends StatefulWidget {
   final double appliedCashback;
@@ -20,6 +29,32 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPaymentMethod = 'Dinheiro';
   bool _isProcessing = false;
 
+  final ImpactCalculator _impactCalculator = ImpactCalculator();
+  final InfinitePayService _paymentService = InfinitePayService();
+
+  /// Pix e cartão são cobrados na hora, pelo checkout do InfinitePay. Dinheiro
+  /// e voucher continuam sendo pagos na retirada.
+  static const String _onlineMethodId = 'Online';
+
+  @override
+  void dispose() {
+    _paymentService.dispose();
+    super.dispose();
+  }
+
+  /// Impacto social dos itens que estão hoje no carrinho.
+  ImpactMetrics _impactOf(CartProvider cart) {
+    return _impactCalculator.forLines(
+      cart.items.map(
+        (item) => ImpactLine.fromProduct(
+          item.product,
+          item.quantity,
+          isDonation: item.origin == OriginType.doacao,
+        ),
+      ),
+    );
+  }
+
   final List<Map<String, dynamic>> _paymentMethods = [
     {
       'id': 'Dinheiro',
@@ -28,15 +63,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
       'enabled': true,
     },
     {
-      'id': 'Pix',
-      'label': 'PIX',
+      'id': _onlineMethodId,
+      'label': 'Pix ou Cartão de Crédito',
+      'subtitle': 'Pagamento online seguro pelo InfinitePay',
       'icon': Icons.qr_code_rounded,
-      'enabled': true,
-    },
-    {
-      'id': 'Cartão',
-      'label': 'Cartão de Crédito/Débito',
-      'icon': Icons.credit_card_rounded,
       'enabled': true,
     },
     {
@@ -82,6 +112,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         _buildSectionTitle(context, 'Resumo dos Itens'),
                         const SizedBox(height: 12),
                         _buildItemsList(context, cartProvider),
+                        if (cartProvider.items.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          OrderImpactCard(metrics: _impactOf(cartProvider)),
+                        ],
                         const SizedBox(height: 30),
                         _buildSectionTitle(context, 'Método de Pagamento'),
                         const SizedBox(height: 12),
@@ -230,6 +264,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               fontSize: 11,
                               color: AppColors.redPrimary.withValues(alpha: 0.7),
                               fontStyle: FontStyle.italic,
+                            ),
+                          )
+                        else if (method['subtitle'] != null)
+                          Text(
+                            method['subtitle'] as String,
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: context.onBgAlpha(0.5),
                             ),
                           ),
                       ],
@@ -393,6 +435,74 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  /// Cobra o pedido pelo InfinitePay e devolve a confirmação do pagamento, ou
+  /// `null` se o usuário desistir antes de pagar. Lança [PaymentException] se
+  /// algo der errado.
+  Future<PaymentConfirmation?> _payOnline({
+    required NavigatorState navigator,
+    required User user,
+    required String orderNsu,
+    required double amount,
+    required int itemCount,
+  }) async {
+    final amountCents = (amount * 100).round();
+
+    // Modo demonstração: aprova sem chamar o InfinitePay.
+    if (PaymentConfig.demoMode) {
+      await Future<void>.delayed(const Duration(seconds: 1));
+      return PaymentConfirmation(
+        amountCents: amountCents,
+        paidAmountCents: amountCents,
+        installments: 1,
+        captureMethod: 'demo',
+        transactionNsu: 'demo-$orderNsu',
+      );
+    }
+
+    if (!InfinitePayCheckoutPage.isSupported) {
+      throw const PaymentException(
+        'O pagamento online está disponível apenas no Android e iOS. '
+        'Neste dispositivo, rode com --dart-define=PAYMENT_DEMO=true.',
+      );
+    }
+
+    final checkoutUrl = await _paymentService.createCheckoutLink(
+      orderNsu: orderNsu,
+      amountCents: amountCents,
+      description:
+          'Pedido Ivalid ($itemCount ${itemCount == 1 ? 'item' : 'itens'})',
+      customerName: user.displayName,
+      customerEmail: user.email,
+    );
+
+    final redirect = await navigator.push<CheckoutRedirect>(
+      MaterialPageRoute(
+        builder: (_) => InfinitePayCheckoutPage(checkoutUrl: checkoutUrl),
+      ),
+    );
+    if (redirect == null) return null; // fechou sem concluir
+
+    if (redirect.orderNsu != orderNsu) {
+      throw const PaymentException(
+        'O pagamento recebido não corresponde a este pedido.',
+      );
+    }
+
+    final confirmation = await _paymentService.confirmWithRetry(redirect);
+    if (confirmation == null) {
+      throw const PaymentException(
+        'Não foi possível confirmar o pagamento. Se o valor foi cobrado, ele '
+        'aparece no InfinitePay; tente novamente em instantes.',
+      );
+    }
+    if (confirmation.amountCents != amountCents) {
+      throw const PaymentException(
+        'O valor pago não confere com o total do pedido.',
+      );
+    }
+    return confirmation;
+  }
+
   Future<void> _processOrder(BuildContext context) async {
     setState(() => _isProcessing = true);
 
@@ -401,6 +511,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final messenger = ScaffoldMessenger.of(context);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+    final impactProvider = Provider.of<ImpactProvider>(context, listen: false);
+    final neutralColor = context.onBg;
+    // Calculado antes de limpar o carrinho.
+    final orderImpact = _impactOf(cartProvider);
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -429,6 +543,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
         };
       }).toList();
 
+      // O id é gerado antes (sem gravar nada) para servir de `order_nsu` no
+      // pagamento. O pedido só é gravado depois que o pagamento é confirmado,
+      // então desistir do pagamento não deixa pedidos pendentes pelo caminho.
+      final orderRef = FirebaseFirestore.instance.collection('pedidos').doc();
+
+      final bool payOnline = _selectedPaymentMethod == _onlineMethodId;
+      PaymentConfirmation? confirmation;
+
+      // Se o cashback cobre o pedido inteiro, não há o que cobrar.
+      if (payOnline && finalTotal > 0) {
+        confirmation = await _payOnline(
+          navigator: navigator,
+          user: user,
+          orderNsu: orderRef.id,
+          amount: finalTotal,
+          itemCount: cartProvider.count,
+        );
+        if (confirmation == null) {
+          messenger.showSnackBar(
+            SnackBar(
+              content: const Text(
+                  'Pagamento não concluído. Seu carrinho foi mantido.'),
+              backgroundColor: neutralColor,
+            ),
+          );
+          return;
+        }
+      }
+
       final orderData = {
         'userId': user.uid,
         'timestamp': FieldValue.serverTimestamp(),
@@ -438,13 +581,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
         'hasDonations': hasDonations,
         'donationItemsCount': donationItemsCount,
         'donationSubtotal': donationSubtotal,
-        'status': _selectedPaymentMethod == 'Pix'
-            ? 'Pagamento Pix Pendente'
-            : 'Em preparação',
+        'status': 'Em preparação',
+        'paymentMethod': _selectedPaymentMethod,
+        'paymentStatus': confirmation != null ? 'pago' : 'a pagar na retirada',
+        if (confirmation != null) 'payment': confirmation.toMap(),
         'itens': itemsData,
       };
 
-      await FirebaseFirestore.instance.collection('pedidos').add(orderData);
+      await orderRef.set(orderData);
 
       // Se utilizou cashback no pedido, deduz do saldo do cliente
       if (widget.appliedCashback > 0) {
@@ -458,6 +602,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
           donationSubtotal: donationSubtotal,
         );
       }
+
+      // Registra o impacto social do pedido. Nunca lança: uma falha aqui não
+      // pode afetar um pedido que já foi criado.
+      await impactProvider.registerOrder(
+        orderRef: orderRef,
+        metrics: orderImpact,
+      );
 
       // Limpar carrinho
       cartProvider.clear();
@@ -487,13 +638,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Seu pedido foi confirmado e já está sendo preparado.',
+                confirmation != null
+                    ? 'Pagamento aprovado! Seu pedido já está sendo preparado.'
+                    : 'Seu pedido foi confirmado e já está sendo preparado.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   color: dialogContext.onBgAlpha(0.6),
                   fontSize: 14,
                 ),
               ),
+              if (orderImpact.totalItems > 0) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Você ajudou a salvar ${pluralize(orderImpact.totalItems, 'item', 'itens')} do desperdício.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    color: AppColors.greenAccent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
