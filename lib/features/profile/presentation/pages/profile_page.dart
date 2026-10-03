@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
+import 'package:ivalid/core/widgets/page_header.dart';
 import '../../../donation/domain/services/donation_gamification_service.dart';
 import '../../../home/presentation/pages/favorites_page.dart';
 import '../../../settings/presentation/pages/account_data_page.dart';
@@ -85,138 +87,103 @@ class _ProfilePageContent extends StatelessWidget {
               ),
               child: SafeArea(
                 bottom: false,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Row(
-                    children: [
-                      // Avatar
-                      Container(
-                        width: 68,
-                        height: 68,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppColors.redPrimary.withValues(alpha: 0.2),
-                              AppColors.redPrimary.withValues(alpha: 0.08),
-                            ],
-                          ),
-                          border: Border.all(
-                            color: context.surface,
-                            width: 3,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.redPrimary.withValues(alpha: 0.15),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          size: 34,
-                          color: AppColors.redPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Info do usuário
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              provider.isLoading
-                                  ? 'Carregando...'
-                                  : provider.userName,
-                              style: GoogleFonts.inter(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                color: context.onBg,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            GestureDetector(
-                              onTap: () => _showPremiumSheet(context),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppColors.redPrimary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.star_rounded,
-                                      size: 14,
-                                      color: AppColors.redPrimary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Premium Ivalid',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.redPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Settings
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: context.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: context.cardShadow,
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SettingsPage(),
-                                ),
-                              );
-                            },
-                            child: Icon(
-                              Icons.settings_outlined,
-                              color: context.onBg,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                child: PageHeader(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.lg,
+                    AppSpacing.screen,
+                    AppSpacing.md,
                   ),
+                  leading: Container(
+                    width: PageHeader.controlSize,
+                    height: PageHeader.controlSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.redPrimary.withValues(alpha: 0.2),
+                          AppColors.redPrimary.withValues(alpha: 0.08),
+                        ],
+                      ),
+                      border: Border.all(color: context.surface, width: 2),
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 24,
+                      color: AppColors.redPrimary,
+                    ),
+                  ),
+                  title: provider.isLoading
+                      ? 'Carregando...'
+                      : provider.userName,
+                  subtitleWidget: GestureDetector(
+                    onTap: () => _showPremiumSheet(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.redPrimary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            size: 14,
+                            color: AppColors.redPrimary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Premium Ivalid',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.redPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    PageHeader.iconSlot(
+                      backgroundColor: context.surface,
+                      boxShadow: [
+                        BoxShadow(
+                          color: context.cardShadow,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsPage(),
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        Icons.settings_outlined,
+                        color: context.onBg,
+                        size: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
 
             // ─── CARDS & LIST ─────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screen,
+              ),
               child: Column(
                 children: [
                   // ─── Card Fidelidade / Doações ──────────────────────
@@ -242,7 +209,6 @@ class _ProfilePageContent extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              // Ícone do nível
                               Container(
                                 width: 44,
                                 height: 44,
@@ -279,27 +245,32 @@ class _ProfilePageContent extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Disponível',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      color: context.onBgAlpha(0.4),
-                                    ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Text(
+                                'Disponível',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: context.onBgAlpha(0.4),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'R\$ ${provider.availableCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.greenAccent,
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'R\$ ${provider.availableCashback.toStringAsFixed(2).replaceAll('.', ',')}',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.greenAccent,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
@@ -324,11 +295,14 @@ class _ProfilePageContent extends StatelessWidget {
                               borderRadius: BorderRadius.circular(50),
                               child: LinearProgressIndicator(
                                 value: _calculateProgress(
-                                    provider.totalDonations, fidelityLevel),
+                                  provider.totalDonations,
+                                  fidelityLevel,
+                                ),
                                 minHeight: 6,
                                 color: levelColor,
-                                backgroundColor:
-                                    levelColor.withValues(alpha: 0.15),
+                                backgroundColor: levelColor.withValues(
+                                  alpha: 0.15,
+                                ),
                               ),
                             ),
                           ] else
@@ -336,7 +310,11 @@ class _ProfilePageContent extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 14),
                               child: Row(
                                 children: [
-                                  Icon(Icons.emoji_events_rounded, color: levelColor, size: 18),
+                                  Icon(
+                                    Icons.emoji_events_rounded,
+                                    color: levelColor,
+                                    size: 18,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Nível máximo alcançado!',
@@ -396,7 +374,9 @@ class _ProfilePageContent extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: AppColors.redPrimary.withValues(alpha: 0.1),
+                                  color: AppColors.redPrimary.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: const Icon(
@@ -542,16 +522,25 @@ class _ProfilePageContent extends StatelessWidget {
                       child: InkWell(
                         onTap: () {
                           provider.logout(() {
-                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            Navigator.of(
+                              context,
+                            ).popUntil((route) => route.isFirst);
                           });
                         },
                         borderRadius: BorderRadius.circular(14),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 16,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.exit_to_app_rounded, color: AppColors.redPrimary, size: 20),
+                              const Icon(
+                                Icons.exit_to_app_rounded,
+                                color: AppColors.redPrimary,
+                                size: 20,
+                              ),
                               const SizedBox(width: 10),
                               Text(
                                 'Sair da conta',
@@ -608,10 +597,7 @@ class _ProfilePageContent extends StatelessWidget {
   }
 
   Future<void> _openPage(BuildContext context, Widget page) {
-    return Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+    return Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 
   void _showEmptyStateSheet(
@@ -741,11 +727,7 @@ class _ProfileMenuItem extends StatelessWidget {
                     color: context.chipBg,
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: context.onBgAlpha(0.6),
-                  ),
+                  child: Icon(icon, size: 20, color: context.onBgAlpha(0.6)),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -781,9 +763,7 @@ class _AddressDialog extends StatelessWidget {
     final provider = context.watch<ProfileProvider>();
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       backgroundColor: context.surface,
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -800,7 +780,11 @@ class _AddressDialog extends StatelessWidget {
                     color: AppColors.redPrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.location_on_rounded, color: AppColors.redPrimary, size: 20),
+                  child: const Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.redPrimary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -816,7 +800,8 @@ class _AddressDialog extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Fields
-            _buildTextField(context,
+            _buildTextField(
+              context,
               value: provider.cep,
               label: 'CEP',
               keyboardType: TextInputType.number,
@@ -829,7 +814,8 @@ class _AddressDialog extends StatelessWidget {
               },
             ),
             const SizedBox(height: 12),
-            _buildTextField(context,
+            _buildTextField(
+              context,
               value: provider.street,
               label: 'Endereço',
               onChanged: (v) => provider.updateAddressField('street', v),
@@ -838,7 +824,8 @@ class _AddressDialog extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(context,
+                  child: _buildTextField(
+                    context,
                     value: provider.number,
                     label: 'Número',
                     onChanged: (v) => provider.updateAddressField('number', v),
@@ -846,22 +833,26 @@ class _AddressDialog extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _buildTextField(context,
+                  child: _buildTextField(
+                    context,
                     value: provider.complement,
                     label: 'Complemento',
-                    onChanged: (v) => provider.updateAddressField('complement', v),
+                    onChanged: (v) =>
+                        provider.updateAddressField('complement', v),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            _buildTextField(context,
+            _buildTextField(
+              context,
               value: provider.neighborhood,
               label: 'Bairro',
               onChanged: (v) => provider.updateAddressField('neighborhood', v),
             ),
             const SizedBox(height: 12),
-            _buildTextField(context,
+            _buildTextField(
+              context,
               value: provider.city,
               label: 'Cidade',
               onChanged: (v) => provider.updateAddressField('city', v),
@@ -960,7 +951,10 @@ class _AddressDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         suffixIcon: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(12),

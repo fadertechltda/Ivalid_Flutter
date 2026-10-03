@@ -44,13 +44,20 @@ class StatTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: context.onBgAlpha(0.5),
+          SizedBox(
+            width: double.infinity,
+            height: 24,
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                height: 1.2,
+                color: context.onBgAlpha(0.5),
+              ),
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

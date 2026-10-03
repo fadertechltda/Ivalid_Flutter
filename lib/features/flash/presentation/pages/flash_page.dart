@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
+import 'package:ivalid/core/widgets/page_header.dart';
 import 'package:ivalid/features/home/presentation/providers/home_provider.dart';
 import 'package:ivalid/features/home/domain/models/product.dart';
 import 'package:ivalid/features/home/presentation/pages/product_details_page.dart';
@@ -57,10 +59,11 @@ class FlashPage extends StatelessWidget {
     final homeProvider = context.watch<HomeProvider>();
 
     // Filtra apenas produtos com <= 10 dias de validade
-    final flashProducts = homeProvider.filteredProducts
-        .where((p) => p.expiresInDays <= 10)
-        .toList()
-      ..sort((a, b) => a.expiresInDays.compareTo(b.expiresInDays));
+    final flashProducts =
+        homeProvider.filteredProducts
+            .where((p) => p.expiresInDays <= 10)
+            .toList()
+          ..sort((a, b) => a.expiresInDays.compareTo(b.expiresInDays));
 
     return Scaffold(
       backgroundColor: context.bg,
@@ -74,131 +77,107 @@ class FlashPage extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.redPrimaryDark,
-                    AppColors.redPrimary,
-                  ],
+                  colors: [AppColors.redPrimaryDark, AppColors.redPrimary],
                 ),
               ),
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  padding: const EdgeInsets.only(bottom: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Top row
-                      Row(
-                        children: [
-                          GestureDetector(
+                      PageHeader(
+                        titleColor: Colors.white,
+                        subtitleColor: Colors.white.withValues(alpha: 0.8),
+                        leading: PageHeader.iconSlot(
+                          backgroundColor: Colors.white.withValues(alpha: 0.15),
+                          child: const Icon(
+                            Icons.flash_on,
+                            color: AppColors.yellowAccent,
+                            size: 22,
+                          ),
+                        ),
+                        title: 'FLASH',
+                        subtitle: '${flashProducts.length} ofertas',
+                        actions: [
+                          PageHeader.iconSlot(
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.15,
+                            ),
                             onTap: () => _showFlashInfo(context),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.flash_on,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.flash_on,
-                                color: AppColors.yellowAccent,
-                                size: 28,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'FLASH',
-                                style: GoogleFonts.inter(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '${flashProducts.length} ofertas',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                            child: const Icon(
+                              Icons.info_outline_rounded,
+                              color: Colors.white,
+                              size: 20,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
 
-                      // Banner informativo
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppColors.yellowAccent.withValues(alpha: 0.4),
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.screen,
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: AppColors.yellowAccent.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.timer,
-                                color: AppColors.yellowAccent,
-                                size: 24,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: AppColors.yellowAccent.withValues(
+                                alpha: 0.4,
                               ),
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Últimas unidades!',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.yellowAccent,
-                                    ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: AppColors.yellowAccent.withValues(
+                                    alpha: 0.25,
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Produtos com menos de 10 dias para o vencimento. Aproveite os maiores descontos!',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.timer,
+                                  color: AppColors.yellowAccent,
+                                  size: 24,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Últimas unidades!',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.yellowAccent,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Produtos com menos de 10 dias para o vencimento. Aproveite os maiores descontos!',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -262,18 +241,20 @@ class FlashPage extends StatelessWidget {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.lg,
+                AppSpacing.screen,
+                0,
+              ),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final product = flashProducts[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _FlashProductCard(product: product),
-                    );
-                  },
-                  childCount: flashProducts.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final product = flashProducts[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _FlashProductCard(product: product),
+                  );
+                }, childCount: flashProducts.length),
               ),
             ),
 
@@ -391,7 +372,9 @@ class _FlashProductCard extends StatelessWidget {
                             left: 4,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 3),
+                                horizontal: 6,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.redPrimary,
                                 borderRadius: BorderRadius.circular(6),
@@ -445,33 +428,27 @@ class _FlashProductCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'R\$ ${product.priceNow.toStringAsFixed(2).replaceAll('.', ',')}',
-                              style: GoogleFonts.inter(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.redPrimary,
-                              ),
-                            ),
-                            if (product.discountPercent > 0) ...[
-                              const SizedBox(width: 8),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 2),
-                                child: Text(
-                                  'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: context.onBgAlpha(0.45),
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                        Text(
+                          'R\$ ${product.priceNow.toStringAsFixed(2).replaceAll('.', ',')}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.redPrimary,
+                          ),
                         ),
+                        if (product.discountPercent > 0)
+                          Text(
+                            'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: context.onBgAlpha(0.45),
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
                       ],
                     ),
                   ),

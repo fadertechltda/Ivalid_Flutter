@@ -32,6 +32,8 @@ class SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w800,

@@ -34,18 +34,17 @@ class _MainPageState extends State<MainPage> {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            context.isDarkMode ? Brightness.light : Brightness.dark,
-        statusBarBrightness:
-            context.isDarkMode ? Brightness.dark : Brightness.light,
+        statusBarIconBrightness: context.isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
+        statusBarBrightness: context.isDarkMode
+            ? Brightness.dark
+            : Brightness.light,
       ),
     );
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
@@ -56,7 +55,9 @@ class _MainPageState extends State<MainPage> {
         color: context.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: context.isDarkMode ? 0.4 : 0.06),
+            color: Colors.black.withValues(
+              alpha: context.isDarkMode ? 0.4 : 0.06,
+            ),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -65,15 +66,34 @@ class _MainPageState extends State<MainPage> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 6),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _navItem(0, Icons.home_outlined, Icons.home_rounded, 'Início'),
-              _navItem(1, Icons.favorite_border_rounded, Icons.favorite_rounded, 'Doação'),
-              _navItem(2, Icons.flash_on_outlined, Icons.flash_on_rounded, 'Flash'),
-              _navItem(3, Icons.receipt_long_outlined, Icons.receipt_long_rounded, 'Pedidos'),
-              _navItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'Perfil'),
+              _navItem(
+                1,
+                Icons.favorite_border_rounded,
+                Icons.favorite_rounded,
+                'Doação',
+              ),
+              _navItem(
+                2,
+                Icons.flash_on_outlined,
+                Icons.flash_on_rounded,
+                'Flash',
+              ),
+              _navItem(
+                3,
+                Icons.receipt_long_outlined,
+                Icons.receipt_long_rounded,
+                'Pedidos',
+              ),
+              _navItem(
+                4,
+                Icons.person_outline_rounded,
+                Icons.person_rounded,
+                'Perfil',
+              ),
             ],
           ),
         ),
@@ -83,41 +103,31 @@ class _MainPageState extends State<MainPage> {
 
   Widget _navItem(int index, IconData icon, IconData activeIcon, String label) {
     final isActive = _currentIndex == index;
+    final color = isActive ? AppColors.redPrimary : context.onBgAlpha(0.45);
 
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(
-          horizontal: isActive ? 16 : 12,
-          vertical: 8,
-        ),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.redPrimary.withValues(alpha: 0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              size: 22,
-              color: isActive ? AppColors.redPrimary : context.onBgAlpha(0.45),
-            ),
-            if (isActive) ...[
-              const SizedBox(width: 6),
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _currentIndex = index),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(isActive ? activeIcon : icon, size: 22, color: color),
+              const SizedBox(height: 4),
               Text(
                 label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.redPrimary,
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: color,
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
+import 'package:ivalid/core/widgets/page_header.dart';
+import 'package:ivalid/core/widgets/section_title.dart';
+import 'package:ivalid/core/widgets/stat_tile.dart';
 import '../providers/orders_provider.dart';
 import '../../domain/models/order_model.dart';
 
@@ -45,257 +49,183 @@ class _OrdersPageContent extends StatelessWidget {
         onRefresh: provider.fetchOrders,
         color: AppColors.redPrimary,
         child: CustomScrollView(
-        slivers: [
-          // ─── HEADER com gradiente ─────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.redPrimary.withValues(alpha: 0.12),
-                    context.bg,
-                  ],
+          slivers: [
+            // ─── HEADER com gradiente ─────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.redPrimary.withValues(alpha: 0.12),
+                      context.bg,
+                    ],
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: SafeArea(
+                  bottom: false,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ─── Title row ──────────────────────────────────
-                      Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: AppColors.redPrimary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Icon(
-                              Icons.receipt_long_rounded,
-                              color: AppColors.redPrimary,
-                              size: 22,
-                            ),
+                      PageHeader(
+                        leading: PageHeader.iconSlot(
+                          backgroundColor: AppColors.redPrimary.withValues(
+                            alpha: 0.15,
                           ),
-                          const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Meus Pedidos',
-                                style: GoogleFonts.inter(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900,
-                                  color: context.onBg,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              Text(
-                                'Acompanhe suas compras',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: context.onBgAlpha(0.5),
-                                ),
+                          child: const Icon(
+                            Icons.receipt_long_rounded,
+                            color: AppColors.redPrimary,
+                            size: 22,
+                          ),
+                        ),
+                        title: 'Meus Pedidos',
+                        subtitle: 'Acompanhe suas compras',
+                        actions: [
+                          PageHeader.iconSlot(
+                            backgroundColor: context.surface,
+                            boxShadow: [
+                              BoxShadow(
+                                color: context.cardShadow,
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
                             ],
-                          ),
-                          const Spacer(),
-                          GestureDetector(
                             onTap: provider.fetchOrders,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: context.surface,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: context.cardShadow,
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.refresh_rounded,
-                                color: context.onBg,
-                                size: 20,
-                              ),
+                            child: Icon(
+                              Icons.refresh_rounded,
+                              color: context.onBg,
+                              size: 20,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
-
-                      // ─── Summary Stats Card ────────────────────────
-                      if (!provider.isLoading && provider.orders.isNotEmpty)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: context.surface,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: context.cardShadow,
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              _SummaryStat(
-                                icon: Icons.shopping_bag_rounded,
-                                value: '$totalPedidos',
-                                label: 'Pedidos',
-                                color: AppColors.redPrimary,
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: context.outline.withValues(alpha: 0.5),
-                              ),
-                              _SummaryStat(
-                                icon: Icons.check_circle_rounded,
-                                value: '$entregues',
-                                label: 'Entregues',
-                                color: AppColors.greenAccent,
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: context.outline.withValues(alpha: 0.5),
-                              ),
-                              _SummaryStat(
-                                icon: Icons.payments_rounded,
-                                value:
-                                    'R\$ ${totalGasto.toStringAsFixed(0).replaceAll('.', ',')}',
-                                label: 'Total gasto',
-                                color: AppColors.yellowAccent,
-                              ),
-                            ],
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.screen,
+                          0,
+                          AppSpacing.screen,
+                          8,
                         ),
-
-                      if (!provider.isLoading && provider.orders.isNotEmpty)
-                        const SizedBox(height: 20),
-
-                      // ─── Section Title ─────────────────────────────
-                      if (!provider.isLoading && provider.orders.isNotEmpty)
-                        Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 4,
-                              height: 18,
-                              decoration: BoxDecoration(
-                                color: AppColors.redPrimary,
-                                borderRadius: BorderRadius.circular(2),
+                            // ─── Summary Stats Card ────────────────────────
+                            if (!provider.isLoading &&
+                                provider.orders.isNotEmpty)
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(18),
+                                decoration: BoxDecoration(
+                                  color: context.surface,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: context.cardShadow,
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: StatTile(
+                                        icon: Icons.shopping_bag_rounded,
+                                        value: '$totalPedidos',
+                                        label: 'Pedidos',
+                                        color: AppColors.redPrimary,
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 1,
+                                      height: 40,
+                                      color: context.outline.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: StatTile(
+                                        icon: Icons.check_circle_rounded,
+                                        value: '$entregues',
+                                        label: 'Entregues',
+                                        color: AppColors.greenAccent,
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 1,
+                                      height: 40,
+                                      color: context.outline.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: StatTile(
+                                        icon: Icons.payments_rounded,
+                                        value:
+                                            'R\$ ${totalGasto.toStringAsFixed(0).replaceAll('.', ',')}',
+                                        label: 'Total gasto',
+                                        color: AppColors.yellowAccent,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'Histórico de pedidos',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: context.onBg,
-                              ),
-                            ),
+
+                            if (!provider.isLoading &&
+                                provider.orders.isNotEmpty)
+                              const SizedBox(height: 20),
+
+                            if (!provider.isLoading &&
+                                provider.orders.isNotEmpty)
+                              const SectionTitle('Histórico de pedidos'),
                           ],
                         ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
 
-          // ─── CONTEÚDO ─────────────────────────────────────────────────
-          if (provider.isLoading)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.redPrimary),
-              ),
-            )
-          else if (provider.error != null)
-            SliverFillRemaining(
-              child: _ErrorMessage(
-                message: provider.error!,
-                onRetry: provider.fetchOrders,
-              ),
-            )
-          else if (provider.orders.isEmpty)
-            const SliverFillRemaining(child: _EmptyOrdersMessage())
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+            // ─── CONTEÚDO ─────────────────────────────────────────────────
+            if (provider.isLoading)
+              const SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.redPrimary),
+                ),
+              )
+            else if (provider.error != null)
+              SliverFillRemaining(
+                child: _ErrorMessage(
+                  message: provider.error!,
+                  onRetry: provider.fetchOrders,
+                ),
+              )
+            else if (provider.orders.isEmpty)
+              const SliverFillRemaining(child: _EmptyOrdersMessage())
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.lg,
+                  AppSpacing.screen,
+                  100,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: _OrderCard(order: provider.orders[index]),
                     );
-                  },
-                  childCount: provider.orders.length,
+                  }, childCount: provider.orders.length),
                 ),
               ),
-            ),
-        ],
-      ),
-     ),
-    );
-  }
-}
-
-// ─── Summary Stat (mesmo padrão do ImpactStat da Donation) ───────────────────
-class _SummaryStat extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color color;
-
-  const _SummaryStat({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-              color: context.onBg,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: context.onBgAlpha(0.5),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -338,9 +268,7 @@ class _OrderCardState extends State<_OrderCard> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: context.softBg(statusInfo.color),
-            ),
+            decoration: BoxDecoration(color: context.softBg(statusInfo.color)),
             child: Row(
               children: [
                 Container(
@@ -432,59 +360,63 @@ class _OrderCardState extends State<_OrderCard> {
                 AnimatedCrossFade(
                   firstChild: const SizedBox.shrink(),
                   secondChild: Column(
-                    children: order.items.map((item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: context.chipBg,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${item.quantity}x',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.redPrimary,
+                    children: order.items
+                        .map(
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: context.chipBg,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${item.quantity}x',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.redPrimary,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: context.onBg,
-                                        height: 1.2,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: context.onBg,
+                                          height: 1.2,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      'R\$ ${item.subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: context.onBgAlpha(0.45),
+                                      Text(
+                                        'R\$ ${item.subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: context.onBgAlpha(0.45),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        )).toList(),
+                        )
+                        .toList(),
                   ),
                   crossFadeState: _isExpanded
                       ? CrossFadeState.showSecond
@@ -580,11 +512,7 @@ class _StatusInfo {
   final IconData icon;
   final String label;
 
-  _StatusInfo({
-    required this.color,
-    required this.icon,
-    required this.label,
-  });
+  _StatusInfo({required this.color, required this.icon, required this.label});
 }
 
 // ─── Empty State ─────────────────────────────────────────────────────────────
