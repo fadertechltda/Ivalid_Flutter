@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/payment_provider.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 class AddCardPage extends StatefulWidget {
   final String cardType; // Crédito, Débito, Voucher, Vale Refeição, etc.
@@ -75,6 +76,7 @@ class _AddCardPageState extends State<AddCardPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Voltar',
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.onBg, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
@@ -172,7 +174,7 @@ class _AddCardPageState extends State<AddCardPage> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.control),
                     ),
                   ),
                   child: Text(
@@ -223,7 +225,7 @@ class _AddCardPageState extends State<AddCardPage> {
       width: double.infinity,
       height: 200,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadius.banner),
         gradient: cardGrad,
         boxShadow: [
           BoxShadow(
@@ -332,7 +334,7 @@ class _AddCardPageState extends State<AddCardPage> {
                             'NOME DO TITULAR',
                             style: GoogleFonts.inter(
                               color: Colors.white60,
-                              fontSize: 9,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1,
                             ),
@@ -362,7 +364,7 @@ class _AddCardPageState extends State<AddCardPage> {
                           'VALIDADE',
                           style: GoogleFonts.inter(
                             color: Colors.white60,
-                            fontSize: 9,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1,
                           ),
@@ -395,7 +397,7 @@ class _AddCardPageState extends State<AddCardPage> {
       width: double.infinity,
       height: 200,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadius.banner),
         gradient: cardGrad,
         boxShadow: [
           BoxShadow(
@@ -434,7 +436,7 @@ class _AddCardPageState extends State<AddCardPage> {
                       'ASSINATURA DO TITULAR',
                       style: GoogleFonts.inter(
                         color: Colors.black26,
-                        fontSize: 8,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,
                       ),
@@ -484,7 +486,7 @@ class _AddCardPageState extends State<AddCardPage> {
                   widget.cardType.toUpperCase(),
                   style: GoogleFonts.inter(
                     color: Colors.white60,
-                    fontSize: 8,
+                    fontSize: 10,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -503,7 +505,7 @@ class _AddCardPageState extends State<AddCardPage> {
       style: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: context.onBgAlpha(0.55),
+        color: context.onBgMuted,
       ),
     );
   }
@@ -526,19 +528,19 @@ class _AddCardPageState extends State<AddCardPage> {
         filled: true,
         fillColor: context.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1),
         ),
         suffixIcon: Padding(
@@ -576,19 +578,19 @@ class _AddCardPageState extends State<AddCardPage> {
         filled: true,
         fillColor: context.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1),
         ),
       ),
@@ -622,19 +624,19 @@ class _AddCardPageState extends State<AddCardPage> {
         filled: true,
         fillColor: context.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1),
         ),
       ),
@@ -671,19 +673,19 @@ class _AddCardPageState extends State<AddCardPage> {
         filled: true,
         fillColor: context.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide(color: context.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1),
         ),
       ),

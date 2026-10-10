@@ -8,6 +8,7 @@ import '../widgets/settings_widgets.dart';
 import 'account_data_page.dart';
 import 'help_page.dart';
 import 'security_page.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Tela de Configurações — tema, notificações, conta e suporte.
 class SettingsPage extends StatelessWidget {
@@ -158,7 +159,7 @@ class SettingsPage extends StatelessWidget {
         height: 48,
         decoration: BoxDecoration(
           color: context.softBg(AppColors.redPrimary),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
         ),
         child: const Icon(Icons.eco_rounded, color: AppColors.redPrimary),
       ),
@@ -198,7 +199,7 @@ class _ThemeModeSelector extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: context.onBgAlpha(0.6),
+              color: context.onBgMuted,
             ),
           ),
           const SizedBox(height: 10),
@@ -242,7 +243,7 @@ class _ThemeOptionChip extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.tile),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -250,7 +251,7 @@ class _ThemeOptionChip extends StatelessWidget {
             color: isSelected
                 ? context.softBg(AppColors.redPrimary)
                 : context.chipBg,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadius.tile),
             border: Border.all(
               color: isSelected
                   ? AppColors.redPrimary
@@ -271,7 +272,7 @@ class _ThemeOptionChip extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? AppColors.redPrimary : context.onBgAlpha(0.6),
+                  color: isSelected ? AppColors.redPrimary : context.onBgMuted,
                 ),
               ),
             ],

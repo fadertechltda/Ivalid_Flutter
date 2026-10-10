@@ -68,6 +68,7 @@ class _ImpactCalculatorPageState extends State<ImpactCalculatorPage> {
         backgroundColor: context.surface,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Voltar',
           icon: Icon(Icons.arrow_back, color: context.onBg),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -95,7 +96,7 @@ class _ImpactCalculatorPageState extends State<ImpactCalculatorPage> {
                 'Ainda não há compras registradas. Use o simulador abaixo para ver o que você pode gerar.',
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  color: context.onBgAlpha(0.55),
+                  color: context.onBgMuted,
                 ),
               ),
             ],
@@ -191,7 +192,7 @@ class _ImpactCalculatorPageState extends State<ImpactCalculatorPage> {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       height: 1.4,
-                      color: context.onBgAlpha(0.55),
+                      color: context.onBgMuted,
                     ),
                   ),
                 ),
@@ -256,7 +257,7 @@ class _ControlHeader extends StatelessWidget {
                   subtitle!,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: context.onBgAlpha(0.5),
+                    color: context.onBgMuted,
                   ),
                 ),
             ],
@@ -415,7 +416,7 @@ class _ResultCard extends StatelessWidget {
             'Você pode salvar',
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: context.onBgAlpha(0.55),
+              color: context.onBgMuted,
             ),
           ),
           Row(
@@ -451,7 +452,7 @@ class _ResultCard extends StatelessWidget {
             months == 1 ? 'em 1 mês' : 'em $months meses',
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: context.onBgAlpha(0.5),
+              color: context.onBgMuted,
             ),
           ),
           const SizedBox(height: 18),
@@ -500,7 +501,7 @@ class _ResultCard extends StatelessWidget {
                         'Cashback estimado',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: context.onBgAlpha(0.55),
+                          color: context.onBgMuted,
                         ),
                       ),
                       Text(
@@ -531,7 +532,7 @@ class _ResultCard extends StatelessWidget {
               'O cashback pode abater até 15% de cada pedido e vale por 45 dias.',
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: context.onBgAlpha(0.45),
+                color: context.onBgMuted,
               ),
             ),
           ] else
@@ -539,7 +540,7 @@ class _ResultCard extends StatelessWidget {
               'Destine parte dos itens à doação para ganhar cashback e subir de nível.',
               style: GoogleFonts.inter(
                 fontSize: 12,
-                color: context.onBgAlpha(0.55),
+                color: context.onBgMuted,
               ),
             ),
         ],
@@ -631,7 +632,7 @@ class _MethodologySheet extends StatelessWidget {
               'Metodologia v${ImpactCalculator.methodologyVersion}',
               style: GoogleFonts.inter(
                 fontSize: 11,
-                color: context.onBgAlpha(0.4),
+                color: context.onBgMuted,
               ),
             ),
           ],

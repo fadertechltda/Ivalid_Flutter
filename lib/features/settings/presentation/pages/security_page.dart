@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 
 import '../widgets/settings_widgets.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Segurança — redefinição de senha e verificação de e-mail.
 class SecurityPage extends StatefulWidget {
@@ -89,7 +90,7 @@ class _SecurityPageState extends State<SecurityPage> {
       builder: (ctx) => AlertDialog(
         backgroundColor: ctx.surface,
         shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.banner)),
         title: Text(
           title,
           style: GoogleFonts.inter(
@@ -199,7 +200,7 @@ class _SecurityPageState extends State<SecurityPage> {
                 'por telefone ou mensagem.',
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  color: context.onBgAlpha(0.45),
+                  color: context.onBgMuted,
                 ),
               ),
             ],

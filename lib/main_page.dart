@@ -8,6 +8,7 @@ import 'features/donation/presentation/pages/donation_page.dart';
 import 'features/flash/presentation/pages/flash_page.dart';
 import 'features/orders/presentation/pages/orders_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -103,30 +104,36 @@ class _MainPageState extends State<MainPage> {
 
   Widget _navItem(int index, IconData icon, IconData activeIcon, String label) {
     final isActive = _currentIndex == index;
-    final color = isActive ? AppColors.redPrimary : context.onBgAlpha(0.45);
+    final color = isActive ? context.redText : context.onBgAlpha(0.55);
 
     return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _currentIndex = index),
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(isActive ? activeIcon : icon, size: 22, color: color),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color: color,
+      child: Semantics(
+        button: true,
+        selected: isActive,
+        label: label,
+        excludeSemantics: true,
+        child: GestureDetector(
+          onTap: () => setState(() => _currentIndex = index),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(isActive ? activeIcon : icon, size: 22, color: color),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    color: color,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

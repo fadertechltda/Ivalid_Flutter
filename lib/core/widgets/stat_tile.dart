@@ -55,7 +55,7 @@ class StatTile extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 10,
                 height: 1.2,
-                color: context.onBgAlpha(0.5),
+                color: context.onBgMuted,
               ),
             ),
           ),

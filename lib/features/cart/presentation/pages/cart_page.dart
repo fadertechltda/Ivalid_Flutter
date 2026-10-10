@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/donation_badge.dart';
 import '../providers/cart_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import 'checkout_page.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -45,6 +48,7 @@ class _CartPageState extends State<CartPage> {
         backgroundColor: context.surface,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Voltar',
           icon: Icon(Icons.arrow_back, color: context.onBg),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -62,7 +66,7 @@ class _CartPageState extends State<CartPage> {
               child: Text(
                 'Limpar',
                 style: GoogleFonts.inter(
-                  color: AppColors.redPrimary,
+                  color: context.redText,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -74,7 +78,7 @@ class _CartPageState extends State<CartPage> {
               child: Text(
                 'Seu carrinho está vazio',
                 style: GoogleFonts.inter(
-                  color: context.onBgAlpha(0.6),
+                  color: context.onBgMuted,
                   fontSize: 16,
                 ),
               ),
@@ -95,7 +99,7 @@ class _CartPageState extends State<CartPage> {
                         final cashbackCalc = gamification
                             .calculateCashback(item.subtotal, userTotalDonations);
                         estimatedCashbackText =
-                            "Ganha R\$ ${cashbackCalc.toStringAsFixed(2).replaceAll('.', ',')} de desconto futuro";
+                            'Ganha ${formatReais(cashbackCalc)} de desconto futuro';
                       }
 
                       return _CartItemRow(
@@ -164,11 +168,11 @@ class _CartItemRow extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isDonation
-            ? context.softBg(AppColors.redPrimary)
+            ? context.softBg(AppColors.greenAccent)
             : context.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
         border: isDonation
-            ? Border.all(color: AppColors.redPrimary.withValues(alpha: 0.5))
+            ? Border.all(color: AppColors.greenAccent.withValues(alpha: 0.5))
             : null,
         boxShadow: [
           BoxShadow(
@@ -184,7 +188,7 @@ class _CartItemRow extends StatelessWidget {
         children: [
           // Imagem do Produto
           ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.tag),
             child: Container(
               width: 68,
               height: 68,
@@ -204,6 +208,10 @@ class _CartItemRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (isDonation) ...[
+                  const DonationBadge(),
+                  const SizedBox(height: 6),
+                ],
                 Text(
                   item.product.name,
                   style: GoogleFonts.inter(
@@ -214,22 +222,24 @@ class _CartItemRow extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  item.product.storeName,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: context.onBgAlpha(0.6),
+                if (item.product.storeName.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    item.product.storeName,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: context.onBgMuted,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 6),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'R\$ ${item.product.priceNow.toStringAsFixed(2).replaceAll('.', ',')}',
+                      formatReais(item.product.priceNow),
                       style: GoogleFonts.inter(
-                        color: AppColors.redPrimary,
+                        color: context.redText,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -237,9 +247,9 @@ class _CartItemRow extends StatelessWidget {
                     if (item.product.discountPercent > 0) ...[
                       const SizedBox(width: 8),
                       Text(
-                        'R\$ ${item.product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
+                        formatReais(item.product.priceOriginal),
                         style: GoogleFonts.inter(
-                          color: context.onBgAlpha(0.5),
+                          color: context.onBgMuted,
                           decoration: TextDecoration.lineThrough,
                           fontSize: 11,
                         ),
@@ -251,15 +261,16 @@ class _CartItemRow extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.volunteer_activism,
-                          color: AppColors.redPrimary, size: 12),
+                      Icon(Icons.volunteer_activism,
+                          color: context.textOn(AppColors.greenAccent),
+                          size: 14),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           estimatedCashbackText!,
                           style: GoogleFonts.inter(
-                            color: AppColors.redPrimary,
-                            fontSize: 10,
+                            color: context.textOn(AppColors.greenAccent),
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -272,63 +283,95 @@ class _CartItemRow extends StatelessWidget {
           ),
 
           // Controles de quantidade
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           Column(
             children: [
               Row(
                 children: [
-                  GestureDetector(
+                  _RoundIconButton(
+                    icon: Icons.remove,
+                    tooltip: 'Diminuir quantidade',
                     onTap: item.quantity > 1 ? onDecrement : null,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: item.quantity > 1
-                            ? context.surface
-                            : context.chipBg,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: context.outline),
-                      ),
-                      child: Icon(Icons.remove,
-                          size: 16,
-                          color: item.quantity > 1
-                              ? context.onBg
-                              : context.onBgAlpha(0.45)),
-                    ),
                   ),
                   Container(
-                    width: 32,
+                    width: 28,
                     alignment: Alignment.center,
                     child: Text(
                       '${item.quantity}',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
+                        color: context.onBg,
                       ),
                     ),
                   ),
-                  GestureDetector(
+                  _RoundIconButton(
+                    icon: Icons.add,
+                    tooltip: 'Aumentar quantidade',
                     onTap: onIncrement,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: context.surface,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: context.outline),
-                      ),
-                      child: Icon(Icons.add, size: 16, color: context.onBg),
-                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: onRemove,
-                child: const Icon(Icons.delete_outline,
-                    color: Colors.red, size: 20),
+              const SizedBox(height: 4),
+              IconButton(
+                onPressed: onRemove,
+                tooltip: 'Remover item',
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 36),
+                icon: Icon(Icons.delete_outline,
+                    color: context.redText, size: 22),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Botão redondo de quantidade (+/-), com área de toque de 36 px e rótulo
+/// para leitores de tela.
+class _RoundIconButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onTap;
+
+  const _RoundIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: tooltip,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 20,
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Center(
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: enabled ? context.surface : context.chipBg,
+                shape: BoxShape.circle,
+                border: Border.all(color: context.outline),
+              ),
+              child: Icon(
+                icon,
+                size: 16,
+                color: enabled ? context.onBg : context.onBgAlpha(0.45),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -394,7 +437,7 @@ class _SummaryBox extends StatelessWidget {
                     color: useCashback
                         ? AppColors.greenAccent.withValues(alpha: 0.1)
                         : context.chipBg,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppRadius.tile),
                     border: Border.all(
                       color: useCashback
                           ? AppColors.greenAccent.withValues(alpha: 0.4)
@@ -408,7 +451,7 @@ class _SummaryBox extends StatelessWidget {
                         height: 36,
                         decoration: BoxDecoration(
                           color: AppColors.greenAccent.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AppRadius.tag),
                         ),
                         child: const Icon(
                           Icons.monetization_on_rounded,
@@ -431,11 +474,11 @@ class _SummaryBox extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'Saldo disponível: R\$ ${availableCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                              'Saldo disponível: ${formatReais(availableCashback)}',
                               style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.greenAccent,
+                                color: context.textOn(AppColors.greenAccent),
                               ),
                             ),
                           ],
@@ -461,14 +504,14 @@ class _SummaryBox extends StatelessWidget {
                       'Subtotal',
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        color: context.onBgAlpha(0.6),
+                        color: context.onBgMuted,
                       ),
                     ),
                     Text(
-                      'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}',
+                      formatReais(total),
                       style: GoogleFonts.inter(
                         fontSize: 13,
-                        color: context.onBgAlpha(0.6),
+                        color: context.onBgMuted,
                       ),
                     ),
                   ],
@@ -482,15 +525,15 @@ class _SummaryBox extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.greenAccent,
+                        color: context.textOn(AppColors.greenAccent),
                       ),
                     ),
                     Text(
-                      '- R\$ ${appliedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                      '- ${formatReais(appliedCashback)}',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.greenAccent,
+                        color: context.textOn(AppColors.greenAccent),
                       ),
                     ),
                   ],
@@ -510,11 +553,11 @@ class _SummaryBox extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'R\$ ${finalTotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                    formatReais(finalTotal),
                     style: GoogleFonts.inter(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.redPrimary,
+                      color: context.redText,
                     ),
                   ),
                 ],
@@ -526,19 +569,39 @@ class _SummaryBox extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
+                      'Itens para doação',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: context.onBgMuted,
+                      ),
+                    ),
+                    Text(
+                      formatReais(donationTotal),
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: context.onBgMuted,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
                       'Cashback estimado (Doação)',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.greenAccent,
+                        color: context.textOn(AppColors.greenAccent),
                       ),
                     ),
                     Text(
-                      '+ R\$ ${estimatedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                      '+ ${formatReais(estimatedCashback)}',
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.greenAccent,
+                        color: context.textOn(AppColors.greenAccent),
                       ),
                     ),
                   ],
@@ -559,7 +622,7 @@ class _SummaryBox extends StatelessWidget {
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.control),
                     ),
                   ),
                   child: Center(

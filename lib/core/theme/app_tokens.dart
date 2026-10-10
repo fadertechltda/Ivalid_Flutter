@@ -6,14 +6,23 @@
 class AppRadius {
   AppRadius._();
 
+  /// Selos, ícones em caixa pequena e miniaturas.
+  static const double tag = 10;
+
   /// Chips, seletores e itens de lista.
   static const double chip = 12;
+
+  /// Cartões compactos, blocos de informação e botões de ícone.
+  static const double tile = 14;
 
   /// Campos, botões e controles.
   static const double control = 16;
 
   /// Cards e superfícies principais.
   static const double card = 18;
+
+  /// Banners e cartões de destaque.
+  static const double banner = 20;
 
   /// Cards de destaque e modais.
   static const double sheet = 24;

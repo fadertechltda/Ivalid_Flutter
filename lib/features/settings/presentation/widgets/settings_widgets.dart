@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Título de seção das configurações.
 class SettingsSectionLabel extends StatelessWidget {
@@ -36,7 +37,7 @@ class SettingsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(color: context.outline.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
@@ -125,7 +126,7 @@ class SettingsTile extends StatelessWidget {
                         subtitle!,
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: context.onBgAlpha(0.5),
+                          color: context.onBgMuted,
                         ),
                       ),
                     ],

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import '../../../home/domain/models/product.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Tela de detalhes do produto para doação
 class DonationProductDetailsPage extends StatefulWidget {
@@ -88,14 +89,14 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                       Positioned(
                         top: MediaQuery.of(context).padding.top + 8,
                         left: 16,
-                        child: GestureDetector(
+                        child: Semantics(button: true, label: 'Voltar', child: GestureDetector(
                           onTap: () => Navigator.pop(context),
                           child: Container(
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
                               color: context.surface,
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(AppRadius.tile),
                               boxShadow: [
                                 BoxShadow(
                                   color: context.cardShadow,
@@ -110,7 +111,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                               size: 20,
                             ),
                           ),
-                        ),
+                        )),
                       ),
                       // Badges inferiores da imagem
                       Positioned(
@@ -140,7 +141,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: AppColors.redPrimary,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(AppRadius.tag),
                                 ),
                                 child: Text(
                                   '-${product.discountPercent}%',
@@ -176,7 +177,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                               style: GoogleFonts.inter(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.redPrimary,
+                                color: context.redText,
                                 letterSpacing: 0.8,
                               ),
                             ),
@@ -202,7 +203,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: context.surface,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(AppRadius.control),
                             boxShadow: [
                               BoxShadow(
                                 color: context.cardShadow,
@@ -218,18 +219,22 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: context.chipBg,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(AppRadius.chip),
                                 ),
                                 child: Icon(Icons.storefront_rounded, size: 20, color: context.onBg),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  '${product.distanceKm.toStringAsFixed(1)} km de distância',
+                                  product.distanceLabel != null
+                                      ? '${product.distanceLabel} de distância'
+                                      : (product.storeName.isNotEmpty
+                                          ? product.storeName
+                                          : 'Retirada na loja'),
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: context.onBgAlpha(0.6),
+                                    color: context.onBgMuted,
                                   ),
                                 ),
                               ),
@@ -244,7 +249,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: AppColors.greenAccent.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(AppRadius.card),
                             border: Border.all(
                               color: AppColors.greenAccent.withValues(alpha: 0.25),
                             ),
@@ -275,7 +280,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                                       style: GoogleFonts.inter(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.greenAccent,
+                                        color: context.textOn(AppColors.greenAccent),
                                       ),
                                     ),
                                     const SizedBox(height: 4),
@@ -301,7 +306,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: context.onBgAlpha(0.45),
+                            color: context.onBgMuted,
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -325,7 +330,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                                   'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
-                                    color: context.onBgAlpha(0.4),
+                                    color: context.onBgMuted,
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -339,7 +344,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                           decoration: BoxDecoration(
                             color: context.surface,
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(AppRadius.card),
                             boxShadow: [
                               BoxShadow(
                                 color: context.cardShadow,
@@ -404,7 +409,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                         'Total',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: context.onBgAlpha(0.5),
+                          color: context.onBgMuted,
                         ),
                       ),
                       Text(
@@ -420,7 +425,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                 ),
                 const SizedBox(width: 16),
                 // Botão principal - Doar Item
-                GestureDetector(
+                Semantics(button: true, child: GestureDetector(
                   onTap: () {
                     cartProvider.add(product, _quantity, isDonationContext: true);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -439,7 +444,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                         ),
                         backgroundColor: AppColors.greenAccent,
                         behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.chip)),
                         duration: const Duration(seconds: 2),
                         margin: const EdgeInsets.all(16),
                       ),
@@ -456,7 +461,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                           Color(0xFF1B8756),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.control),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.greenAccent.withValues(alpha: 0.35),
@@ -482,7 +487,7 @@ class _DonationProductDetailsPageState extends State<DonationProductDetailsPage>
                       ],
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -509,7 +514,7 @@ class _QuantityStepper extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.chipBg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.tile),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -559,9 +564,9 @@ class _StepperButton extends StatelessWidget {
       color: isAdd
           ? AppColors.redPrimary.withValues(alpha: 0.12)
           : (enabled ? context.onBgAlpha(0.08) : context.chipBg),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.chip),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
         onTap: onTap,
         child: Container(
           width: 40,

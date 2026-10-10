@@ -6,6 +6,7 @@ import '../../../../core/widgets/ivalid_card.dart';
 import '../pages/impact_calculator_page.dart';
 import '../providers/impact_provider.dart';
 import 'impact_totals_row.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Card "Seu impacto" exibido no Perfil. Mostra os totais do usuário e leva à
 /// calculadora completa ao toque.
@@ -30,7 +31,7 @@ class ImpactSummaryCard extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: context.softBg(AppColors.greenAccent),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadius.tile),
                 ),
                 child: Icon(Icons.eco_rounded, color: green, size: 24),
               ),
@@ -53,7 +54,7 @@ class ImpactSummaryCard extends StatelessWidget {
                           : 'Toque para simular seu impacto',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: context.onBgAlpha(0.5),
+                        color: context.onBgMuted,
                       ),
                     ),
                   ],

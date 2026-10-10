@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import 'package:ivalid/core/theme/app_tokens.dart';
+import 'package:ivalid/core/utils/formatters.dart';
 import 'package:ivalid/core/widgets/page_header.dart';
 import 'package:ivalid/core/widgets/section_title.dart';
 import 'package:ivalid/core/widgets/stat_tile.dart';
@@ -84,6 +85,7 @@ class _OrdersPageContent extends StatelessWidget {
                         subtitle: 'Acompanhe suas compras',
                         actions: [
                           PageHeader.iconSlot(
+                            semanticLabel: 'Atualizar pedidos',
                             backgroundColor: context.surface,
                             boxShadow: [
                               BoxShadow(
@@ -120,7 +122,7 @@ class _OrdersPageContent extends StatelessWidget {
                                 padding: const EdgeInsets.all(18),
                                 decoration: BoxDecoration(
                                   color: context.surface,
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(AppRadius.card),
                                   boxShadow: [
                                     BoxShadow(
                                       color: context.cardShadow,
@@ -251,7 +253,7 @@ class _OrderCardState extends State<_OrderCard> {
     return Container(
       decoration: BoxDecoration(
         color: context.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         boxShadow: [
           BoxShadow(
             color: context.cardShadow,
@@ -291,7 +293,7 @@ class _OrderCardState extends State<_OrderCard> {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: statusInfo.color,
+                      color: context.textOn(statusInfo.color),
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -301,7 +303,7 @@ class _OrderCardState extends State<_OrderCard> {
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: statusInfo.color.withValues(alpha: 0.6),
+                    color: context.onBgMuted,
                   ),
                 ),
               ],
@@ -320,7 +322,7 @@ class _OrderCardState extends State<_OrderCard> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: context.chipBg,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.chip),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -330,7 +332,7 @@ class _OrderCardState extends State<_OrderCard> {
                           Icon(
                             Icons.shopping_bag_outlined,
                             size: 16,
-                            color: context.onBgAlpha(0.4),
+                            color: context.onBgMuted,
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -338,13 +340,13 @@ class _OrderCardState extends State<_OrderCard> {
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: context.onBgAlpha(0.5),
+                              color: context.onBgMuted,
                             ),
                           ),
                         ],
                       ),
                       Text(
-                        'R\$ ${order.total.toStringAsFixed(2).replaceAll('.', ',')}',
+                        formatReais(order.total),
                         style: GoogleFonts.inter(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -371,7 +373,7 @@ class _OrderCardState extends State<_OrderCard> {
                                   height: 40,
                                   decoration: BoxDecoration(
                                     color: context.chipBg,
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(AppRadius.tag),
                                   ),
                                   child: Center(
                                     child: Text(
@@ -402,11 +404,11 @@ class _OrderCardState extends State<_OrderCard> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        'R\$ ${item.subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                                        formatReais(item.subtotal),
                                         style: GoogleFonts.inter(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
-                                          color: context.onBgAlpha(0.45),
+                                          color: context.onBgMuted,
                                         ),
                                       ),
                                     ],
@@ -453,7 +455,7 @@ class _OrderCardState extends State<_OrderCard> {
                         style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.redPrimary,
+                          color: context.redText,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -532,7 +534,7 @@ class _EmptyOrdersMessage extends StatelessWidget {
               height: 90,
               decoration: BoxDecoration(
                 color: context.surface,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(AppRadius.sheet),
                 boxShadow: [
                   BoxShadow(
                     color: context.cardShadow,
@@ -561,7 +563,7 @@ class _EmptyOrdersMessage extends StatelessWidget {
               'Quando você fizer sua primeira compra,\nela aparecerá aqui.',
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: context.onBgAlpha(0.45),
+                color: context.onBgMuted,
                 height: 1.5,
               ),
               textAlign: TextAlign.center,
@@ -615,7 +617,7 @@ class _ErrorMessage extends StatelessWidget {
               message,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: context.onBgAlpha(0.5),
+                color: context.onBgMuted,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -635,7 +637,7 @@ class _ErrorMessage extends StatelessWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppRadius.tile),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                 ),

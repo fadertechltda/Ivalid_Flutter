@@ -43,6 +43,19 @@ class Product {
 
   int get expiresInDays => daysValidity;
 
+  /// Distância formatada (`1,5 km`) ou `null` quando a loja ainda não informou.
+  String? get distanceLabel => distanceKm > 0
+      ? '${distanceKm.toStringAsFixed(1).replaceAll('.', ',')} km'
+      : null;
+
+  /// `Marca • 1,5 km`, omitindo as partes que não foram informadas.
+  String get brandAndDistance =>
+      [brand, distanceLabel].whereType<String>().where((p) => p.isNotEmpty).join(' • ');
+
+  /// `Marca • Loja`, omitindo as partes que não foram informadas.
+  String get brandAndStore =>
+      [brand, storeName].where((p) => p.isNotEmpty).join(' • ');
+
   Product copyWith({bool? isFavorite}) {
     return Product(
       id: id,

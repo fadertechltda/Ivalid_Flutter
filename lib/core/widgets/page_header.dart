@@ -45,8 +45,9 @@ class PageHeader extends StatelessWidget {
     Color? backgroundColor,
     VoidCallback? onTap,
     List<BoxShadow>? boxShadow,
-    double radius = 14,
+    double radius = AppRadius.tile,
     bool expandChild = false,
+    String? semanticLabel,
   }) {
     final content = SizedBox(
       width: controlSize,
@@ -54,7 +55,7 @@ class PageHeader extends StatelessWidget {
       child: expandChild ? child : Center(child: child),
     );
 
-    return Container(
+    final slot = Container(
       width: controlSize,
       height: controlSize,
       decoration: BoxDecoration(
@@ -73,6 +74,14 @@ class PageHeader extends StatelessWidget {
         ),
       ),
     );
+
+    if (semanticLabel == null) return slot;
+    return Semantics(
+      button: onTap != null,
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: slot,
+    );
   }
 
   @override
@@ -87,7 +96,7 @@ class PageHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: subtitleColor ?? context.onBgAlpha(0.5),
+                  color: subtitleColor ?? context.onBgMuted,
                 ),
               ));
 

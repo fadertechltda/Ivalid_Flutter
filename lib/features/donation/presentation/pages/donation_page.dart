@@ -274,7 +274,7 @@ class _DonationPageState extends State<DonationPage> {
                       backgroundColor: AppColors.greenAccent,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.chip),
                       ),
                       margin: const EdgeInsets.all(16),
                       duration: const Duration(seconds: 2),
@@ -304,7 +304,7 @@ class _DonationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(button: true, child: GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -339,7 +339,7 @@ class _DonationCard extends StatelessWidget {
                         fit: BoxFit.contain,
                         errorWidget: (context, url, error) => Icon(
                           Icons.image_not_supported_outlined,
-                          color: context.onBgAlpha(0.45),
+                          color: context.onBgMuted,
                           size: 32,
                         ),
                       ),
@@ -367,7 +367,7 @@ class _DonationCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'R\$ ${item.priceNow.toStringAsFixed(2).replaceAll('.', ',')}',
+                    formatReais(item.priceNow),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
@@ -382,10 +382,10 @@ class _DonationCard extends StatelessWidget {
                     height: 36,
                     child: Material(
                       color: AppColors.redPrimary,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppRadius.tag),
                       child: InkWell(
                         onTap: onAdd,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppRadius.tag),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: FittedBox(
@@ -422,7 +422,7 @@ class _DonationCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -470,7 +470,7 @@ class _ExplanationDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: context.onBgAlpha(0.6),
+                color: context.onBgMuted,
                 height: 1.4,
               ),
             ),
@@ -479,7 +479,7 @@ class _ExplanationDialog extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: context.softBg(AppColors.greenAccent),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppRadius.control),
                 border: Border.all(
                   color: AppColors.greenAccent.withValues(alpha: 0.2),
                 ),
@@ -491,7 +491,7 @@ class _ExplanationDialog extends StatelessWidget {
                     height: 36,
                     decoration: BoxDecoration(
                       color: AppColors.greenAccent.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppRadius.tag),
                     ),
                     child: const Icon(
                       Icons.emoji_events_rounded,
@@ -506,7 +506,7 @@ class _ExplanationDialog extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
-                        color: AppColors.greenAccent,
+                        color: context.textOn(AppColors.greenAccent),
                         height: 1.3,
                       ),
                     ),
@@ -525,7 +525,7 @@ class _ExplanationDialog extends StatelessWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppRadius.tile),
                   ),
                 ),
                 child: Text(

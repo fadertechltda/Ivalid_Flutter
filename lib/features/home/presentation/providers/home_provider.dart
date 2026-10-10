@@ -24,7 +24,6 @@ class HomeProvider extends ChangeNotifier {
   bool _isLoading = false;
   ProductSortOption _currentSort = ProductSortOption.defaultSort;
 
-  String get query => _query;
   String? get selectedCategoryId => _selectedCategoryId;
   List<Category> get categories => _categories;
   List<Product> get filteredProducts => _filteredProducts;

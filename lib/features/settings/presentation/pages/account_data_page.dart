@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 
 import '../widgets/settings_widgets.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Dados da conta — exibe e edita o perfil do usuário no Firestore.
 class AccountDataPage extends StatefulWidget {
@@ -218,20 +219,20 @@ class _AccountDataPageState extends State<AccountDataPage> {
         prefixIcon: Icon(icon, size: 20, color: context.onBgAlpha(0.5)),
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
-          color: context.onBgAlpha(0.5),
+          color: context.onBgMuted,
         ),
         filled: true,
         fillColor: context.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
         contentPadding:

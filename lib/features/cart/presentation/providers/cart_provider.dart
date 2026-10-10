@@ -32,12 +32,10 @@ class CartItem {
 
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
-  final int _userTotalDonationsMock = 15;
 
   final DonationGamificationService gamificationService = DonationGamificationService();
 
   List<CartItem> get items => _items;
-  int get userTotalDonationsMock => _userTotalDonationsMock;
 
   double get total => _items.fold(0, (sum, item) => sum + item.subtotal);
   int get count => _items.fold(0, (sum, item) => sum + item.quantity);

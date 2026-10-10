@@ -66,6 +66,21 @@ extension AppThemeContext on BuildContext {
   Color softBg(Color color) =>
       isDarkMode ? color.withValues(alpha: 0.18) : color.withValues(alpha: 0.10);
 
+  /// Texto secundário com contraste mínimo de 4,5:1 (substitui os
+  /// `onBgAlpha(0.4–0.6)` usados em textos).
+  Color get onBgMuted => onBgAlpha(isDarkMode ? 0.62 : 0.68);
+
+  /// Versão de [color] adequada a TEXTO: no tema claro escurece a cor de
+  /// destaque (ex.: verde, âmbar); no escuro mantém a cor recebida.
+  Color textOn(Color color) =>
+      isDarkMode ? color : Color.lerp(color, Colors.black, 0.4)!;
+
+  /// Vermelho para TEXTO pequeno, com contraste mínimo de 4,5:1.
+  /// No claro usa o vermelho escuro; no escuro, o vermelho claro.
+  /// Botões e elementos grandes continuam com [AppColors.redPrimary].
+  Color get redText =>
+      isDarkMode ? AppColors.redSecondary : AppColors.redPrimaryDark;
+
   /// Clareia cores de destaque escuras no tema escuro para manter o contraste.
   Color accent(Color color) =>
       isDarkMode ? Color.lerp(color, Colors.white, 0.35)! : color;

@@ -67,7 +67,7 @@ class OrderImpactCard extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: context.onBgAlpha(0.55),
+                      color: context.onBgMuted,
                     ),
                   ),
                 ],

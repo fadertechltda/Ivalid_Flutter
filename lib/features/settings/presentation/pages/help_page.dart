@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 
 import '../widgets/settings_widgets.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Central de ajuda — perguntas frequentes e canais de contato.
 class HelpPage extends StatelessWidget {
@@ -75,7 +76,7 @@ class HelpPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: context.surface,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppRadius.card),
               border: Border.all(color: context.outline.withValues(alpha: 0.4)),
             ),
             child: Theme(

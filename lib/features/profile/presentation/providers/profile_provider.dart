@@ -11,7 +11,6 @@ class ProfileProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String _userName = 'Cliente Ivalid';
-  String _userEmail = '';
   bool _isLoading = true;
   String? _error;
 
@@ -33,7 +32,6 @@ class ProfileProvider extends ChangeNotifier {
 
   // Getters
   String get userName => _userName;
-  String get userEmail => _userEmail;
   bool get isLoading => _isLoading;
   String? get error => _error;
   int get totalDonations => _totalDonations;
@@ -66,7 +64,6 @@ class ProfileProvider extends ChangeNotifier {
     final user = _auth.currentUser;
     if (user == null) {
       _userName = 'Nenhum usuário logado';
-      _userEmail = '';
       _totalDonations = 0;
       _availableCashback = 0.0;
       _isLoading = false;
@@ -85,7 +82,6 @@ class ProfileProvider extends ChangeNotifier {
       _userName = (data?['fullName'] as String?) ??
           user.displayName ??
           'Cliente Ivalid';
-      _userEmail = user.email ?? 'Email indisponível';
       
       // Carrega o total de doações do cliente (zerado por padrão)
       _totalDonations = (data?['totalDonations'] as num?)?.toInt() ?? 0;
@@ -95,7 +91,6 @@ class ProfileProvider extends ChangeNotifier {
       _isLoading = false;
     } catch (e) {
       _userName = user.displayName ?? 'Cliente Ivalid';
-      _userEmail = user.email ?? 'Email indisponível';
       _totalDonations = 0;
       _availableCashback = 0.0;
       _isLoading = false;

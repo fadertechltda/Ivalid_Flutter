@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import 'package:ivalid/main_page.dart';
 import '../providers/auth_provider.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -146,6 +147,7 @@ class _SignupPageState extends State<SignupPage>
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
+                  tooltip: 'Voltar',
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.arrow_back_ios_new_rounded,
@@ -210,7 +212,7 @@ class _SignupPageState extends State<SignupPage>
                           Container(
                             decoration: BoxDecoration(
                               color: context.surface,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(AppRadius.banner),
                               boxShadow: [
                                 BoxShadow(
                                   color: context.cardShadow,
@@ -239,19 +241,19 @@ class _SignupPageState extends State<SignupPage>
                                     fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.greenAccent, width: 1.5),
                                     ),
                                     errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                     ),
                                     prefixIcon: Icon(
@@ -283,19 +285,19 @@ class _SignupPageState extends State<SignupPage>
                                     fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.greenAccent, width: 1.5),
                                     ),
                                     errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                     ),
                                     prefixIcon: Icon(
@@ -327,19 +329,19 @@ class _SignupPageState extends State<SignupPage>
                                     fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.greenAccent, width: 1.5),
                                     ),
                                     errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                     ),
                                     prefixIcon: Icon(
@@ -350,6 +352,7 @@ class _SignupPageState extends State<SignupPage>
                                               : context.onBgAlpha(0.4),
                                     ),
                                     suffixIcon: IconButton(
+                                      tooltip: 'Mostrar ou ocultar senha',
                                       icon: Icon(
                                         _obscurePassword
                                             ? Icons.visibility_outlined
@@ -391,19 +394,19 @@ class _SignupPageState extends State<SignupPage>
                                     fillColor: context.chipBg,
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.greenAccent, width: 1.5),
                                     ),
                                     errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(AppRadius.control),
                                       borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                     ),
                                     prefixIcon: Icon(
@@ -414,6 +417,7 @@ class _SignupPageState extends State<SignupPage>
                                           : context.onBgAlpha(0.4),
                                     ),
                                     suffixIcon: IconButton(
+                                      tooltip: 'Mostrar ou ocultar senha',
                                       icon: Icon(
                                         _obscureConfirmPassword
                                             ? Icons.visibility_outlined
@@ -523,7 +527,7 @@ class _SignupPageState extends State<SignupPage>
                                       child: Text(
                                         _termsError!,
                                         style: GoogleFonts.inter(
-                                          color: AppColors.redPrimary,
+                                          color: context.redText,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -542,12 +546,12 @@ class _SignupPageState extends State<SignupPage>
                                       color: AppColors.redPrimary
                                           .withValues(alpha: 0.08),
                                       borderRadius:
-                                          BorderRadius.circular(12),
+                                          BorderRadius.circular(AppRadius.chip),
                                     ),
                                     child: Text(
                                       auth.errorMessage!,
                                       style: GoogleFonts.inter(
-                                        color: AppColors.redPrimary,
+                                        color: context.redText,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
                                       ),
@@ -587,7 +591,7 @@ class _SignupPageState extends State<SignupPage>
                                     ),
                               ),
                               const SizedBox(width: 8),
-                              GestureDetector(
+                              Semantics(button: true, child: GestureDetector(
                                 onTap: () {
                                   auth.clearError();
                                   Navigator.pop(context);
@@ -597,10 +601,10 @@ class _SignupPageState extends State<SignupPage>
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.greenAccent,
+                                    color: context.textOn(AppColors.greenAccent),
                                   ),
                                 ),
-                              ),
+                              )),
                             ],
                           ),
 
@@ -640,13 +644,13 @@ class _GradientRedButton extends StatelessWidget {
       height: 54,
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         child: InkWell(
           onTap: enabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadius.card),
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppRadius.card),
               gradient: LinearGradient(
                 colors: [
                   AppColors.redPrimary.withValues(alpha: enabled ? 1.0 : 0.5),

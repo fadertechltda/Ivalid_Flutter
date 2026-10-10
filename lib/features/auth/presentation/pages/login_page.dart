@@ -6,6 +6,7 @@ import 'package:ivalid/core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 import 'signup_page.dart';
 import 'package:ivalid/main_page.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -113,7 +114,7 @@ class _LoginPageState extends State<LoginPage>
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.chip),
         ),
       ),
     );
@@ -138,7 +139,7 @@ class _LoginPageState extends State<LoginPage>
       builder: (dialogContext) => AlertDialog(
         backgroundColor: dialogContext.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.banner),
         ),
         title: Text(
           'Redefinir senha',
@@ -162,7 +163,7 @@ class _LoginPageState extends State<LoginPage>
               'Cancelar',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600,
-                color: dialogContext.onBgAlpha(0.6),
+                color: dialogContext.onBgMuted,
               ),
             ),
           ),
@@ -275,7 +276,7 @@ class _LoginPageState extends State<LoginPage>
                       Container(
                         decoration: BoxDecoration(
                           color: context.surface,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(AppRadius.sheet),
                           boxShadow: [
                             BoxShadow(
                               color: context.cardShadow,
@@ -304,19 +305,19 @@ class _LoginPageState extends State<LoginPage>
                                 fillColor: context.chipBg,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: BorderSide.none,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                 ),
                                 errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                 ),
                                 prefixIcon: Icon(
@@ -352,19 +353,19 @@ class _LoginPageState extends State<LoginPage>
                                 fillColor: context.chipBg,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: BorderSide.none,
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5), width: 1),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                 ),
                                 errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(AppRadius.control),
                                   borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
                                 ),
                                 prefixIcon: Icon(
@@ -374,6 +375,7 @@ class _LoginPageState extends State<LoginPage>
                                       : context.onBgAlpha(0.4),
                                 ),
                                 suffixIcon: IconButton(
+                                  tooltip: 'Mostrar ou ocultar senha',
                                   icon: Icon(
                                     _obscureText
                                         ? Icons.visibility_outlined
@@ -398,12 +400,12 @@ class _LoginPageState extends State<LoginPage>
                                     vertical: 10, horizontal: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.redPrimary.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(AppRadius.chip),
                                 ),
                                 child: Text(
                                   auth.errorMessage!,
                                   style: GoogleFonts.inter(
-                                    color: AppColors.redPrimary,
+                                    color: context.redText,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
@@ -421,7 +423,7 @@ class _LoginPageState extends State<LoginPage>
                                   'Esqueci minha senha',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w600,
-                                    color: context.onBgAlpha(0.6),
+                                    color: context.onBgMuted,
                                   ),
                                 ),
                               ),
@@ -456,7 +458,7 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                           ),
                           const SizedBox(width: 8),
-                          GestureDetector(
+                          Semantics(button: true, child: GestureDetector(
                             onTap: () {
                               auth.clearError();
                               Navigator.push(
@@ -477,10 +479,10 @@ class _LoginPageState extends State<LoginPage>
                               style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.redPrimary,
+                                color: context.redText,
                               ),
                             ),
-                          ),
+                          )),
                         ],
                       ),
 
@@ -518,13 +520,13 @@ class _GradientRedButton extends StatelessWidget {
       height: 56,
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.control),
         child: InkWell(
           onTap: enabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.control),
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadius.control),
               gradient: LinearGradient(
                 colors: [
                   AppColors.redPrimary.withValues(alpha: enabled ? 1.0 : 0.5),

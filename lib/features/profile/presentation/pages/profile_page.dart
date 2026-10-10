@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import 'package:ivalid/core/theme/app_tokens.dart';
+import 'package:ivalid/core/utils/formatters.dart';
 import 'package:ivalid/core/widgets/page_header.dart';
 import '../../../donation/domain/services/donation_gamification_service.dart';
 import '../../../home/presentation/pages/favorites_page.dart';
@@ -119,7 +120,7 @@ class _ProfilePageContent extends StatelessWidget {
                       ? 'Carregando...'
                       : provider.userName,
                   subtitleWidget: GestureDetector(
-                    onTap: () => _showPremiumSheet(context),
+                    onTap: () => _showLevelSheet(context, fidelityLevel),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -139,11 +140,11 @@ class _ProfilePageContent extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Premium Ivalid',
+                            'Nível ${fidelityLevel.label.split(' ').first}',
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.redPrimary,
+                              color: context.redText,
                             ),
                           ),
                         ],
@@ -152,6 +153,7 @@ class _ProfilePageContent extends StatelessWidget {
                   ),
                   actions: [
                     PageHeader.iconSlot(
+                      semanticLabel: 'Configurações',
                       backgroundColor: context.surface,
                       boxShadow: [
                         BoxShadow(
@@ -191,7 +193,7 @@ class _ProfilePageContent extends StatelessWidget {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: levelBgColor,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(AppRadius.banner),
                       border: Border.all(
                         color: levelColor.withValues(alpha: 0.2),
                       ),
@@ -214,7 +216,7 @@ class _ProfilePageContent extends StatelessWidget {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   color: levelColor.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(AppRadius.tile),
                                 ),
                                 child: Icon(
                                   levelIcon,
@@ -236,10 +238,10 @@ class _ProfilePageContent extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      'Cashback de ${fidelityLevel.label.split(' ').last}',
+                                      'Cashback de ${fidelityLevel.label.split(' ').last.replaceAll(RegExp(r'[()]'), '')}',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
-                                        color: context.onBgAlpha(0.5),
+                                        color: context.onBgMuted,
                                       ),
                                     ),
                                   ],
@@ -255,20 +257,20 @@ class _ProfilePageContent extends StatelessWidget {
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: context.onBgAlpha(0.4),
+                                  color: context.onBgMuted,
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'R\$ ${provider.availableCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                                  formatReais(provider.availableCashback),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
                                   style: GoogleFonts.inter(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w900,
-                                    color: AppColors.greenAccent,
+                                    color: context.textOn(AppColors.greenAccent),
                                   ),
                                 ),
                               ),
@@ -280,11 +282,13 @@ class _ProfilePageContent extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    'Faltam $neededToNext doações para o próximo nível',
+                                    neededToNext == 1
+                                        ? 'Falta 1 doação para o próximo nível'
+                                        : 'Faltam $neededToNext doações para o próximo nível',
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: context.onBgAlpha(0.6),
+                                      color: context.onBgMuted,
                                     ),
                                   ),
                                 ),
@@ -344,7 +348,7 @@ class _ProfilePageContent extends StatelessWidget {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: context.surface,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadius.card),
                       boxShadow: [
                         BoxShadow(
                           color: context.cardShadow,
@@ -355,7 +359,7 @@ class _ProfilePageContent extends StatelessWidget {
                     ),
                     child: Material(
                       color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadius.card),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(
@@ -365,7 +369,7 @@ class _ProfilePageContent extends StatelessWidget {
                             ),
                           );
                         },
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(AppRadius.card),
                         child: Padding(
                           padding: const EdgeInsets.all(18),
                           child: Row(
@@ -377,7 +381,7 @@ class _ProfilePageContent extends StatelessWidget {
                                   color: AppColors.redPrimary.withValues(
                                     alpha: 0.1,
                                   ),
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(AppRadius.tile),
                                 ),
                                 child: const Icon(
                                   Icons.credit_card_rounded,
@@ -397,7 +401,7 @@ class _ProfilePageContent extends StatelessWidget {
                                           style: GoogleFonts.inter(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w900,
-                                            color: AppColors.redPrimary,
+                                            color: context.redText,
                                           ),
                                         ),
                                         Text(
@@ -415,7 +419,7 @@ class _ProfilePageContent extends StatelessWidget {
                                       'Gerencie pagamentos e saldos',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
-                                        color: context.onBgAlpha(0.5),
+                                        color: context.onBgMuted,
                                       ),
                                     ),
                                   ],
@@ -514,11 +518,11 @@ class _ProfilePageContent extends StatelessWidget {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: AppColors.redPrimary.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppRadius.tile),
                     ),
                     child: Material(
                       color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppRadius.tile),
                       child: InkWell(
                         onTap: () {
                           provider.logout(() {
@@ -527,7 +531,7 @@ class _ProfilePageContent extends StatelessWidget {
                             ).popUntil((route) => route.isFirst);
                           });
                         },
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(AppRadius.tile),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: 16,
@@ -547,7 +551,7 @@ class _ProfilePageContent extends StatelessWidget {
                                 style: GoogleFonts.inter(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.redPrimary,
+                                  color: context.redText,
                                 ),
                               ),
                             ],
@@ -588,7 +592,7 @@ class _ProfilePageContent extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            color: context.onBgAlpha(0.35),
+            color: context.onBgMuted,
             letterSpacing: 1.2,
           ),
         ),
@@ -651,7 +655,7 @@ class _ProfilePageContent extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 13,
                 height: 1.5,
-                color: ctx.onBgAlpha(0.55),
+                color: ctx.onBgMuted,
               ),
             ),
           ],
@@ -660,14 +664,15 @@ class _ProfilePageContent extends StatelessWidget {
     );
   }
 
-  void _showPremiumSheet(BuildContext context) {
+  void _showLevelSheet(BuildContext context, FidelityLevel level) {
     _showEmptyStateSheet(
       context,
       icon: Icons.workspace_premium_rounded,
-      title: 'Premium Ivalid',
+      title: 'Nível ${level.label.split(' ').first}',
       message:
-          'Você tem acesso a cashback nas compras, ofertas exclusivas e '
-          'prioridade nas reservas de produtos.',
+          'Você recebe cashback de ${level.label.split(' ').last.replaceAll(RegExp(r'[()]'), '')} '
+          'nas suas doações. Quanto mais você doa, mais alto o nível e o '
+          'cashback.',
     );
   }
 
@@ -712,10 +717,10 @@ class _ProfileMenuItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 2),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.tile),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.tile),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
             child: Row(
@@ -778,7 +783,7 @@ class _AddressDialog extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: AppColors.redPrimary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.chip),
                   ),
                   child: const Icon(
                     Icons.location_on_rounded,
@@ -890,7 +895,7 @@ class _AddressDialog extends StatelessWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppRadius.tile),
                   ),
                 ),
                 child: provider.isSavingAddress
@@ -935,20 +940,20 @@ class _AddressDialog extends StatelessWidget {
         labelText: label,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
-          color: context.onBgAlpha(0.5),
+          color: context.onBgMuted,
         ),
         filled: true,
         fillColor: context.chipBg,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.chip),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.chip),
           borderSide: BorderSide(color: context.outline.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.chip),
           borderSide: const BorderSide(color: AppColors.redPrimary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(

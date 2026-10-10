@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
-import 'package:ivalid/core/theme/app_tokens.dart';
 import 'package:ivalid/core/widgets/content_grid.dart';
 import 'package:ivalid/core/widgets/page_header.dart';
 import 'package:ivalid/core/widgets/section_title.dart';
@@ -13,6 +12,8 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
 import 'product_details_page.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
+import 'package:ivalid/core/utils/formatters.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -76,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                           height: 40,
                           decoration: BoxDecoration(
                             color: AppColors.redPrimary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppRadius.chip),
                           ),
                           child: const Icon(
                             Icons.sort,
@@ -180,13 +181,13 @@ class _HomePageState extends State<HomePage> {
         color: isSelected
             ? AppColors.redPrimary.withValues(alpha: 0.08)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.tile),
       ),
       child: ListTile(
         leading: Icon(
           icon,
           size: 20,
-          color: isSelected ? AppColors.redPrimary : context.onBgAlpha(0.45),
+          color: isSelected ? AppColors.redPrimary : context.onBgMuted,
         ),
         title: Text(
           label,
@@ -211,9 +212,20 @@ class _HomePageState extends State<HomePage> {
           provider.sortProducts(option);
           Navigator.pop(context);
         },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.tile)),
       ),
     );
+  }
+
+  /// Título do banner: maior desconto entre os produtos carregados.
+  String _bannerTitle(List<Product> products) {
+    final maxDiscount = products.fold<int>(
+      0,
+      (max, p) => p.discountPercent > max ? p.discountPercent : max,
+    );
+    return maxDiscount > 0
+        ? 'Descontos de até $maxDiscount%'
+        : 'Ofertas perto do vencimento';
   }
 
   @override
@@ -241,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                     backgroundColor: context.surface,
                     boxShadow: _iconShadow(context),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppRadius.tile),
                       child: Image.asset(
                         'assets/images/logo_ivalid.png',
                         width: 32,
@@ -254,6 +266,7 @@ class _HomePageState extends State<HomePage> {
                   subtitle: 'Ofertas perto de você',
                   actions: [
                     PageHeader.iconSlot(
+                      semanticLabel: 'Abrir carrinho',
                       backgroundColor: context.surface,
                       boxShadow: _iconShadow(context),
                       expandChild: true,
@@ -326,7 +339,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       decoration: BoxDecoration(
                         color: context.surface,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadius.control),
                         boxShadow: [
                           BoxShadow(
                             color: context.cardShadow,
@@ -345,12 +358,12 @@ class _HomePageState extends State<HomePage> {
                         decoration: InputDecoration(
                           hintText: 'Buscar produto, marca ou loja...',
                           hintStyle: GoogleFonts.inter(
-                            color: context.onBgAlpha(0.4),
+                            color: context.onBgMuted,
                             fontSize: 14,
                           ),
                           prefixIcon: Icon(
                             Icons.search_rounded,
-                            color: context.onBgAlpha(0.4),
+                            color: context.onBgMuted,
                             size: 22,
                           ),
                           border: InputBorder.none,
@@ -386,7 +399,10 @@ class _HomePageState extends State<HomePage> {
                         (homeProvider.selectedCategoryId == null &&
                             cat.id == 'all');
 
-                    return GestureDetector(
+                    return Semantics(
+                      button: true,
+                      selected: isSelected,
+                      child: GestureDetector(
                       onTap: () => homeProvider.onSelectCategory(
                         cat.id == 'all' ? null : cat.id,
                       ),
@@ -400,7 +416,7 @@ class _HomePageState extends State<HomePage> {
                           color: isSelected
                               ? AppColors.redPrimary
                               : context.surface,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(AppRadius.banner),
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.redPrimary
@@ -432,7 +448,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                    );
+                    ));
                   },
                 ),
               ),
@@ -452,7 +468,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(AppRadius.banner),
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -497,7 +513,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  'Descontos de até 70%',
+                                  _bannerTitle(homeProvider.allProducts),
                                   style: GoogleFonts.inter(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -523,7 +539,7 @@ class _HomePageState extends State<HomePage> {
                             height: 64,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(AppRadius.banner),
                             ),
                             child: const Icon(
                               Icons.local_offer_rounded,
@@ -546,11 +562,12 @@ class _HomePageState extends State<HomePage> {
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: context.onBgAlpha(0.4),
+                              color: context.onBgMuted,
                             ),
                           ),
                           const SizedBox(width: 10),
                           PageHeader.iconSlot(
+                            semanticLabel: 'Ordenar ofertas',
                             backgroundColor: context.surface,
                             boxShadow: _iconShadow(context),
                             onTap: () => _showSortMenu(context, homeProvider),
@@ -593,7 +610,7 @@ class _HomePageState extends State<HomePage> {
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: context.onBgAlpha(0.5),
+                          color: context.onBgMuted,
                         ),
                       ),
                     ],
@@ -660,7 +677,7 @@ class _ProductCard extends StatelessWidget {
       urgencyLabel = '${product.expiresInDays}d';
     }
 
-    return GestureDetector(
+    return Semantics(button: true, child: GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -726,7 +743,7 @@ class _ProductCard extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: GestureDetector(
+                    child: Semantics(button: true, label: product.isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos', child: GestureDetector(
                       onTap: onToggleFavorite,
                       child: Container(
                         padding: const EdgeInsets.all(6),
@@ -747,11 +764,11 @@ class _ProductCard extends StatelessWidget {
                               : Icons.favorite_border,
                           color: product.isFavorite
                               ? AppColors.redPrimary
-                              : context.onBgAlpha(0.4),
+                              : context.onBgMuted,
                           size: 18,
                         ),
                       ),
-                    ),
+                    )),
                   ),
                 ],
               ),
@@ -795,23 +812,28 @@ class _ProductCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '${product.brand} • ${product.distanceKm.toStringAsFixed(1)} km',
-                    style: GoogleFonts.inter(
-                      color: context.onBgAlpha(0.45),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  SizedBox(
+                    height: 14,
+                    child: product.brandAndDistance.isNotEmpty
+                        ? Text(
+                            product.brandAndDistance,
+                            style: GoogleFonts.inter(
+                              color: context.onBgMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'R\$ ${product.priceNow.toStringAsFixed(2).replaceAll('.', ',')}',
+                    formatReais(product.priceNow),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      color: AppColors.redPrimary,
+                      color: context.redText,
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
@@ -820,11 +842,11 @@ class _ProductCard extends StatelessWidget {
                     height: 14,
                     child: product.discountPercent > 0
                         ? Text(
-                            'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
+                            formatReais(product.priceOriginal),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.inter(
-                              color: context.onBgAlpha(0.4),
+                              color: context.onBgMuted,
                               decoration: TextDecoration.lineThrough,
                               fontSize: 11,
                             ),
@@ -837,7 +859,7 @@ class _ProductCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.redPrimary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppRadius.tag),
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -845,7 +867,7 @@ class _ProductCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.redPrimary,
+                        color: context.redText,
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -856,6 +878,6 @@ class _ProductCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }

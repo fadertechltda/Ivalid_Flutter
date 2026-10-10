@@ -15,6 +15,8 @@ import '../../../payment/domain/models/payment_models.dart';
 import '../../../payment/domain/payment_config.dart';
 import '../../../payment/presentation/pages/infinitepay_checkout_page.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/donation_badge.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 class CheckoutPage extends StatefulWidget {
   final double appliedCashback;
@@ -28,6 +30,10 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPaymentMethod = 'Dinheiro';
   bool _isProcessing = false;
+
+  /// `true` depois que o pedido foi gravado: esconde o conteúdo do checkout
+  /// (já com o carrinho vazio) enquanto o diálogo de sucesso está aberto.
+  bool _orderPlaced = false;
 
   final ImpactCalculator _impactCalculator = ImpactCalculator();
   final InfinitePayService _paymentService = InfinitePayService();
@@ -59,6 +65,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     {
       'id': 'Dinheiro',
       'label': 'Dinheiro',
+      'subtitle': 'Pague na retirada',
       'icon': Icons.payments_outlined,
       'enabled': true,
     },
@@ -72,6 +79,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     {
       'id': 'Voucher',
       'label': 'Voucher / Vale Alimento',
+      'subtitle': 'Pague na retirada',
       'icon': Icons.confirmation_number_outlined,
       'enabled': true,
     },
@@ -87,6 +95,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         backgroundColor: context.surface,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Voltar',
           icon: Icon(Icons.arrow_back, color: context.onBg),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -98,7 +107,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ),
       ),
-      body: _isProcessing
+      body: _orderPlaced
+          ? const SizedBox.shrink()
+          : _isProcessing
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.redPrimary))
           : Column(
@@ -145,7 +156,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Container(
       decoration: BoxDecoration(
         color: context.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.control),
         boxShadow: [
           BoxShadow(
             color: context.cardShadow,
@@ -170,24 +181,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   '${item.quantity}x',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.redPrimary,
+                    color: context.redText,
                     fontSize: 14,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    item.product.name,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: context.onBg,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          item.product.name,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: context.onBg,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (item.origin == OriginType.doacao) ...[
+                        const SizedBox(width: 8),
+                        const DonationBadge(),
+                      ],
+                    ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
-                  'R\$ ${item.subtotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                  formatReais(item.subtotal),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -216,14 +238,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     setState(() => _selectedPaymentMethod = method['id']);
                   }
                 : null,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.chip),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 color: isSelected
                     ? context.softBg(AppColors.redPrimary)
                     : context.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.chip),
                 border: Border.all(
                   color: isSelected
                       ? AppColors.redPrimary
@@ -271,7 +293,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             method['subtitle'] as String,
                             style: GoogleFonts.inter(
                               fontSize: 11,
-                              color: context.onBgAlpha(0.5),
+                              color: context.onBgMuted,
                             ),
                           ),
                       ],
@@ -346,14 +368,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     'Subtotal',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: context.onBgAlpha(0.6),
+                      color: context.onBgMuted,
                     ),
                   ),
                   Text(
-                    'R\$ ${cartProvider.total.toStringAsFixed(2).replaceAll('.', ',')}',
+                    formatReais(cartProvider.total),
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: context.onBgAlpha(0.6),
+                      color: context.onBgMuted,
                     ),
                   ),
                 ],
@@ -367,15 +389,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.greenAccent,
+                      color: context.textOn(AppColors.greenAccent),
                     ),
                   ),
                   Text(
-                    '- R\$ ${widget.appliedCashback.toStringAsFixed(2).replaceAll('.', ',')}',
+                    '- ${formatReais(widget.appliedCashback)}',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.greenAccent,
+                      color: context.textOn(AppColors.greenAccent),
                     ),
                   ),
                 ],
@@ -394,11 +416,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 Text(
-                  'R\$ ${finalTotal.toStringAsFixed(2).replaceAll('.', ',')}',
+                  formatReais(finalTotal),
                   style: GoogleFonts.inter(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.redPrimary,
+                    color: context.redText,
                   ),
                 ),
               ],
@@ -412,14 +434,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.redPrimary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppRadius.control),
                   ),
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 child: Center(
                   child: Text(
-                    'Confirmar e Pagar',
+                    _selectedPaymentMethod == _onlineMethodId
+                        ? 'Confirmar e Pagar'
+                        : 'Confirmar pedido',
                     style: GoogleFonts.inter(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -610,7 +634,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
         metrics: orderImpact,
       );
 
-      // Limpar carrinho
+      // Esconde o checkout antes de esvaziar o carrinho, para não aparecer
+      // "R$ 0,00" atrás do diálogo de sucesso.
+      if (mounted) setState(() => _orderPlaced = true);
       cartProvider.clear();
 
       if (!context.mounted) return;
@@ -619,9 +645,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (dialogContext) => AlertDialog(
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: AlertDialog(
           backgroundColor: dialogContext.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.banner)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -643,7 +671,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     : 'Seu pedido foi confirmado e já está sendo preparado.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
-                  color: dialogContext.onBgAlpha(0.6),
+                  color: dialogContext.onBgMuted,
                   fontSize: 14,
                 ),
               ),
@@ -653,7 +681,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   'Você ajudou a salvar ${pluralize(orderImpact.totalItems, 'item', 'itens')} do desperdício.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
-                    color: AppColors.greenAccent,
+                    color: context.textOn(AppColors.greenAccent),
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -664,13 +692,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    navigator.pop(); // Fecha dialog
-                    navigator.pop(); // Volta do checkout
+                    // Fecha o diálogo e volta para o app (fecha checkout e carrinho).
+                    navigator.popUntil((route) => route.isFirst);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.redPrimary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.chip),
                     ),
                   ),
                   child: const Text('Entendido',
@@ -680,11 +708,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ],
           ),
         ),
+        ),
       );
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
-          content: Text('Erro ao finalizar pedido: $e'),
+          content: Text(
+            e is PaymentException
+                ? e.message
+                : 'Não foi possível finalizar o pedido. Tente novamente.',
+          ),
           backgroundColor: AppColors.redPrimary,
         ),
       );

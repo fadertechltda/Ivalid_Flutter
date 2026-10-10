@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ivalid/core/theme/app_colors.dart';
 import '../../domain/models/product.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Tela de detalhes do produto — migrada fielmente do Kotlin
 /// ProductDetailsScreen.kt
@@ -95,14 +96,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       Positioned(
                         top: MediaQuery.of(context).padding.top + 8,
                         left: 16,
-                        child: GestureDetector(
+                        child: Semantics(button: true, label: 'Voltar', child: GestureDetector(
                           onTap: () => Navigator.pop(context),
                           child: Container(
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
                               color: context.surface,
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(AppRadius.tile),
                               boxShadow: [
                                 BoxShadow(
                                   color: context.cardShadow,
@@ -117,7 +118,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               size: 20,
                             ),
                           ),
-                        ),
+                        )),
                       ),
                       // Badges bottom
                       Positioned(
@@ -147,7 +148,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: AppColors.redPrimary,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(AppRadius.tag),
                                 ),
                                 child: Text(
                                   '-${product.discountPercent}%',
@@ -171,6 +172,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Marca
+                        if (product.brand.isNotEmpty) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
@@ -182,12 +184,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.redPrimary,
+                              color: context.redText,
                               letterSpacing: 0.8,
                             ),
                           ),
                         ),
                         const SizedBox(height: 12),
+                        ],
 
                         // Nome do produto
                         Text(
@@ -206,7 +209,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: context.surface,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(AppRadius.tile),
                             boxShadow: [
                               BoxShadow(
                                 color: context.cardShadow,
@@ -222,7 +225,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 height: 36,
                                 decoration: BoxDecoration(
                                   color: context.chipBg,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(AppRadius.tag),
                                 ),
                                 child: Icon(Icons.storefront_rounded, size: 18, color: context.onBg),
                               ),
@@ -232,20 +235,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      product.storeName,
+                                      product.storeName.isNotEmpty
+                                          ? product.storeName
+                                          : 'Retirada na loja',
                                       style: GoogleFonts.inter(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: context.onBg,
                                       ),
                                     ),
-                                    Text(
-                                      '${product.distanceKm.toStringAsFixed(1)} km de distância',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: context.onBgAlpha(0.5),
+                                    if (product.distanceLabel != null)
+                                      Text(
+                                        '${product.distanceLabel} de distância',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color: context.onBgMuted,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -262,7 +268,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: context.onBgAlpha(0.45),
+                            color: context.onBgMuted,
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -286,7 +292,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   'R\$ ${product.priceOriginal.toStringAsFixed(2).replaceAll('.', ',')}',
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
-                                    color: context.onBgAlpha(0.4),
+                                    color: context.onBgMuted,
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -301,7 +307,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                           decoration: BoxDecoration(
                             color: context.surface,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(AppRadius.control),
                             boxShadow: [
                               BoxShadow(
                                 color: context.cardShadow,
@@ -339,7 +345,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: AppColors.greenAccent.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(AppRadius.tile),
                             border: Border.all(
                               color: AppColors.greenAccent.withValues(alpha: 0.15),
                             ),
@@ -351,7 +357,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 height: 36,
                                 decoration: BoxDecoration(
                                   color: AppColors.greenAccent.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(AppRadius.tag),
                                 ),
                                 child: const Icon(Icons.schedule_rounded, color: AppColors.greenAccent, size: 18),
                               ),
@@ -362,7 +368,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.greenAccent,
+                                    color: context.textOn(AppColors.greenAccent),
                                   ),
                                 ),
                               ),
@@ -404,7 +410,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         'Total',
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: context.onBgAlpha(0.5),
+                          color: context.onBgMuted,
                         ),
                       ),
                       Text(
@@ -419,7 +425,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                 ),
                 // Add to cart button
-                GestureDetector(
+                Semantics(button: true, child: GestureDetector(
                   onTap: () {
                     cartProvider.add(product, _quantity);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -438,7 +444,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         ),
                         backgroundColor: AppColors.greenAccent,
                         behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.chip)),
                         duration: const Duration(seconds: 3),
                         margin: const EdgeInsets.all(16),
                       ),
@@ -451,7 +457,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       gradient: const LinearGradient(
                         colors: [AppColors.redPrimary, AppColors.redPrimaryDark],
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.control),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.redPrimary.withValues(alpha: 0.3),
@@ -477,7 +483,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       ],
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -504,7 +510,7 @@ class _QuantityStepper extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.chipBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.chip),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -548,9 +554,9 @@ class _StepperButton extends StatelessWidget {
       color: enabled
           ? AppColors.redPrimary.withValues(alpha: 0.1)
           : context.chipBg,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(AppRadius.tag),
       child: InkWell(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.tag),
         onTap: onTap,
         child: Container(
           width: 38,

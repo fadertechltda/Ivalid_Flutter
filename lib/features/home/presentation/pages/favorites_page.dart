@@ -7,6 +7,7 @@ import 'package:ivalid/core/theme/app_colors.dart';
 import '../../domain/models/product.dart';
 import '../providers/home_provider.dart';
 import 'product_details_page.dart';
+import 'package:ivalid/core/theme/app_tokens.dart';
 
 /// Lista os produtos marcados como favoritos na Home.
 class FavoritesPage extends StatelessWidget {
@@ -84,7 +85,7 @@ class _EmptyState extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 13,
                 height: 1.5,
-                color: context.onBgAlpha(0.55),
+                color: context.onBgMuted,
               ),
             ),
           ],
@@ -104,7 +105,7 @@ class _FavoriteCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(color: context.outline.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
@@ -116,9 +117,9 @@ class _FavoriteCard extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.card),
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadius.card),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -130,7 +131,7 @@ class _FavoriteCard extends StatelessWidget {
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadius.tile),
                   child: SizedBox(
                     width: 68,
                     height: 68,
@@ -179,7 +180,7 @@ class _FavoriteCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: context.onBgAlpha(0.5),
+                          color: context.onBgMuted,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -188,7 +189,7 @@ class _FavoriteCard extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.greenAccent,
+                          color: context.textOn(AppColors.greenAccent),
                         ),
                       ),
                     ],

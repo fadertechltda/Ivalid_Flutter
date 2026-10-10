@@ -14,7 +14,6 @@ class SettingsProvider extends ChangeNotifier {
   bool _offersEnabled = true;
   bool _ordersEnabled = true;
   bool _soundEnabled = true;
-  bool _isLoaded = false;
 
   ThemeMode get themeMode => _themeMode;
   bool get isDarkMode => _themeMode == ThemeMode.dark;
@@ -22,7 +21,6 @@ class SettingsProvider extends ChangeNotifier {
   bool get offersEnabled => _offersEnabled;
   bool get ordersEnabled => _ordersEnabled;
   bool get soundEnabled => _soundEnabled;
-  bool get isLoaded => _isLoaded;
 
   SettingsProvider() {
     load();
@@ -39,7 +37,6 @@ class SettingsProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Erro ao carregar preferências: $e');
     } finally {
-      _isLoaded = true;
       notifyListeners();
     }
   }
