@@ -1,19 +1,16 @@
 class Category {
   final String id;
   final String name;
-  final int? icon;
 
   Category({
     required this.id,
     required this.name,
-    this.icon,
   });
 
-  factory Category.fromMap(Map<String, dynamic> map, String id) {
+  factory Category.fromApi(Map<String, dynamic> map) {
     return Category(
-      id: id,
-      name: map['name'] as String? ?? '',
-      icon: map['icon'] as int?,
+      id: map['id'] as String? ?? '',
+      name: (map['nome'] ?? map['name']) as String? ?? '',
     );
   }
 }

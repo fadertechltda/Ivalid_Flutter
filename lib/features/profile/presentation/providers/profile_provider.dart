@@ -1,16 +1,17 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/api/api_client.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../donation/domain/services/donation_gamification_service.dart';
 
 /// Provider de Perfil — espelhando ProfileViewModel do Kotlin.
 class ProfileProvider extends ChangeNotifier {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final ApiClient _api;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String _userName = 'Cliente Ivalid';
+  String _phone = '';
   bool _isLoading = true;
   String? _error;
 
@@ -56,7 +57,7 @@ class ProfileProvider extends ChangeNotifier {
   int? get donationsNeededForNextLevel =>
       gamificationService.getDonationsNeededForNextLevel(_totalDonations);
 
-  ProfileProvider() {
+  ProfileProvider({ApiClient? api}) : _api = api ?? ApiClient() {
     loadUserProfile();
   }
 
@@ -76,86 +77,51 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final doc = await _db.collection('users').doc(user.uid).get();
-      final data = doc.data();
+      Map<String, dynamic> data;
+      try {
+        data = await _fetchProfile();
+      } on ApiException catch (e) {
+        if (e.statusCode != 404) rethrow;
+        // Conta antiga ou cadastro que não chegou à API: cria o perfil agora.
+        await _api.post('api/app/clientes', body: {
+          'nomeCompleto': user.displayName ?? 'Cliente Ivalid',
+        });
+        data = await _fetchProfile();
+      }
 
-      _userName = (data?['fullName'] as String?) ??
+      _userName = (data['nomeCompleto'] as String?) ??
           user.displayName ??
           'Cliente Ivalid';
-      
-      // Carrega o total de doações do cliente (zerado por padrão)
-      _totalDonations = (data?['totalDonations'] as num?)?.toInt() ?? 0;
-      _availableCashback = (data?['availableCashback'] as num?)?.toDouble() ?? 0.0;
+      _phone = (data['telefone'] as String?) ?? '';
+      _totalDonations = (data['totalDoacoes'] as num?)?.toInt() ?? 0;
+      _availableCashback = (data['cashbackDisponivel'] as num?)?.toDouble() ?? 0.0;
 
-      _applyStoredAddress(data?['address'] as Map<String, dynamic>?);
+      _applyStoredAddress(data['endereco'] as Map<String, dynamic>?);
       _isLoading = false;
+    } on ApiException catch (e) {
+      _fallbackProfile(user);
+      _error = 'Erro ao carregar perfil: ${e.message}';
     } catch (e) {
-      _userName = user.displayName ?? 'Cliente Ivalid';
-      _totalDonations = 0;
-      _availableCashback = 0.0;
-      _isLoading = false;
+      _fallbackProfile(user);
       _error = 'Erro ao carregar perfil: $e';
     }
 
     notifyListeners();
   }
 
-  /// Processa doações provenientes de um pedido realizado.
-  /// Incrementa a quantidade de doações no cadastro do cliente e atualiza o nível (Bronze, Prata, Ouro).
-  Future<void> processDonationFromOrder({
-    required int donationCount,
-    required double donationSubtotal,
-  }) async {
-    final user = _auth.currentUser;
-    if (user == null || donationCount <= 0) return;
-
-    try {
-      final userRef = _db.collection('users').doc(user.uid);
-      final userDoc = await userRef.get();
-      final currentCount = (userDoc.data()?['totalDonations'] as num?)?.toInt() ?? 0;
-      final currentCashback = (userDoc.data()?['availableCashback'] as num?)?.toDouble() ?? 0.0;
-
-      // Calcula cashback adicional gerado com base no nível atual do cliente
-      final earnedCashback = gamificationService.calculateCashback(donationSubtotal, currentCount);
-
-      final newTotalDonations = currentCount + donationCount;
-      final newAvailableCashback = currentCashback + earnedCashback;
-
-      await userRef.set({
-        'totalDonations': newTotalDonations,
-        'availableCashback': newAvailableCashback,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      _totalDonations = newTotalDonations;
-      _availableCashback = newAvailableCashback;
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Erro ao atualizar doações no perfil: $e');
+  Future<Map<String, dynamic>> _fetchProfile() async {
+    final data = await _api.get('api/app/clientes/me');
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException('Resposta inesperada do servidor.');
     }
+    return data;
   }
 
-  /// Deduz o cashback utilizado em uma compra do saldo do cliente no Firestore e no estado local.
-  Future<void> deductCashback(double amount) async {
-    final user = _auth.currentUser;
-    if (user == null || amount <= 0) return;
-
-    try {
-      final userRef = _db.collection('users').doc(user.uid);
-      final userDoc = await userRef.get();
-      final currentCashback = (userDoc.data()?['availableCashback'] as num?)?.toDouble() ?? 0.0;
-      final newCashback = (currentCashback - amount).clamp(0.0, double.infinity);
-
-      await userRef.set({
-        'availableCashback': newCashback,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      _availableCashback = newCashback;
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Erro ao deduzir cashback do perfil do usuário: $e');
-    }
+  void _fallbackProfile(User user) {
+    _userName = user.displayName ?? 'Cliente Ivalid';
+    _totalDonations = 0;
+    _availableCashback = 0.0;
+    _isLoading = false;
   }
 
   Future<void> logout(VoidCallback onSuccess) async {
@@ -198,15 +164,15 @@ class ProfileProvider extends ChangeNotifier {
   void _applyStoredAddress(Map<String, dynamic>? address) {
     if (address == null) return;
     _cep = (address['cep'] as String?) ?? _cep;
-    _street = (address['street'] as String?) ?? _street;
-    _number = (address['number'] as String?) ?? _number;
-    _complement = (address['complement'] as String?) ?? _complement;
-    _neighborhood = (address['neighborhood'] as String?) ?? _neighborhood;
-    _city = (address['city'] as String?) ?? _city;
-    _state = (address['state'] as String?) ?? _state;
+    _street = (address['logradouro'] as String?) ?? _street;
+    _number = (address['numero'] as String?) ?? _number;
+    _complement = (address['complemento'] as String?) ?? _complement;
+    _neighborhood = (address['bairro'] as String?) ?? _neighborhood;
+    _city = (address['cidade'] as String?) ?? _city;
+    _state = (address['estado'] as String?) ?? _state;
   }
 
-  /// Salva o endereço no documento do usuário. Retorna `true` em caso de sucesso.
+  /// Salva o endereço pelo perfil da API. Retorna `true` em caso de sucesso.
   Future<bool> saveAddress() async {
     final user = _auth.currentUser;
     if (user == null) return false;
@@ -215,22 +181,26 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _db.collection('users').doc(user.uid).set({
-        'address': {
+      await _api.put('api/app/clientes/me', body: {
+        'nomeCompleto': _userName,
+        if (_phone.isNotEmpty) 'telefone': _phone,
+        'endereco': {
           'cep': _cep,
-          'street': _street,
-          'number': _number,
-          'complement': _complement,
-          'neighborhood': _neighborhood,
-          'city': _city,
-          'state': _state,
+          'logradouro': _street,
+          'numero': _number,
+          'complemento': _complement,
+          'bairro': _neighborhood,
+          'cidade': _city,
+          'estado': _state,
         },
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      });
       return true;
+    } on ApiException catch (e) {
+      _error = 'Erro ao salvar endereço: ${e.message}';
+      return false;
     } catch (e) {
       debugPrint('Erro ao salvar endereço: $e');
-      _error = 'Erro ao salvar endereço: $e';
+      _error = 'Erro ao salvar endereço.';
       return false;
     } finally {
       _isSavingAddress = false;

@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: context.bg,
       body: RefreshIndicator(
-        onRefresh: () => homeProvider.loadFromFirestore(),
+        onRefresh: () => homeProvider.load(),
         color: AppColors.redPrimary,
         child: CustomScrollView(
           slivers: [

@@ -41,7 +41,7 @@ class _OrdersPageContent extends StatelessWidget {
       (sum, o) => sum + o.total,
     );
     final entregues = provider.orders
-        .where((o) => o.status.toLowerCase() == 'entregue')
+        .where((o) => o.status == 'FINALIZADO')
         .length;
 
     return Scaffold(
@@ -429,6 +429,20 @@ class _OrderCardState extends State<_OrderCard> {
             ),
           ),
 
+          // ─── Cancelar (só antes de o pedido ser separado) ──────────
+          if (order.canCancel)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _confirmCancel(context),
+                  icon: const Icon(Icons.close_rounded, size: 18),
+                  label: const Text('Cancelar pedido'),
+                ),
+              ),
+            ),
+
           // ─── Botão de expandir ─────────────────────────────────────
           if (order.items.isNotEmpty)
             Material(
@@ -478,25 +492,72 @@ class _OrderCardState extends State<_OrderCard> {
     );
   }
 
+  Future<void> _confirmCancel(BuildContext context) async {
+    final provider = context.read<OrdersProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cancelar pedido?'),
+        content: const Text(
+            'O estoque e o cashback usado neste pedido serão devolvidos.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Voltar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Cancelar pedido'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final error = await provider.cancelOrder(widget.order.id);
+    messenger.showSnackBar(
+      SnackBar(content: Text(error ?? 'Pedido cancelado.')),
+    );
+  }
+
   _StatusInfo _getStatusInfo(BuildContext context, String status) {
-    switch (status.toLowerCase()) {
-      case 'pagamento pix pendente':
+    switch (status) {
+      case 'PENDENTE':
         return _StatusInfo(
           color: context.accent(const Color(0xFFE65100)),
-          icon: Icons.pix_rounded,
-          label: 'Pagamento Pendente',
+          icon: Icons.hourglass_top_rounded,
+          label: 'Aguardando Pagamento',
         );
-      case 'em preparação':
+      case 'CONFIRMADO':
         return _StatusInfo(
           color: context.accent(const Color(0xFFF59E0B)),
           icon: Icons.inventory_2_rounded,
-          label: 'Em Preparação',
+          label: 'Confirmado',
         );
-      case 'entregue':
+      case 'SEPARADO':
+        return _StatusInfo(
+          color: context.accent(const Color(0xFFF59E0B)),
+          icon: Icons.shopping_basket_rounded,
+          label: 'Separado',
+        );
+      case 'EM_ROTA':
+        return _StatusInfo(
+          color: context.accent(const Color(0xFF2563EB)),
+          icon: Icons.local_shipping_rounded,
+          label: 'Em Rota',
+        );
+      case 'FINALIZADO':
         return _StatusInfo(
           color: AppColors.greenAccent,
           icon: Icons.check_circle_rounded,
-          label: 'Entregue',
+          label: 'Finalizado',
+        );
+      case 'CANCELADO':
+        return _StatusInfo(
+          color: context.accent(const Color(0xFF6B7280)),
+          icon: Icons.cancel_rounded,
+          label: 'Cancelado',
         );
       default:
         return _StatusInfo(

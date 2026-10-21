@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/api/api_client.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final ApiClient _api = ApiClient();
 
   User? get currentUser => _auth.currentUser;
 
@@ -69,15 +69,15 @@ class AuthProvider extends ChangeNotifier {
       await cred.user?.updateDisplayName(name.trim());
       await cred.user?.reload();
 
-      // Save user data to Firestore (matching Kotlin SignUpViewModel)
-      final uid = cred.user!.uid;
-      await _db.collection('users').doc(uid).set({
-        'fullName': name.trim(),
-        'email': email.trim(),
-        'totalDonations': 0,
-        'availableCashback': 0.0,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      // O perfil do cliente é criado pela API (saldo e contadores iniciam zerados).
+      try {
+        await _api.post('api/app/clientes',
+            body: {'nomeCompleto': name.trim()});
+      } on ApiException catch (e) {
+        // A conta já existe no Firebase; o perfil é recriado no primeiro
+        // acesso ao perfil se esta chamada falhar (ex.: API dormindo).
+        debugPrint('AuthProvider: perfil não criado agora: ${e.message}');
+      }
 
       _setLoading(false);
       return true;

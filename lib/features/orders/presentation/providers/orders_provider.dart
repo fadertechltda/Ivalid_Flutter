@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/api/api_client.dart';
 import '../../domain/models/order_model.dart';
 
-/// Provider de Pedidos — espelhando OrdersViewModel do Kotlin.
-/// Busca apenas pedidos do usuário logado (filtro por userId).
+/// Pedidos do cliente logado, lidos da API (`GET api/app/pedidos`).
 class OrdersProvider extends ChangeNotifier {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ApiClient _api;
 
   List<OrderModel> _orders = [];
   bool _isLoading = true;
@@ -18,90 +16,57 @@ class OrdersProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  /// Formato de data pt-BR igual ao Kotlin: "dd/MM/yyyy HH:mm"
   final DateFormat _dateFormat = DateFormat("dd/MM/yyyy HH:mm", "pt_BR");
 
-  OrdersProvider() {
+  OrdersProvider({ApiClient? api}) : _api = api ?? ApiClient() {
     fetchOrders();
   }
 
   Future<void> fetchOrders() async {
-    final userId = _auth.currentUser?.uid;
-
-    if (userId == null) {
+    if (FirebaseAuth.instance.currentUser == null) {
       _isLoading = false;
       _error = 'Usuário não autenticado. Faça login novamente!';
       notifyListeners();
       return;
     }
 
-    debugPrint('OrdersProvider: Buscando pedidos para userId=$userId');
-
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // Busca SOMENTE os pedidos do usuário logado.
-      // Evita orderBy composto para não depender de índice Firestore.
-      // A ordenação é feita no cliente após a filtragem.
-      final snapshot = await _db
-          .collection('pedidos')
-          .where('userId', isEqualTo: userId)
-          .get();
+      final data = await _api.get('api/app/pedidos');
+      final list = data is List ? data : const [];
 
-      debugPrint('OrdersProvider: Firestore retornou ${snapshot.docs.length} doc(s) para userId=$userId');
-
-      _orders = snapshot.docs.map((doc) {
-        try {
-          final data = doc.data();
-
-          // Validação extra: garante que o campo userId do documento
-          // é realmente do usuário logado (proteção contra bug de cache)
-          final docUserId = data['userId'] as String?;
-          if (docUserId != userId) {
-            debugPrint('OrdersProvider: DESCARTANDO pedido ${doc.id} (userId=$docUserId ≠ $userId)');
-            return null;
-          }
-
-          final Timestamp? timestamp = data['timestamp'] as Timestamp?;
-          final DateTime dateTime = timestamp?.toDate() ?? DateTime.now();
-
-          final List<dynamic> rawItems =
-              (data['itens'] as List<dynamic>?) ?? [];
-
-          return OrderModel(
-            id: doc.id,
-            date: _dateFormat.format(dateTime),
-            total: (data['total'] as num?)?.toDouble() ?? 0.0,
-            status: data['status'] as String? ?? 'Status desconhecido',
-            hasDonations: data['hasDonations'] as bool? ?? false,
-            donationItemsCount: (data['donationItemsCount'] as num?)?.toInt() ?? 0,
-            items: rawItems
-                .map((item) =>
-                    OrderItemModel.fromMap(item as Map<String, dynamic>))
-                .toList(),
-            timestamp: dateTime,
-          );
-        } catch (e) {
-          debugPrint('OrdersProvider: Erro ao mapear pedido ${doc.id}: $e');
-          return null;
-        }
-      }).whereType<OrderModel>().toList();
-
-      // Ordenação local por timestamp descrescente (mais recentes primeiro)
-      _orders.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-      debugPrint('OrdersProvider: ${_orders.length} pedido(s) do usuário logado');
-
-      _isLoading = false;
-      _error = null;
+      _orders = list.whereType<Map<String, dynamic>>().map((map) {
+        final when = DateTime.tryParse(map['dataPedido'] as String? ?? '')
+                ?.toLocal() ??
+            DateTime.now();
+        return OrderModel.fromApi(map, date: _dateFormat.format(when));
+      }).toList()
+        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    } on ApiException catch (e) {
+      _error = e.message;
     } catch (e) {
-      debugPrint('OrdersProvider: ERRO ao carregar pedidos: $e');
-      _isLoading = false;
-      _error = 'Erro ao carregar pedidos: $e';
+      debugPrint('OrdersProvider: erro ao carregar pedidos: $e');
+      _error = 'Erro ao carregar pedidos.';
     }
 
+    _isLoading = false;
     notifyListeners();
+  }
+
+  /// Cancela um pedido (a API devolve estoque e cashback). Devolve `null` se
+  /// deu certo, ou a mensagem de erro para exibir ao usuário.
+  Future<String?> cancelOrder(String orderId) async {
+    try {
+      await _api.post('api/app/pedidos/$orderId/cancelar');
+      await fetchOrders();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Não foi possível cancelar o pedido.';
+    }
   }
 }

@@ -40,38 +40,7 @@ class CheckoutRedirect {
   }
 }
 
-/// Resultado de um pagamento confirmado.
-class PaymentConfirmation {
-  final int amountCents;
-  final int paidAmountCents;
-  final int installments;
-
-  /// `pix`, `credit_card` ou `demo`.
-  final String captureMethod;
-  final String transactionNsu;
-  final String? receiptUrl;
-
-  const PaymentConfirmation({
-    required this.amountCents,
-    required this.paidAmountCents,
-    required this.installments,
-    required this.captureMethod,
-    required this.transactionNsu,
-    this.receiptUrl,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'provider': captureMethod == 'demo' ? 'demo' : 'infinitepay',
-        'method': captureMethod,
-        'amountCents': amountCents,
-        'paidAmountCents': paidAmountCents,
-        'installments': installments,
-        'transactionNsu': transactionNsu,
-        if (receiptUrl != null) 'receiptUrl': receiptUrl,
-      };
-}
-
-/// Falha ao falar com o gateway. A [message] já é apropriada para o usuário.
+/// Falha no fluxo de pagamento. A [message] já é apropriada para o usuário.
 class PaymentException implements Exception {
   final String message;
   const PaymentException(this.message);

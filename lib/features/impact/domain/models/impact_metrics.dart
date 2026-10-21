@@ -42,22 +42,14 @@ class ImpactMetrics {
         donatedReais: _round2(donatedReais + other.donatedReais),
       );
 
-  Map<String, dynamic> toMap() => {
-        'itemsRescued': itemsRescued,
-        'itemsDonated': itemsDonated,
-        'savedReais': savedReais,
-        'donatedReais': donatedReais,
-      };
-
-  /// Aceita `null` e campos ausentes/`num` de qualquer tipo, para tolerar
-  /// documentos antigos ou parcialmente preenchidos no Firestore.
-  factory ImpactMetrics.fromMap(Map<String, dynamic>? map) {
+  /// Lê o `ImpactoModel` da API. Aceita `null` e campos ausentes.
+  factory ImpactMetrics.fromApi(Map<String, dynamic>? map) {
     if (map == null) return ImpactMetrics.empty;
     return ImpactMetrics(
-      itemsRescued: (map['itemsRescued'] as num?)?.toInt() ?? 0,
-      itemsDonated: (map['itemsDonated'] as num?)?.toInt() ?? 0,
-      savedReais: (map['savedReais'] as num?)?.toDouble() ?? 0.0,
-      donatedReais: (map['donatedReais'] as num?)?.toDouble() ?? 0.0,
+      itemsRescued: (map['itensResgatados'] as num?)?.toInt() ?? 0,
+      itemsDonated: (map['itensDoados'] as num?)?.toInt() ?? 0,
+      savedReais: (map['economiaReais'] as num?)?.toDouble() ?? 0.0,
+      donatedReais: (map['doadoReais'] as num?)?.toDouble() ?? 0.0,
     );
   }
 

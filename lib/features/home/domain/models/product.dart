@@ -11,6 +11,16 @@ class Product {
   final String categoryId;
   final bool isFavorite;
 
+  /// Loja dona do produto. Um pedido só pode ter itens de uma loja.
+  final String supermercadoId;
+
+  /// Estoque informado pela API (a validação final é feita no pedido).
+  final int quantidadeDisponivel;
+
+  /// Desconto e preço vigentes, sempre calculados pela API.
+  final int percentualDesconto;
+  final double precoAtual;
+
   Product({
     required this.id,
     required this.name,
@@ -23,23 +33,19 @@ class Product {
     required this.daysValidity,
     required this.categoryId,
     this.isFavorite = false,
-  });
+    this.supermercadoId = '',
+    this.quantidadeDisponivel = 0,
+    this.percentualDesconto = 0,
+    double? precoAtual,
+  }) : precoAtual = precoAtual ?? newPrice;
 
   double get priceOriginal => oldPrice;
 
-  int get discountPercent {
-    int val = (30 - daysValidity) * 2;
-    if (val < 0) val = 0;
-    if (val > 90) val = 90;
-    return val;
-  }
+  /// Desconto vigente (calculado pela API).
+  int get discountPercent => percentualDesconto;
 
-  double get priceNow {
-    if (oldPrice > 0) {
-      return oldPrice * (1.0 - (discountPercent / 100.0));
-    }
-    return newPrice;
-  }
+  /// Preço vigente (calculado pela API).
+  double get priceNow => precoAtual;
 
   int get expiresInDays => daysValidity;
 
@@ -69,22 +75,33 @@ class Product {
       daysValidity: daysValidity,
       categoryId: categoryId,
       isFavorite: isFavorite ?? this.isFavorite,
+      supermercadoId: supermercadoId,
+      quantidadeDisponivel: quantidadeDisponivel,
+      percentualDesconto: percentualDesconto,
+      precoAtual: precoAtual,
     );
   }
 
-  factory Product.fromMap(Map<String, dynamic> map, String id) {
+  /// Lê um `ProdutoVitrineModel` da API (`api/app/produtos`).
+  factory Product.fromApi(Map<String, dynamic> map, {bool isFavorite = false}) {
+    final original = (map['precoOriginal'] as num?)?.toDouble() ?? 0.0;
+    final atual = (map['precoAtual'] as num?)?.toDouble() ?? original;
     return Product(
-      id: id,
-      name: map['name'] as String? ?? '',
-      brand: map['brand'] as String? ?? '',
+      id: map['id'] as String? ?? '',
+      name: map['nome'] as String? ?? '',
+      brand: map['marca'] as String? ?? '',
       urlImagem: map['urlImagem'] as String? ?? '',
-      storeName: map['storeName'] as String? ?? '',
-      distanceKm: (map['distanceKm'] as num?)?.toDouble() ?? 0.0,
-      oldPrice: (map['oldPrice'] as num?)?.toDouble() ?? 0.0,
-      newPrice: (map['newPrice'] as num?)?.toDouble() ?? 0.0,
-      daysValidity: (map['daysValidity'] as num?)?.toInt() ?? 0,
-      categoryId: map['categoryId'] as String? ?? '',
-      isFavorite: map['isFavorite'] as bool? ?? false,
+      storeName: map['nomeSupermercado'] as String? ?? '',
+      distanceKm: 0.0,
+      oldPrice: original,
+      newPrice: atual,
+      daysValidity: (map['diasParaVencer'] as num?)?.toInt() ?? 0,
+      categoryId: map['categoriaId'] as String? ?? '',
+      isFavorite: isFavorite,
+      supermercadoId: map['supermercadoId'] as String? ?? '',
+      quantidadeDisponivel: (map['quantidadeDisponivel'] as num?)?.toInt() ?? 0,
+      percentualDesconto: (map['percentualDesconto'] as num?)?.toInt() ?? 0,
+      precoAtual: atual,
     );
   }
 }

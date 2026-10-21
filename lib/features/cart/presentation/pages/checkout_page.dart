@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/api/api_client.dart';
+import '../../../orders/data/order_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/cart_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../impact/domain/models/impact_metrics.dart';
 import '../../../impact/domain/services/impact_calculator.dart';
-import '../../../impact/presentation/providers/impact_provider.dart';
 import '../../../impact/presentation/widgets/order_impact_card.dart';
-import '../../../payment/data/infinitepay_service.dart';
 import '../../../payment/domain/models/payment_models.dart';
-import '../../../payment/domain/payment_config.dart';
 import '../../../payment/presentation/pages/infinitepay_checkout_page.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/donation_badge.dart';
@@ -36,7 +34,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool _orderPlaced = false;
 
   final ImpactCalculator _impactCalculator = ImpactCalculator();
-  final InfinitePayService _paymentService = InfinitePayService();
+  final OrderService _orderService = OrderService();
 
   /// Pix e cartão são cobrados na hora, pelo checkout do InfinitePay. Dinheiro
   /// e voucher continuam sendo pagos na retirada.
@@ -44,7 +42,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   void dispose() {
-    _paymentService.dispose();
     super.dispose();
   }
 
@@ -459,72 +456,58 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  /// Cobra o pedido pelo InfinitePay e devolve a confirmação do pagamento, ou
-  /// `null` se o usuário desistir antes de pagar. Lança [PaymentException] se
-  /// algo der errado.
-  Future<PaymentConfirmation?> _payOnline({
+  /// Abre o checkout do InfinitePay para um pedido `Online` já criado pela API
+  /// e pede à API que confirme o pagamento. Devolve `false` se o usuário
+  /// desistir antes de pagar. Lança [PaymentException]/[ApiException] em falha.
+  Future<bool> _payOnline({
     required NavigatorState navigator,
-    required User user,
-    required String orderNsu,
-    required double amount,
-    required int itemCount,
+    required String orderId,
   }) async {
-    final amountCents = (amount * 100).round();
-
-    // Modo demonstração: aprova sem chamar o InfinitePay.
-    if (PaymentConfig.demoMode) {
-      await Future<void>.delayed(const Duration(seconds: 1));
-      return PaymentConfirmation(
-        amountCents: amountCents,
-        paidAmountCents: amountCents,
-        installments: 1,
-        captureMethod: 'demo',
-        transactionNsu: 'demo-$orderNsu',
-      );
-    }
-
     if (!InfinitePayCheckoutPage.isSupported) {
       throw const PaymentException(
-        'O pagamento online está disponível apenas no Android e iOS. '
-        'Neste dispositivo, rode com --dart-define=PAYMENT_DEMO=true.',
+        'O pagamento online está disponível apenas no Android e iOS.',
       );
     }
 
-    final checkoutUrl = await _paymentService.createCheckoutLink(
-      orderNsu: orderNsu,
-      amountCents: amountCents,
-      description:
-          'Pedido Ivalid ($itemCount ${itemCount == 1 ? 'item' : 'itens'})',
-      customerName: user.displayName,
-      customerEmail: user.email,
-    );
+    final checkoutUrl = await _orderService.paymentLink(orderId);
 
     final redirect = await navigator.push<CheckoutRedirect>(
       MaterialPageRoute(
         builder: (_) => InfinitePayCheckoutPage(checkoutUrl: checkoutUrl),
       ),
     );
-    if (redirect == null) return null; // fechou sem concluir
+    if (redirect == null) return false; // fechou sem concluir
 
-    if (redirect.orderNsu != orderNsu) {
-      throw const PaymentException(
-        'O pagamento recebido não corresponde a este pedido.',
-      );
-    }
+    await _orderService.confirmPayment(orderId, redirect);
+    return true;
+  }
 
-    final confirmation = await _paymentService.confirmWithRetry(redirect);
-    if (confirmation == null) {
-      throw const PaymentException(
-        'Não foi possível confirmar o pagamento. Se o valor foi cobrado, ele '
-        'aparece no InfinitePay; tente novamente em instantes.',
-      );
+  /// Agrupa o carrinho por loja: a API aceita uma loja por pedido.
+  Map<String, List<CartItem>> _groupByStore(CartProvider cart) {
+    final groups = <String, List<CartItem>>{};
+    for (final item in cart.items) {
+      groups.putIfAbsent(item.product.supermercadoId, () => []).add(item);
     }
-    if (confirmation.amountCents != amountCents) {
-      throw const PaymentException(
-        'O valor pago não confere com o total do pedido.',
-      );
+    return groups;
+  }
+
+  /// Divide o cashback entre os pedidos, proporcional ao subtotal de cada um.
+  /// A API ainda limita o valor aplicado (até 15% do subtotal e ao saldo).
+  double _cashbackShare(double groupSubtotal, double cartSubtotal) {
+    if (cartSubtotal <= 0 || widget.appliedCashback <= 0) return 0;
+    final share = widget.appliedCashback * (groupSubtotal / cartSubtotal);
+    return (share * 100).floorToDouble() / 100;
+  }
+
+  /// Mensagem para o usuário a partir de qualquer falha do fluxo.
+  String _messageFor(Object error) {
+    if (error is ApiException) {
+      final problems = OrderSummary.problemMessages(error.resumo?['problemas']);
+      if (problems.isNotEmpty) return problems.join('\n');
+      return error.message;
     }
-    return confirmation;
+    if (error is PaymentException) return error.message;
+    return 'Não foi possível finalizar o pedido. Tente novamente.';
   }
 
   Future<void> _processOrder(BuildContext context) async {
@@ -535,104 +518,105 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final messenger = ScaffoldMessenger.of(context);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-    final impactProvider = Provider.of<ImpactProvider>(context, listen: false);
     final neutralColor = context.onBg;
     // Calculado antes de limpar o carrinho.
     final orderImpact = _impactOf(cartProvider);
 
+    var paidOnline = false;
+    var ordersCreated = 0;
+
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("Usuário não autenticado!");
+      if (FirebaseAuth.instance.currentUser == null) {
+        throw const PaymentException('Usuário não autenticado!');
       }
 
-      // Verificação de itens de doação no pedido
-      final donationItems = cartProvider.items
-          .where((item) => item.origin == OriginType.doacao)
-          .toList();
-      final int donationItemsCount =
-          donationItems.fold(0, (acc, item) => acc + item.quantity);
-      final double donationSubtotal =
-          donationItems.fold(0.0, (acc, item) => acc + item.subtotal);
-      final bool hasDonations = donationItemsCount > 0;
-      final double finalTotal = (cartProvider.total - widget.appliedCashback).clamp(0.0, double.infinity);
-
-      final itemsData = cartProvider.items.map((item) {
-        return {
-          'name': item.product.name,
-          'quantity': item.quantity,
-          'subtotal': item.subtotal,
-          'origin': item.origin.name,
-          'isDonation': item.origin == OriginType.doacao,
-        };
-      }).toList();
-
-      // O id é gerado antes (sem gravar nada) para servir de `order_nsu` no
-      // pagamento. O pedido só é gravado depois que o pagamento é confirmado,
-      // então desistir do pagamento não deixa pedidos pendentes pelo caminho.
-      final orderRef = FirebaseFirestore.instance.collection('pedidos').doc();
-
-      final bool payOnline = _selectedPaymentMethod == _onlineMethodId;
-      PaymentConfirmation? confirmation;
-
-      // Se o cashback cobre o pedido inteiro, não há o que cobrar.
-      if (payOnline && finalTotal > 0) {
-        confirmation = await _payOnline(
-          navigator: navigator,
-          user: user,
-          orderNsu: orderRef.id,
-          amount: finalTotal,
-          itemCount: cartProvider.count,
+      final groups = _groupByStore(cartProvider);
+      if (groups.containsKey('')) {
+        throw const PaymentException(
+          'Há um produto sem loja no carrinho. Atualize o catálogo e tente de novo.',
         );
-        if (confirmation == null) {
-          messenger.showSnackBar(
-            SnackBar(
-              content: const Text(
-                  'Pagamento não concluído. Seu carrinho foi mantido.'),
-              backgroundColor: neutralColor,
-            ),
-          );
-          return;
+      }
+
+      final payOnline = _selectedPaymentMethod == _onlineMethodId;
+      final cartSubtotal = cartProvider.total;
+
+      // Monta um pedido por loja e valida TODOS antes de criar qualquer um,
+      // para não deixar pedidos pela metade quando falta estoque.
+      final plans = <_StoreOrderPlan>[];
+      for (final entry in groups.entries) {
+        final lines = entry.value
+            .map((i) => OrderLineRequest(
+                  productId: i.product.id,
+                  quantity: i.quantity,
+                  isDonation: i.origin == OriginType.doacao,
+                ))
+            .toList();
+        final groupSubtotal =
+            entry.value.fold<double>(0, (sum, i) => sum + i.subtotal);
+        final cashback = _cashbackShare(groupSubtotal, cartSubtotal);
+
+        final summary = await _orderService.validate(
+          paymentMethod: _selectedPaymentMethod,
+          cashback: cashback,
+          lines: lines,
+        );
+        if (!summary.isValid) {
+          throw PaymentException(summary.problems.join('\n'));
+        }
+
+        // Se o cashback cobre o pedido inteiro, não há o que cobrar online.
+        final method = payOnline && summary.total <= 0
+            ? 'Cashback'
+            : _selectedPaymentMethod;
+        plans.add(_StoreOrderPlan(
+          items: entry.value,
+          lines: lines,
+          cashback: cashback,
+          method: method,
+          needsPayment: payOnline && summary.total > 0,
+        ));
+      }
+
+      for (final plan in plans) {
+        final order = await _orderService.create(
+          paymentMethod: plan.method,
+          cashback: plan.cashback,
+          lines: plan.lines,
+        );
+        ordersCreated++;
+
+        if (plan.needsPayment) {
+          bool paid;
+          try {
+            paid = await _payOnline(navigator: navigator, orderId: order.id);
+          } catch (_) {
+            // Pagamento falhou: libera o estoque reservado antes de avisar.
+            await _cancelQuietly(order.id);
+            rethrow;
+          }
+          if (!paid) {
+            await _cancelQuietly(order.id);
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(ordersCreated > 1
+                    ? 'Pagamento não concluído. Os itens das demais lojas foram mantidos no carrinho.'
+                    : 'Pagamento não concluído. Seu carrinho foi mantido.'),
+                backgroundColor: neutralColor,
+              ),
+            );
+            return;
+          }
+          paidOnline = true;
+        }
+
+        // Pedido desta loja concluído: tira os itens dele do carrinho.
+        for (final item in plan.items) {
+          cartProvider.remove(item.product.id, originType: item.origin);
         }
       }
 
-      final orderData = {
-        'userId': user.uid,
-        'timestamp': FieldValue.serverTimestamp(),
-        'subtotal': cartProvider.total,
-        'cashbackUsed': widget.appliedCashback,
-        'total': finalTotal,
-        'hasDonations': hasDonations,
-        'donationItemsCount': donationItemsCount,
-        'donationSubtotal': donationSubtotal,
-        'status': 'Em preparação',
-        'paymentMethod': _selectedPaymentMethod,
-        'paymentStatus': confirmation != null ? 'pago' : 'a pagar na retirada',
-        if (confirmation != null) 'payment': confirmation.toMap(),
-        'itens': itemsData,
-      };
-
-      await orderRef.set(orderData);
-
-      // Se utilizou cashback no pedido, deduz do saldo do cliente
-      if (widget.appliedCashback > 0) {
-        await profileProvider.deductCashback(widget.appliedCashback);
-      }
-
-      // Se houver doação, atualiza o cadastro do cliente (total de doações e cashback do nível)
-      if (hasDonations) {
-        await profileProvider.processDonationFromOrder(
-          donationCount: donationItemsCount,
-          donationSubtotal: donationSubtotal,
-        );
-      }
-
-      // Registra o impacto social do pedido. Nunca lança: uma falha aqui não
-      // pode afetar um pedido que já foi criado.
-      await impactProvider.registerOrder(
-        orderRef: orderRef,
-        metrics: orderImpact,
-      );
+      // O saldo de cashback mudou na API; atualiza o perfil.
+      await profileProvider.loadUserProfile();
 
       // Esconde o checkout antes de esvaziar o carrinho, para não aparecer
       // "R$ 0,00" atrás do diálogo de sucesso.
@@ -666,7 +650,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                confirmation != null
+                paidOnline
                     ? 'Pagamento aprovado! Seu pedido já está sendo preparado.'
                     : 'Seu pedido foi confirmado e já está sendo preparado.',
                 textAlign: TextAlign.center,
@@ -713,11 +697,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            e is PaymentException
-                ? e.message
-                : 'Não foi possível finalizar o pedido. Tente novamente.',
-          ),
+          content: Text(_messageFor(e)),
           backgroundColor: AppColors.redPrimary,
         ),
       );
@@ -727,4 +707,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     }
   }
+
+  Future<void> _cancelQuietly(String orderId) async {
+    try {
+      await _orderService.cancel(orderId);
+    } catch (_) {
+      // Se não der para cancelar agora, a API expira o pedido pendente sozinha.
+    }
+  }
+}
+
+/// Um pedido a criar: os itens de uma loja e como cobrá-los.
+class _StoreOrderPlan {
+  final List<CartItem> items;
+  final List<OrderLineRequest> lines;
+  final double cashback;
+  final String method;
+  final bool needsPayment;
+
+  const _StoreOrderPlan({
+    required this.items,
+    required this.lines,
+    required this.cashback,
+    required this.method,
+    required this.needsPayment,
+  });
 }
