@@ -35,8 +35,12 @@ class _OrdersPageContent extends StatelessWidget {
     final provider = context.watch<OrdersProvider>();
 
     // Resumo de stats para o summary card
-    final totalPedidos = provider.orders.length;
-    final totalGasto = provider.orders.fold<double>(
+    // Pedidos cancelados não entram no resumo (nem no número, nem no gasto).
+    final pedidosValidos = provider.orders
+        .where((o) => o.status != 'CANCELADO')
+        .toList();
+    final totalPedidos = pedidosValidos.length;
+    final totalGasto = pedidosValidos.fold<double>(
       0.0,
       (sum, o) => sum + o.total,
     );
